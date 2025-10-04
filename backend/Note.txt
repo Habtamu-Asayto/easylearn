@@ -1,0 +1,59 @@
+ Steps we will follow: 
+      - Set up the git repository 
+      - Set up the dev database locally 
+      - Develop the Backend 
+      - Develop the Frontend 
+      - Set up our host server on Amazon AWS (EC2) 
+      - Deploy our code 
+      - Restructure our code to follow the standard folder structure 
+      - Update our code base and deploy it again 
+
+1. Set up the git repository 
+- Set up the repo as a private repo on git hub 
+      /sampleapp 
+    - Clone the repo to your local machine and start working on 
+      - Before you clone the code, create access token on github 
+      - git clone  {project link} (Use the SSH link as this is a private repo)
+      - If you haven't added your SSH key to your git hub account, you need to do that first  
+        (We will see how to do that when we later configure our server)  
+2. Set up the dev database locally 
+ Set up the dev database locally 
+  ------------------------------- 
+    - Install MySql on your local machine 
+      - https://dev.mysql.com/downloads/installer/ 
+      (If you have MAMP already installed, you can use that as well) 
+    
+    - Create a new database and add user to the database 
+      username: demoapp ? So554Dgteb766@!!
+      password: demoapp
+      database name: demoapp
+
+    - Let's desing abd create the tables we need to add employee 	
+
+3. Develop the Backend 	
+3.1. Create the "backend" Folder: 
+      - To hold all your backend codes 
+      - package.json (file): 
+        Create the initial package.json file to track your dependencies 
+          - npm init 
+		  
+3.2. Create the app.js (file):
+      - This is the main file that we use to run and manage the backend server   
+      - Let us now start writing our code 
+        - Let's start by creating our webserver 
+          - Install Express 
+            - npm install express 
+          // Import the express module 
+          // Set up the port to listen to 
+          // Set up the listener 
+3.3.  - Let's now connect to the database 
+  - To do that we need the mysql (mysql2) bridge module to connect to the database 
+          - Install the mysql2 module 
+            - npm install mysql2 
+          // Import the mysql module  
+            - We use the commonJS module system to import the modules 
+            * mysql2 is faster and has more features than mysql. But they both do the same thing 
+          // Define the connection parameters for the database  
+          // Create the connection to the database  
+          // Connect to the database 
+          - Check if the connection is successful on the console 
