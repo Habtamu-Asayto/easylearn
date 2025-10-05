@@ -23,6 +23,8 @@ import loginService from "../../../services/login.service.js";
 
 // Import the auth hook
 import { useAuth } from "../../../Contexts/AuthContext";
+
+import { useLocation, Link } from "react-router-dom";
 function Sidebar({ isOpen, setIsOpen }) {
   const [openMenu, setOpenMenu] = useState({ courses: false, forum: false });
   // Destructure the auth hook
@@ -41,6 +43,10 @@ function Sidebar({ isOpen, setIsOpen }) {
     // Set the isLogged state to false
     setIsLogged(false);
   };
+
+  const location = useLocation();
+  const currentPath = location.pathname;
+
   return (
     <div>
       <header className="md:hidden bg-white border-b border-gray-200 p-4 flex justify-between items-center">
@@ -279,13 +285,17 @@ function Sidebar({ isOpen, setIsOpen }) {
               </h5>
               <ul className="space-y-2">
                 <li>
-                  <a
-                    href="#"
-                    className="flex items-center  w-full px-4 py-3 rounded-lg bg-blue-500 text-white"
+                  <Link
+                    to="/welcome"
+                    className={`flex items-center w-full px-4 py-3 rounded-lg transition-colors ${
+                      currentPath === "/welcome"
+                        ? "bg-blue-500 text-white"
+                        : "hover:bg-blue-100 text-gray-700"
+                    }`}
                   >
                     <Home className="w-5 h-5 mr-3" />
                     Dashboard
-                  </a>
+                  </Link>
                 </li>
 
                 {/* Courses */}
@@ -300,13 +310,17 @@ function Sidebar({ isOpen, setIsOpen }) {
                 </li>
                 {/* Students */}
                 <li>
-                  <a
-                    href="/students"
-                    className="flex items-center w-full px-4 py-3 rounded-lg hover:bg-blue-300"
+                  <Link
+                    to="/students"
+                    className={`flex items-center w-full px-4 py-3 rounded-lg transition-colors ${
+                      currentPath === "/students"
+                        ? "bg-blue-500 text-white"
+                        : "hover:bg-blue-100 text-gray-700"
+                    }`}
                   >
                     <Users className="w-5 h-5 mr-3" />
                     My Students
-                  </a>
+                  </Link>
                 </li>
 
                 {/* Message */}
