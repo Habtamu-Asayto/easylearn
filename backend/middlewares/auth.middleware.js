@@ -36,7 +36,7 @@ const isAdmin = async (req, res, next) => {
   console.log(req.user_email);
   const user_email = req.user_email;
   const user = await userService.getUserByEmail(user_email);
-  if (user[0].role_name === 1) {
+  if (user[0].role_name === 1 || user[0].role_name===2) {
     next();
   } else {
     return res.status(403).send({

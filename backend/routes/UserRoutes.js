@@ -15,5 +15,16 @@ router.post(
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   userController.createUser
 );
+router.get(
+  "/api/students",
+  [authMiddleware.verifyToken, authMiddleware.isAdmin],
+  userController.getAllStudents
+);
+router.post(
+  "/api/add-student",
+  [authMiddleware.verifyToken, authMiddleware.isAdmin],
+  userController.createStudent
+);
+
 // Export the router
 module.exports = router;
