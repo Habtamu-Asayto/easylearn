@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import Login from "./markup/pages/login/Login.jsx";
 import Home from "./markup/pages/Home.jsx";
 import Dashboard from "./markup/pages/Admin/Dashboard.jsx";
@@ -10,7 +10,10 @@ import BeforeLoginHeader from "./markup/components/Header/BeforeLoginHeader.jsx"
 import PrivateAuthRoute from "../src/markup/components/Auth/PrivateAuthRoute.jsx";
 
 //import unauthorized page
-import Unauthorized from "./markup/pages/Unauthorized.jsx";
+import Unauthorized from "./markup/pages/Unauthorized.jsx"; 
+import A404 from "./markup/pages/A404.jsx";
+import StudentList from "./markup/pages/Student/StudentList.jsx";
+import Student from "./markup/pages/Student/Student.jsx";
 
 function BeforeLoginLayout({ children }) {
   return (
@@ -57,7 +60,7 @@ function App() {
 
   // Determine if current route is login or after-login
   const isLoginPage = location.pathname === "/login";
-  const isAfterLoginPage = location.pathname.startsWith("/admin");
+  const isAfterLoginPage = location.pathname.startsWith("/welcome");
 
   return (
     <>
@@ -88,17 +91,6 @@ function App() {
             </UnauthorizedLayout>
           }
         />
-        {/* Only admins can route 
-        <Route
-          path="/welcome"
-          element={
-            <PrivateAuthRoute roles={[1,2,3]}>
-              <AfterLoginLayout>
-                <AdminDashboard />
-              </AfterLoginLayout>
-            </PrivateAuthRoute>
-          }
-        />  */}
         <Route
           path="/welcome"
           element={
@@ -109,6 +101,31 @@ function App() {
             </AfterLoginLayout>
           }
         />
+        <Route
+          path="/students"
+          element={
+            <AfterLoginLayout>
+              <PrivateAuthRoute roles={[1, 2, 3]}>
+                <Student />
+              </PrivateAuthRoute>
+            </AfterLoginLayout>
+          }
+        />
+        {/* 👇 Catch-all route: redirect any unknown path to login
+        <Route
+          path="/404"
+          element={
+            <UnauthorizedLayout>
+              <A404 />
+            </UnauthorizedLayout>
+          }
+        />
+        <Route
+          path="*"
+          element={ 
+              <Navigate to="/404" replace />
+          }
+        /> */}
       </Routes>
     </>
   );
