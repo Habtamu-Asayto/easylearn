@@ -88,7 +88,17 @@ function Sidebar({ isOpen, setIsOpen }) {
             />
             <div>
               <h4 className="font-medium">{user?.user_full_name}</h4>
-              <p className="text-xs text-gray-500">Student</p>
+              <p className="text-xs text-gray-500">
+                {isAdmin ? (
+                  <>Admin</>
+                ) : isInstructor ? (
+                  <>Instructor</>
+                ) : isStudent ? (
+                  <>Student</>
+                ) : (
+                  <></>
+                )}
+              </p>
             </div>
           </div>
 
@@ -100,7 +110,7 @@ function Sidebar({ isOpen, setIsOpen }) {
             // {/* Admin Sidebar menu*/}
             <nav>
               <h5 className="text-xs uppercase text-gray-500 font-semibold mb-3">
-                Main-Admin
+                Main
               </h5>
               <ul className="space-y-2">
                 <li>
@@ -300,13 +310,17 @@ function Sidebar({ isOpen, setIsOpen }) {
 
                 {/* Courses */}
                 <li>
-                  <a
-                    href="#"
-                    className="flex items-center w-full px-4 py-3 rounded-lg hover:bg-blue-300"
+                  <Link
+                    to="/courses"
+                    className={`flex items-center w-full px-4 py-3 rounded-lg transition-colors ${
+                      currentPath === "/courses" || currentPath === "/add-course"
+                        ? "bg-blue-500 text-white"
+                        : "hover:bg-blue-100 text-gray-700"
+                    }`}
                   >
                     <BookOpen className="w-5 h-5 mr-3" />
                     My Courses
-                  </a>
+                  </Link>
                 </li>
                 {/* Students */}
                 <li>

@@ -75,3 +75,13 @@
   transform: rotate(-90deg);
   transform-origin: 50% 50%;
 }
+.card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 15px 25px rgba(0, 0, 0, 0.15);
+}
+.progress {
+  transition: width 1s ease;
+}

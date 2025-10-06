@@ -2,12 +2,11 @@
 const api_url = "http://localhost:8080";
 
 // A function to send post request to create a new User
-const createUser = async (formData, loggedInUserToken) => {
+const createUser = async (formData) => {
   const requestOptions = {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "x-access-token": loggedInUserToken,
     },
     body: JSON.stringify(formData),
   };
@@ -40,24 +39,23 @@ const createStudent = async (formData, loggedInUserToken) => {
   }
 };
 
-
 // A function to send get request to get all students
 const getAllStudents = async (token) => {
   // console.log(token);
   const requestOptions = {
-    method: 'GET',
+    method: "GET",
     headers: {
-      'Content-Type': 'application/json',
-      'x-access-token': token
-    }
+      "Content-Type": "application/json",
+      "x-access-token": token,
+    },
   };
   const response = await fetch(`${api_url}/api/students`, requestOptions);
   return response;
-}
+};
 // Export all the functions
 const userService = {
   createUser,
   getAllStudents,
-  createStudent
+  createStudent,
 };
 export default userService;

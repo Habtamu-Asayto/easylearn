@@ -1,6 +1,6 @@
 //Import user service
 const userService = require("../services/userService");
-
+ 
 //Create User
 async function createUser(req, res, next) {
   // check if token arives

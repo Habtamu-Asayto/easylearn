@@ -26,18 +26,19 @@ CREATE TABLE IF NOT EXISTS `user_pass` (
   FOREIGN KEY (user_id) REFERENCES users(user_id)
 ) ENGINE=InnoDB;
 
-
 CREATE TABLE IF NOT EXISTS `user_role` (
   `user_role_id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL, 
-  `role_name` VARCHAR(150) NOT NULL,
+  `role_name` INT(11) NOT NULL,
   PRIMARY KEY (user_role_id),
   FOREIGN KEY (user_id) REFERENCES users(user_id)
 ) ENGINE=InnoDB;
-
+ 
 CREATE TABLE IF NOT EXISTS `course_category` (
     `category_id` INT AUTO_INCREMENT , 
-    `name` VARCHAR(100) NOT NULL UNIQUE,
+    `category_name` VARCHAR(255) NOT NULL UNIQUE,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (category_id)
 ) ENGINE=InnoDB;
 

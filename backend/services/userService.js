@@ -56,7 +56,8 @@ async function createUser(user) {
   }
   // Return the user object
   return createUser;
-}// A function to create a new user
+}
+// A function to create a new user
 async function createStudent(user) {
   let createdStudent = {};
   try {

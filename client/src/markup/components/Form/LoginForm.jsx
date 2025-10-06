@@ -4,8 +4,8 @@ import userService from "../../../services/user.service";
 import { useNavigate, useLocation } from "react-router-dom";
 import loginService from "../../../services/login.service";
 
-// Import the useAuth hook 
-import {useAuth} from "../../../contexts/AuthContext.jsx"
+// Import the useAuth hook
+import { useAuth } from "../../../contexts/AuthContext.jsx";
 function LoginForm(props) {
   const [flipped, setFlipped] = useState(false);
   const [option, setOption] = useState("");
@@ -92,7 +92,7 @@ function LoginForm(props) {
     };
 
     // Pass the form data to the service
-    const newuser = userService.createUser(formData,loggedInUserToken);
+    const newuser = userService.createUser(formData);
 
     newuser
       .then((response) => response.json())
@@ -107,10 +107,11 @@ function LoginForm(props) {
           setServerError("");
           // Redirect to the users page after 2 seconds
           // For now, just redirect to the home page
+ 
           setTimeout(() => {
             // window.location.href = '/admin/users';
             window.location.href = "/";
-          }, 2000);
+          }, 100);
         }
       })
       // Handle Catch

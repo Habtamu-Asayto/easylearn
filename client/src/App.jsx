@@ -14,6 +14,9 @@ import Unauthorized from "./markup/pages/Unauthorized.jsx";
 import A404 from "./markup/pages/A404.jsx";
 import StudentList from "./markup/pages/Student/StudentList.jsx";
 import Student from "./markup/pages/Student/Student.jsx";
+import Course from "./markup/pages/Course/Course.jsx";
+import AddCourse from "./markup/pages/Course/Add/AddCourse.jsx";
+import Category from "./markup/pages/Course/Category/Category.jsx";
 
 function BeforeLoginLayout({ children }) {
   return (
@@ -105,8 +108,38 @@ function App() {
           path="/students"
           element={
             <AfterLoginLayout>
-              <PrivateAuthRoute roles={[1, 2, 3]}>
+              <PrivateAuthRoute roles={[1, 2]}>
                 <Student />
+              </PrivateAuthRoute>
+            </AfterLoginLayout>
+          }
+        />
+        <Route
+          path="/courses"
+          element={
+            <AfterLoginLayout>
+              <PrivateAuthRoute roles={[1, 2, 3]}>
+                <Course />
+              </PrivateAuthRoute>
+            </AfterLoginLayout>
+          }
+        />
+        <Route
+          path="/add-course"
+          element={
+            <AfterLoginLayout>
+              <PrivateAuthRoute roles={[1, 2]}>
+                <AddCourse />
+              </PrivateAuthRoute>
+            </AfterLoginLayout>
+          }
+        />
+        <Route
+          path="/category"
+          element={
+            <AfterLoginLayout>
+              <PrivateAuthRoute roles={[1, 2]}>
+                <Category />
               </PrivateAuthRoute>
             </AfterLoginLayout>
           }

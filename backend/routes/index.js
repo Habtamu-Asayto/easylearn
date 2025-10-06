@@ -6,6 +6,8 @@ const router = express.Router();
 const installRouter = require("./installRoutes");
 // Import the employee routes 
 const userRouter = require("./UserRoutes"); 
+// Import the employee routes 
+const categoryRouter = require("./courseCategoryRoutes"); 
 
 //Import Login route
 const loginRouter = require("./loginRoutes")
