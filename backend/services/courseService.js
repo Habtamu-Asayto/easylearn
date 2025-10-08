@@ -1,63 +1,102 @@
-// Import the query function from the db.config.js file
+// Import the query function from db.config.js
 const conn = require("../config/db");
-// A function to check if user exists in the database
 
-async function checkIfCourseExists(course) {
-  const query = "SELECT * FROM courses WHERE title = ? ";
-  const rows = await conn.query(query, [course]);
-  console.log(rows);
-  if (rows.length > 0) {
-    return true;
-  }
-  return false;
+// ✅ Check if a course with the same title already exists
+async function checkIfCourseExists(courseTitle) {
+  const query = "SELECT * FROM courses WHERE title = ?";
+  const rows = await conn.query(query, [courseTitle]);
+  console.log("checkIfCourseExists ->", rows);
+  return rows.length > 0;
 }
-// A function to create a new user
+
+// ✅ Create a new course
 async function createCourse(course) {
-  let createCourse = {};
   try {
-    // Insert the email in to the user table
-    const query =
-      "INSERT INTO courses (title, description, category_id, instructor_id) VALUES (?,?,?,?)";
-    const rows = await conn.query(query, [
+    const query = `
+      INSERT INTO courses (title, description, category_id, instructor_id)
+      VALUES (?, ?, ?, ?)
+    `;
+    // ❗ Don't destructure here — conn.query returns rows directly
+    const result = await conn.query(query, [
       course.title,
       course.description,
       course.category_id,
       course.instructor_id,
     ]);
-    console.log(rows);
-    if (rows.affectedRows !== 1) {
-      return false;
-    }
+
+    console.log("DB insert result:", result);
+    // OkPacket has affectedRows
+    return result.affectedRows === 1;
   } catch (err) {
-    console.log(err);
+    console.error("createCourse error:", err);
+    throw err;
   }
-  // Return the user object
-  return createCourse;
+} 
+
+// Update existing course
+async function updateCourse(courseId, course) {
+  try {
+    const query = `
+      UPDATE courses
+      SET title = ?, description = ?, category_id = ?
+      WHERE course_id = ?
+    `;
+    const result = await conn.query(query, [
+      course.title,
+      course.description,
+      course.category_id,
+      courseId,
+    ]);
+
+    console.log("updateCourse result:", result);
+    return result.affectedRows === 1;
+  } catch (err) {
+    console.error("updateCourse error:", err);
+    return false;
+  }
 }
-// Get all categories
+ 
+
+// Get all courses
 async function getAllCourse() {
   const query = `
-  SELECT 
-  c.course_id,
-  c.title,
-  c.description,
-  cc.category_name 
-  FROM courses c
-  LEFT JOIN course_category cc
-  ON c.category_id = cc.category_id
-  ORDER BY c.course_id DESC`;
+    SELECT 
+        c.course_id,
+        c.title,
+        c.description,
+        c.category_id,
+        ui.user_full_name AS instructor_name,
+        c.created_at
+    FROM courses c
+    JOIN users u ON c.instructor_id = u.user_id
+    JOIN user_info ui ON u.user_id = ui.user_id;
+  `;
   const rows = await conn.query(query);
-  
-  if (rows) {
-    console.log("Category -> ", rows);
-    return rows;
-  } else {
-    console.log("Sm Error");
+  // console.log("getAllCourse -> ", rows);
+  return rows;
+}
+
+ 
+// Delete a course by ID
+async function deleteCourse(courseId) {
+  try {
+    const result = await conn.query("DELETE FROM courses WHERE course_id = ?", [
+      courseId,
+    ]);
+    // console.log("Delete result:", result);
+    return result.affectedRows === 1;
+  } catch (err) {
+    console.error("Delete course error:", err);
+    return false;
   }
 }
 
+
+ 
 module.exports = {
   createCourse,
   checkIfCourseExists,
   getAllCourse,
+  updateCourse, 
+  deleteCourse
 };

@@ -25,18 +25,20 @@ const verifyToken = async (req, res, next) => {
     }
     // console.log("Here is the decoded token");
     // console.log(decoded);
-    req.user_email = decoded.user_email;
+    // req.user_email = decoded.user_email;
+    req.user = decoded; 
     next();
   });
 };
- 
+
 // A function to check if the user is an admin
 const isAdmin = async (req, res, next) => {
   // let token = req.headers["x-access-token"];
+  const role = req.user.role_name;
   console.log(req.user_email);
-  const user_email = req.user_email;
+  const user_email = req.user.user_email;
   const user = await userService.getUserByEmail(user_email);
-  if (user[0].role_name === 1 || user[0].role_name === 2) {
+  if (role=== 1 || role  === 2) {
     next();
   } else {
     return res.status(403).send({
@@ -45,10 +47,10 @@ const isAdmin = async (req, res, next) => {
     });
   }
 };
-
+ 
 const authMiddleware = {
   verifyToken,
-  isAdmin 
+  isAdmin, 
 };
 
 module.exports = authMiddleware;

@@ -4,21 +4,28 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../../../contexts/AuthContext";
 import categoryService from "../../../../services/coursecategory.service";
 import courseService from "../../../../services/course.service";
+import { toast } from "react-toastify";
 
-function Form() {
+function Form({ editCourse, onSuccess }) {
   // Fetch All categories
   const [categories, setCategories] = useState("");
   const [loading, setLoading] = useState(true);
 
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [course_title, setTitle] = useState("");
-  const [course_description, setDescription] = useState("");
+  // const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState(
+    editCourse ? String(editCourse.category_id) : ""
+  );
+
+  const { tokens } = useAuth();
+  const [title, setTitle] = useState(editCourse?.title || "");
+  const [description, setDescription] = useState(editCourse?.description || "");
+  const [categoryId, setCategoryId] = useState(editCourse?.category_id || "");
 
   // Error
   const [titleError, setTitleError] = useState("");
   const [descriptionError, setDescriptionError] = useState([]);
   const [categoryError, setCategoryError] = useState([]);
-  const [success, setSuccess] = useState(false);
+  const [success, setSuccess] = useState("");
   const [serverError, setServerError] = useState("");
 
   const { user } = useAuth();
@@ -32,7 +39,7 @@ function Form() {
     categoryService
       .getCategoryForCourse(token)
       .then((result) => {
-        console.log("Category JSON result:", result);
+        // console.log("Category JSON result:", result);
         setCategories(result.data || []); // <-- now result.data is the array
         setLoading(false);
       })
@@ -42,16 +49,17 @@ function Form() {
       });
   }, []);
 
-  const handleAdd = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     let valid = true; // Flag
-    if (!course_title) {
-      setTitleError("Course title is required");
+    // Full name is required
+    if (!title) {
+      setTitleError("Title is required");
       valid = false;
     } else {
       setTitleError("");
     }
-    if (!course_description) {
+    if (!description) {
       setDescriptionError("Description is required");
       valid = false;
     } else {
@@ -64,32 +72,45 @@ function Form() {
       setCategoryError("");
     }
 
+    // If the form is not valid, do not submit
     if (!valid) {
       return;
     }
+    // const formData = { title, description, category_id: categoryId };
     const formData = {
-      course_title,
-      course_description,
-      selectedCategory,
+      title,
+      description,
+      // category_id: selectedCategory?.category_id || null, // fallback if undefined
+      category_id: selectedCategory,
     };
     try {
-      const data = courseService.createCourse(formData, loggedInUserToken);
-      //   console.log("Response:", data);
+      let response;
 
-      if (data.error) {
-        setServerError(data.error);
+      if (editCourse) {
+        response = await courseService.updateCourse(
+          editCourse.course_id,
+          formData,
+          token
+        );
       } else {
-        setServerError("");
-        setSuccess(true);
-        //  Optional: show a toast instead of full reload
-        setTimeout(() => (window.location.href = "/course"), 1500);
+        response = await courseService.createCourse(formData, token);
       }
-    } catch (error) {
-      console.error("Error creating student:", error);
-      setServerError("Something went wrong while adding the category.");
+
+      if (!response.status) {
+        // Backend sent an error (status: false)
+        toast.error(response.error || "Something went wrong");
+      } else {
+        // Backend sent success
+        toast.success("Course Inserted successfully");
+        setTimeout(() => {
+          window.location.href = "/courses";
+        }, 1500);
+      }
+    } catch (err) {
+      // console.error(err);
+      toast.error("Something went wrong");
     }
   };
-
   return (
     <div className="flex-1 overflow-y-auto">
       {/* Header */}
@@ -112,12 +133,11 @@ function Form() {
       <main className="p-6">
         {/* Overview */}
         <div id="all-courses" className="flex justify-end p-4">
-          <a
-            className="px-5 py-2 border border-gray-300 rounded shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 hover:shadow-md transition"
-            href="#"
-          >
-            ALL COURSES
-          </a>
+          <Link to="/courses">
+            <button className="px-5 py-2 border border-gray-300 rounded shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 hover:shadow-md transition">
+              ALL COURSES
+            </button>
+          </Link>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Editor area (center) */}
@@ -125,6 +145,20 @@ function Form() {
             <div className="bg-white rounded-lg shadow-sm border border-gray-300 overflow-hidden fade-in">
               {/* Tabs */}
               <div className="flex items-center border-b border-gray-200 px-4 sm:px-6 py-3 gap-3 bg-white">
+                {serverError && (
+                  <div className="text-red-600 text-sm mb-2 mt-2" role="alert">
+                    {serverError}
+                  </div>
+                )}
+                {success && (
+                  <div class="bg-green-500 text-white  rounded-md shadow-lg">
+                    {
+                      <>
+                        <h3 className="px-7 py-2">{success}</h3>
+                      </>
+                    }
+                  </div>
+                )}
                 <div className="ml-auto text-xs text-gray-400">
                   You are editing:
                   <span className="font-medium text-gray-700">
@@ -134,14 +168,8 @@ function Form() {
               </div>
               {/* Editor body */}
               <div className="p-4 sm:p-6">
-                <form className="space-y-4" onSubmit={handleAdd}>
+                <form className="space-y-4" onSubmit={handleSubmit}>
                   {/* Title */}
-
-                  {serverError && (
-                    <div className="text-red-600 text-sm mb-2" role="alert">
-                      {serverError}
-                    </div>
-                  )}
 
                   <div>
                     <label className="block text-sm font-medium text-gray-600">
@@ -152,7 +180,7 @@ function Form() {
                       placeholder="Basics of HTML"
                       name="course_title"
                       id="course_title"
-                      value={course_title}
+                      value={title}
                       onChange={(e) => setTitle(e.target.value)}
                       className="mt-2 block w-full rounded-lg border border-gray-200 px-3 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-300"
                     />
@@ -174,18 +202,19 @@ function Form() {
                       onChange={(e) => setSelectedCategory(e.target.value)}
                       className="mt-2 block w-full rounded-lg border border-gray-200 px-3 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-300"
                     >
-                      <option value=""></option>
-                      {categories && categories.length > 0
-                        ? categories.map((cat) => (
-                            <option
-                              key={cat.category_id}
-                              value={cat.category_id}
-                            >
-                              {cat.category_name}
-                            </option>
-                          ))
-                        : null}
+                      <option value="">Select Category</option>
+                      {categories &&
+                        categories.length > 0 &&
+                        categories.map((cat) => (
+                          <option
+                            key={cat.category_id}
+                            value={String(cat.category_id)}
+                          >
+                            {cat.category_name}
+                          </option>
+                        ))}
                     </select>
+
                     {categoryError && (
                       <div className="text-red-600 text-sm mb-2" role="alert">
                         {categoryError}
@@ -207,7 +236,7 @@ function Form() {
                     <textarea
                       rows={8}
                       name="description"
-                      value={course_description}
+                      value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       className="w-full rounded-lg border border-gray-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200"
                       placeholder="Write a nice course description..."
@@ -231,7 +260,7 @@ function Form() {
                         type="submit"
                         className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition cursor-pointer"
                       >
-                        Save
+                        {editCourse ? "Update Course" : "Add Course"}
                       </button>
                     </div>
                   </div>

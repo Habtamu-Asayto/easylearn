@@ -313,7 +313,9 @@ function Sidebar({ isOpen, setIsOpen }) {
                   <Link
                     to="/courses"
                     className={`flex items-center w-full px-4 py-3 rounded-lg transition-colors ${
-                      currentPath === "/courses" || currentPath === "/add-course"
+                      currentPath === "/courses" ||
+                      currentPath === "/add-course" ||
+                      currentPath === "/category"
                         ? "bg-blue-500 text-white"
                         : "hover:bg-blue-100 text-gray-700"
                     }`}

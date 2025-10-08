@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Footer from "../../components/Footer/Footer";
-import { Link } from "react-router-dom"; 
+import { Link, Links } from "react-router-dom";
 import courseService from "../../../services/course.service";
 import { useAuth } from "../../../contexts/AuthContext";
+import { toast } from "react-toastify";
+
 function Main({ onShowAllMain }) {
-  
   const { user } = useAuth();
   let token = null;
   if (user) {
@@ -14,13 +15,14 @@ function Main({ onShowAllMain }) {
   const [apiError, setApiError] = useState(false);
   const [apiErrorMessage, setApiErrorMessage] = useState(null);
   const [course, setCourse] = useState([]);
-  useEffect(() => {
+  useEffect(() => { 
+
     // Call the getAllStudents function
     const allCourse = courseService.getAllCourses(token);
     allCourse
       .then((res) => {
         if (!res.ok) {
-         console.log("Here is: "+res.status);
+          console.log("Here is: " + res.status);
           setApiError(true);
           if (res.status === 401) {
             setApiErrorMessage("Please login again");
@@ -42,6 +44,26 @@ function Main({ onShowAllMain }) {
         // console.log(err);
       });
   }, []);
+
+  const handleDeleteCourse = async (courseId) => {
+    if (!window.confirm("Are you sure you want to delete this course?")) return;
+
+    try {
+      const res = await courseService.deleteCourse(courseId, token);
+
+      if (res.status) {
+        // Remove deleted course from state
+        setCourse(course.filter((c) => c.course_id !== courseId));
+         toast.success("Course deleted successfully")
+      } else {
+        toast.error(res.error || "Failed to delete course");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Something went wrong while deleting");
+    }
+  };
+
   return (
     <div className="flex-1 overflow-y-auto">
       {/* Header */}
@@ -83,7 +105,10 @@ function Main({ onShowAllMain }) {
             </section>
           ) : course.length > 0 ? (
             course.map((cat, index) => (
-              <div className="card max-w-sm w-full bg-white rounded-2xl overflow-hidden shadow">
+              <div
+                key={cat.course_id}
+                className="card max-w-sm w-full bg-white rounded-2xl overflow-hidden shadow"
+              >
                 {/* Card Header */}
                 <div className="bg-gray-200 from-blue-400 to-indigo-500 flex items-center justify-center h-32">
                   <div className="bg-white p-4 rounded-full shadow-md">
@@ -106,13 +131,19 @@ function Main({ onShowAllMain }) {
                 </div>
                 {/* Card Body */}
                 <div className="p-6 text-center">
-                  <h2 className="text-xl font-bold text-gray-800">
-                   {cat.title}
-                  </h2>
+                  <Link
+                    to={`/edit-course/${cat.course_id}`}
+                    className="text-xl font-bold text-gray-800"
+                  >
+                    {cat.title}
+                  </Link>
                 </div>
                 {/* Card Footer */}
                 <div className="border-t border-gray-200 px-6 py-4 flex justify-center">
-                  <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500 text-white font-medium hover:bg-indigo-600 transition">
+                  <Link
+                    to={`/edit-course/${cat.course_id}`}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500 text-white font-medium hover:bg-indigo-600 transition"
+                  >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-4 w-4"
@@ -128,6 +159,26 @@ function Main({ onShowAllMain }) {
                       />
                     </svg>
                     Edit Course
+                  </Link>
+                  <button
+                    onClick={() => handleDeleteCourse(cat.course_id)}
+                    className="flex items-center ml-5 gap-2 px-4 py-2 rounded-lg bg-red-400 text-white font-medium hover:bg-red-300 transition"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5  cursor-pointer"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4m-4 0a1 1 0 00-1 1v1h6V4a1 1 0 00-1-1m-4 0h4"
+                      />
+                    </svg>
+                    Delete
                   </button>
                 </div>
               </div>
@@ -135,7 +186,7 @@ function Main({ onShowAllMain }) {
           ) : (
             <h4 className="font-medium">Empty</h4>
           )}
-          
+
           {/*Add Course*/}
           {/* Add New Course Card */}
 
@@ -146,7 +197,9 @@ function Main({ onShowAllMain }) {
                  hover:border-indigo-400 hover:bg-indigo-50 
                  transition-all duration-200 cursor-pointer"
           >
-            <span className="text-5xl text-gray-400 font-light">+</span>
+            <span className="text-5xl text-gray-400 font-light hover:text-indigo-400">
+              +
+            </span>
           </Link>
         </div>
 

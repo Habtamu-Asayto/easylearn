@@ -4,7 +4,7 @@ const db = require("../config/db");
 //Create User
 async function createCategory(req, res, next) {
   // check if token arives
-  console.log(req.headers); 
+  // console.log(req.headers); 
   // Check if User email already exists in the database
   const categoryExists = await categoryService.checkIfCategoryExists(
     req.body.category_name
@@ -27,9 +27,9 @@ async function createCategory(req, res, next) {
         res.status(200).json({
           status: "true",
         });
-      }
+      } 
     } catch (error) {
-      console.log(error);
+      // console.log(error);
       res.status(400).json({
         error: "Something went wrong!",
       });
@@ -51,33 +51,58 @@ async function getAllCategory(req, res, next) {
   }
 }
 
-async function updateCategory(req,res,next){
-   const { id, category_name } = req.body;
-   if (!category_name)
-     return res.status(400).json({ message: "ID and name required" });
+async function updateCategory(req, res, next) {
+  try {
+    const categoryData = req.body;
+    const courseId = req.params.id;
+    const updated = await categoryService.updateCategory(courseId, categoryData);
+    if (!updated) {
+      return res.status(400).json({ error: "Failed to update course!" });
+    }
 
-   const sql = "UPDATE course_category SET category_name=?, updated_at=NOW() WHERE category_id=?";
-   db.query(sql, [category_name,id], (err, result) => {
-     if (err)
-       return res.status(500).json({ message: "Update error", error: err });
-     res.json({ id, category_name });
-   });
+    res
+      .status(200)
+      .json({ status: true, message: "Course updated successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Something went wrong!" });
+  }
 }
 
-const deleteCategory = (req, res) => {
-  const { id } = req.params;
-  const sql = "DELETE FROM course_category WHERE category_id=?";
-  db.query(sql, [id], (err, result) => {
-    if (err)
-      return res.status(500).json({ message: "Delete error", error: err });
-    res.json({ message: "Category deleted" });
-  });
-};
 
+async function deleteCategory(req, res) {
+  const categoryId = req.params.id;
+  // console.log("1st:", courseId);?
+  if (!categoryId) {
+    return res
+      .status(400)
+      .json({ status: false, error: "category Id is required" });
+  }
+
+  try {
+ 
+    const deleted = await categoryService.deleteCategory(categoryId);
+    console.log(categoryId);
+    if (deleted) {
+      return res
+        .status(200)
+        .json({ status: true, message: "Course deleted successfully" });
+    } else {
+      return res
+        .status(404)
+        .json({ status: false, error: "Course not found or already deleted" });
+    }
+  } catch (err) {
+    console.error("Controller error:", err);
+    return res
+      .status(500)
+      .json({ status: false, error: "Something went wrong" });
+  }
+} 
 
 module.exports = {
   createCategory,
   getAllCategory,
-  updateCategory,
+  updateCategory, 
   deleteCategory
 };

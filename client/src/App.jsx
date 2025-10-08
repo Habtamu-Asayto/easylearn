@@ -10,13 +10,18 @@ import BeforeLoginHeader from "./markup/components/Header/BeforeLoginHeader.jsx"
 import PrivateAuthRoute from "../src/markup/components/Auth/PrivateAuthRoute.jsx";
 
 //import unauthorized page
-import Unauthorized from "./markup/pages/Unauthorized.jsx"; 
+import Unauthorized from "./markup/pages/Unauthorized.jsx";
 import A404 from "./markup/pages/A404.jsx";
 import StudentList from "./markup/pages/Student/StudentList.jsx";
 import Student from "./markup/pages/Student/Student.jsx";
 import Course from "./markup/pages/Course/Course.jsx";
 import AddCourse from "./markup/pages/Course/Add/AddCourse.jsx";
 import Category from "./markup/pages/Course/Category/Category.jsx";
+import EditCourse from "./markup/pages/Course/Edit/EditCourse.jsx";
+
+// Toast
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; 
 
 function BeforeLoginLayout({ children }) {
   return (
@@ -58,6 +63,8 @@ function UnauthorizedLayout({ children }) {
 }
 
 function App() {
+  // Toast for any page
+   
   const user = JSON.parse(localStorage.getItem("user")); // check login state
   const location = useLocation(); // detect current route
 
@@ -124,12 +131,23 @@ function App() {
             </AfterLoginLayout>
           }
         />
+
         <Route
           path="/add-course"
           element={
             <AfterLoginLayout>
-              <PrivateAuthRoute roles={[1, 2]}>
+              <PrivateAuthRoute roles={[1, 2, 3]}>
                 <AddCourse />
+              </PrivateAuthRoute>
+            </AfterLoginLayout>
+          }
+        />
+        <Route
+          path="/edit-course/:id"
+          element={
+            <AfterLoginLayout>
+              <PrivateAuthRoute roles={[1, 2]}>
+                <EditCourse />
               </PrivateAuthRoute>
             </AfterLoginLayout>
           }
@@ -160,6 +178,15 @@ function App() {
           }
         /> */}
       </Routes>
+      <ToastContainer
+        position="top-right"
+        autoClose={2500}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        theme="colored"
+      />
     </>
   );
 }

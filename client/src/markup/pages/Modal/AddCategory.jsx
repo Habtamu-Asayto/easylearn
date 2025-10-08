@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import categoryService from "../../../services/coursecategory.service.js";
 // Import the useAuth hook
 import { useAuth } from "../../../contexts/AuthContext.jsx";
+import { toast } from "react-toastify";
+import { href } from "react-router";
 
 const AddCategory = ({ isOpen, onClose, editmodal, addmodal }) => {
   const [category_name, setCategory] = useState("");
@@ -12,11 +14,11 @@ const AddCategory = ({ isOpen, onClose, editmodal, addmodal }) => {
   const [serverError, setServerError] = useState("");
 
   // Create a variable to hold the user's token
-  let loggedInUserToken = "";
+  let token = "";
   // Destructure the auth hook and get the token
   const { user } = useAuth();
   if (user && user.user_token) {
-    loggedInUserToken = user.user_token;
+    token = user.user_token;
   }
   useEffect(() => {
     if (editmodal) {
@@ -27,6 +29,7 @@ const AddCategory = ({ isOpen, onClose, editmodal, addmodal }) => {
     }
   }, [editmodal]);
 
+    const [category, setCategory2] = useState([]);
   // Handler
   const handleAdd = async (e) => {
     e.preventDefault();
@@ -55,33 +58,52 @@ const AddCategory = ({ isOpen, onClose, editmodal, addmodal }) => {
         response = await categoryService.updateCategory(
           editmodal.category_id,
           formData,
-          loggedInUserToken
+          token
         );
       } else {
         // ADD MODE
-        response = await categoryService.createCategory(
-          formData,
-          loggedInUserToken
-        );
+        response = await categoryService.createCategory(formData, token);
       }
 
-      if (response.error) {
-        setServerError(response.error);
+      if (!response.status) {
+        toast.error(response.error);
       } else {
-        setServerError("");
-        setSuccess(true);
+        toast.success(
+          editmodal
+            ? "Category updated successfully!"
+            : "Category added successfully!"
+        );
         setTimeout(() => {
-          console.log("Success");
-           window.location.href = "/category";
+          window.location.href = "/category";
         }, 700);
       }
     } catch (error) {
-      setServerError("Something went wrong");
-      console.error(error);
+      toast.error("Something went wrong");
     }
   };
 
-  
+ const handleDeleteCategory = async (categoryId) => {
+   if (!window.confirm("Are you sure you want to delete this course?")) return;
+
+   try {
+     const res = await categoryService.deleteCategory(categoryId, token);
+
+     if (res.status) {
+       // Remove deleted course from state
+       setCategory2(category.filter((c) => c.category_id !== categoryId));
+       toast.success("Course deleted successfully");
+       setTimeout(()=>{
+        window.location.href='/category'
+       }, 700)
+     } else {
+       toast.error(res.error || "Failed to delete course");
+     }
+   } catch (err) {
+     console.error(err);
+     toast.error("Something went wrong while deleting");
+   }
+ };
+
   if (!isOpen) return null;
   return (
     <AnimatePresence>
@@ -158,15 +180,16 @@ const AddCategory = ({ isOpen, onClose, editmodal, addmodal }) => {
                   type="submit"
                   className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition cursor-pointer"
                 >
-                  Save
+                  {editmodal ? "Edit" : "Save"}
                 </button>
-                {editmodal ? ( 
-                    <button
-                      type="button" 
-                      className="px-4 py-2 rounded-lg border bg-red-500 border-gray-300 hover:bg-gray-100 transition cursor-pointer"
-                    >
-                      Delete
-                    </button> 
+                {editmodal ? (
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteCategory(editmodal.category_id)}
+                    className="px-4 py-2 rounded-lg border bg-red-500 border-gray-300 hover:bg-gray-100 transition cursor-pointer"
+                  >
+                    Delete
+                  </button>
                 ) : (
                   <></>
                 )}

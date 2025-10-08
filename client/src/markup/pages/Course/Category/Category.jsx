@@ -6,6 +6,7 @@ import { useAuth } from "../../../../Contexts/AuthContext.jsx";
 import CategoryList from "./CategoryList.jsx";
 function Category() {
   const [isOpen, setIsOpen] = useState(false);
+
   // Destructure the auth hook
   const { isLogged, isAdmin, isInstructor, isStudent } = useAuth();
 

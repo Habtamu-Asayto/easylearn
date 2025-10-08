@@ -1,11 +1,13 @@
 import Footer from "../../../components/Footer/Footer";
-import { Link, Links } from "react-router-dom";
-import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom"; 
+import React, { useState, useEffect } from "react";  
+
 import AddCategory from "../../Modal/AddCategory";
-import { useAuth } from "../../../../contexts/AuthContext";
+import {useAuth} from "../../../../contexts/AuthContext";
 import categoryService from "../../../../services/coursecategory.service";
 import { format } from "date-fns"; // To properly format the date on the table
-
+ 
+ 
 function CategoryList() {
   // For both add and edit student
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -14,19 +16,19 @@ function CategoryList() {
   const [categories, setCategories] = useState([]);
   const [apiError, setApiError] = useState(false);
   const [apiErrorMessage, setApiErrorMessage] = useState(null);
-
+   
+  
   const { user } = useAuth();
   let token = null;
-  if (user) { 
+  if (user) {
     token = user.user_token;
   }
   useEffect(() => {
     // Call the getAllStudents function
     const allcategories = categoryService.getAllcategory(token);
     allcategories
-      .then((res) => { 
+      .then((res) => {
         if (!res.ok) {
-          //   console.log("Here is: "+res.status);
           setApiError(true);
           if (res.status === 401) {
             setApiErrorMessage("Please login again");
@@ -39,26 +41,24 @@ function CategoryList() {
         return res.json();
       })
       .then((data) => {
-        
         if (data.data.length !== 0) {
-           console.log(data.data);
           setCategories(data.data);
         }
       })
       .catch((err) => {
         // console.log(err);
       });
-  }, []); 
+  }, []);
 
-const handleAddClick = () => {
-  setEditModal(null); // reset for new student
-  setIsModalOpen(true);
-};
+  const handleAddClick = () => {
+    setEditModal(null); // reset for new student
+    setIsModalOpen(true);
+  };
 
-const handleEditClick = (category) => {
-  setEditModal(category);
-  setIsModalOpen(true);
-};
+  const handleEditClick = (category) => {
+    setEditModal(category);
+    setIsModalOpen(true);
+  };
 
   return (
     <div className="flex-1 overflow-y-auto">
@@ -103,7 +103,7 @@ const handleEditClick = (category) => {
           ) : categories.length > 0 ? (
             categories.map((cat, index) => (
               <article
-                key={cat.id || cat._id || index}
+                key={cat.category_id}
                 onClick={() => handleEditClick(cat)}
                 className="bg-white rounded-2xl shadow-sm  border-1 border-gray-400 p-4 hover:bg-gray-100 cursor-pointer hover:shadow-lg transition transform hover:-translate-y-1"
               >

@@ -8,11 +8,18 @@ const courseController = require("../controllers/courseController");
 const authMiddleware = require("../middlewares/auth.middleware");
 
 // we can restrict on both back and front end
+
 //User Routes
 router.post(
-  "/api/course",
+  "/api/add-course",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   courseController.createCourse
+);
+//Update Routes
+router.put(
+  "/api/add-course/:id",
+  [authMiddleware.verifyToken, authMiddleware.isAdmin],
+  courseController.updateCourse
 );
 
 router.get(
@@ -20,4 +27,16 @@ router.get(
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   courseController.getAllCoure
 );
+
+//Delete course category
+ 
+
+router.delete(
+  "/api/courses/:id",
+  [authMiddleware.verifyToken, authMiddleware.isAdmin],
+  courseController.deleteCourse
+);
+
+
+ 
 module.exports = router;

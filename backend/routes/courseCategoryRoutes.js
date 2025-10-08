@@ -20,6 +20,7 @@ router.get(
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   categoryController.getAllCategory
 );
+//Update Routes
 router.put(
   "/api/category/:id",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
@@ -30,4 +31,5 @@ router.delete(
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   categoryController.deleteCategory
 );
+
 module.exports = router;

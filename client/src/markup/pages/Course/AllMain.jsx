@@ -129,7 +129,7 @@ function AllMain({ onShowMain }) {
                       />
                       <div>
                         <p className="text-sm font-medium text-gray-600">
-                          {cat.category_name}
+                          {cat.instructor_name}
                         </p>
                         <p className="text-xs text-gray-500">Instructor</p>
                       </div>
