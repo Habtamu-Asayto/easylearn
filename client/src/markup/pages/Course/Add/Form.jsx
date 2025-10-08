@@ -1,11 +1,95 @@
 import Footer from "../../../components/Footer/Footer";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-function Form() {
+import { useAuth } from "../../../../contexts/AuthContext";
+import categoryService from "../../../../services/coursecategory.service";
+import courseService from "../../../../services/course.service";
 
-  const [course_title, setTitle] = useState("")
-  const [course_description, setDescription] = useState("")
-  const [course_category, setCategory] = useState("");
+function Form() {
+  // Fetch All categories
+  const [categories, setCategories] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [course_title, setTitle] = useState("");
+  const [course_description, setDescription] = useState("");
+
+  // Error
+  const [titleError, setTitleError] = useState("");
+  const [descriptionError, setDescriptionError] = useState([]);
+  const [categoryError, setCategoryError] = useState([]);
+  const [success, setSuccess] = useState(false);
+  const [serverError, setServerError] = useState("");
+
+  const { user } = useAuth();
+  let token = null;
+  if (user) {
+    token = user.user_token;
+  }
+
+  useEffect(() => {
+    // Populate categories
+    categoryService
+      .getCategoryForCourse(token)
+      .then((result) => {
+        console.log("Category JSON result:", result);
+        setCategories(result.data || []); // <-- now result.data is the array
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setLoading(false);
+      });
+  }, []);
+
+  const handleAdd = (e) => {
+    e.preventDefault();
+    let valid = true; // Flag
+    if (!course_title) {
+      setTitleError("Course title is required");
+      valid = false;
+    } else {
+      setTitleError("");
+    }
+    if (!course_description) {
+      setDescriptionError("Description is required");
+      valid = false;
+    } else {
+      setDescriptionError("");
+    }
+    if (!selectedCategory) {
+      setCategoryError("Category is required");
+      valid = false;
+    } else {
+      setCategoryError("");
+    }
+
+    if (!valid) {
+      return;
+    }
+    const formData = {
+      course_title,
+      course_description,
+      selectedCategory,
+    };
+    try {
+      const data = courseService.createCourse(formData, loggedInUserToken);
+      //   console.log("Response:", data);
+
+      if (data.error) {
+        setServerError(data.error);
+      } else {
+        setServerError("");
+        setSuccess(true);
+        //  Optional: show a toast instead of full reload
+        setTimeout(() => (window.location.href = "/course"), 1500);
+      }
+    } catch (error) {
+      console.error("Error creating student:", error);
+      setServerError("Something went wrong while adding the category.");
+    }
+  };
+
   return (
     <div className="flex-1 overflow-y-auto">
       {/* Header */}
@@ -50,8 +134,15 @@ function Form() {
               </div>
               {/* Editor body */}
               <div className="p-4 sm:p-6">
-                <form className="space-y-6">
+                <form className="space-y-4" onSubmit={handleAdd}>
                   {/* Title */}
+
+                  {serverError && (
+                    <div className="text-red-600 text-sm mb-2" role="alert">
+                      {serverError}
+                    </div>
+                  )}
+
                   <div>
                     <label className="block text-sm font-medium text-gray-600">
                       Title
@@ -61,8 +152,15 @@ function Form() {
                       placeholder="Basics of HTML"
                       name="course_title"
                       id="course_title"
+                      value={course_title}
+                      onChange={(e) => setTitle(e.target.value)}
                       className="mt-2 block w-full rounded-lg border border-gray-200 px-3 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-300"
                     />
+                    {titleError && (
+                      <div className="text-red-600 text-sm mt-1" role="alert">
+                        {titleError}
+                      </div>
+                    )}
                   </div>
 
                   <div>
@@ -72,14 +170,27 @@ function Form() {
                     <select
                       id="course_category"
                       name="course_category"
-                      value={course_category}
-                      onChange={(event) => setCategory(event.target.value)}
+                      value={selectedCategory}
+                      onChange={(e) => setSelectedCategory(e.target.value)}
                       className="mt-2 block w-full rounded-lg border border-gray-200 px-3 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-300"
                     >
-                      <option value="1">Category 1</option>
-                      <option value="2">Category 2</option>
-                      <option value="3">Category 3</option>
+                      <option value=""></option>
+                      {categories && categories.length > 0
+                        ? categories.map((cat) => (
+                            <option
+                              key={cat.category_id}
+                              value={cat.category_id}
+                            >
+                              {cat.category_name}
+                            </option>
+                          ))
+                        : null}
                     </select>
+                    {categoryError && (
+                      <div className="text-red-600 text-sm mb-2" role="alert">
+                        {categoryError}
+                      </div>
+                    )}
                   </div>
 
                   {/* Description (rich-ish textarea) */}
@@ -96,9 +207,16 @@ function Form() {
                     <textarea
                       rows={8}
                       name="description"
+                      value={course_description}
+                      onChange={(e) => setDescription(e.target.value)}
                       className="w-full rounded-lg border border-gray-200 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-200"
                       placeholder="Write a nice course description..."
                     />
+                    {descriptionError && (
+                      <div className="text-red-600 text-sm mt-1" role="alert">
+                        {descriptionError}
+                      </div>
+                    )}
                   </div>
                   {/* Actions row (mobile sticky) */}
                   <div className="flex items-center justify-between">
@@ -111,7 +229,7 @@ function Form() {
                     <div className="flex items-center gap-2">
                       <button
                         type="submit"
-                        className="px-4 py-2 rounded-md bg-blue-500 text-white shadow hover:bg-blue-400"
+                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition cursor-pointer"
                       >
                         Save
                       </button>

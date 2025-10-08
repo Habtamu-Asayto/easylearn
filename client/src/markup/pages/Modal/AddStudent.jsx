@@ -150,11 +150,12 @@ const AddStudent = ({ isOpen, onClose, editingStudent }) => {
         // EDIT MODE
         response = await userService.updateStudent(
           editingStudent.user_id,
-          formData
+          formData,
+          loggedInUserToken
         );
       } else {
         // ADD MODE
-        response = await userService.createStudent(formData);
+        response = await userService.createStudent(formData, loggedInUserToken);
       }
 
       if (response.error) {

@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS `user_role` (
   `user_role_id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL, 
   `role_name` INT(11) NOT NULL,
-  PRIMARY KEY (user_role_id),
+  PRIMARY KEY (user_role_id), 
   FOREIGN KEY (user_id) REFERENCES users(user_id)
 ) ENGINE=InnoDB;
  

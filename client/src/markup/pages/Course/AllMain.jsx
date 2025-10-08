@@ -1,7 +1,46 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Footer from "../../components/Footer/Footer";
 
+import courseService from "../../../services/course.service";
+import { useAuth } from "../../../contexts/AuthContext";
 function AllMain({ onShowMain }) {
+   const { user } = useAuth();
+   let token = null;
+   if (user) {
+     token = user.user_token;
+   }
+
+   const [apiError, setApiError] = useState(false);
+   const [apiErrorMessage, setApiErrorMessage] = useState(null);
+   const [course, setCourse] = useState([]);
+   useEffect(() => {
+     // Call the getAllStudents function
+     const allCourse = courseService.getAllCourses(token);
+     allCourse
+       .then((res) => {
+         if (!res.ok) {
+           console.log("Here is: " + res.status);
+           setApiError(true);
+           if (res.status === 401) {
+             setApiErrorMessage("Please login again");
+           } else if (res.status === 403) {
+             setApiErrorMessage("You are not authorized to view this page");
+           } else {
+             setApiErrorMessage("Please try again later");
+           }
+         }
+         return res.json();
+       })
+       .then((data) => {
+         if (data.data.length !== 0) {
+           console.log(data.data);
+           setCourse(data.data);
+         }
+       })
+       .catch((err) => {
+         // console.log(err);
+       });
+   }, []);
   return (
     <div className="flex-1 overflow-y-auto">
       {/* Header */}
@@ -44,149 +83,64 @@ function AllMain({ onShowMain }) {
         </div>
         <div className="max-w-6xl mx-auto px-4 space-y-4">
           {/* Card 1 */}
-          <div className="bg-white rounded shadow hover:shadow-lg transition">
-            <div className="flex flex-col sm:flex-row">
-              {/* Icon */}
-              <div className="flex items-center justify-center bg-gray-100 w-full sm:w-40 h-32 sm:h-auto">
-                <svg
-                  className="w-12 h-12 text-gray-600"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M12 .297c-6.63 0-12 5.373-12 12..." />
-                </svg>
-              </div>
-              {/* Content */}
-              <div className="flex-1 p-4">
-                <h2 className="text-lg font-semibold text-gray-800">
-                  Github Webhooks for Beginners
-                </h2>
-                {/* Rating */}
-                <div className="flex items-center space-x-1 text-yellow-500 my-1">
-                  <span>★</span>
-                  <span>★</span>
-                  <span>★</span>
-                  <span className="text-gray-400">★</span>
-                  <span className="text-gray-400">★</span>
+          {apiError ? (
+            <section className="contact-section">
+              <div className="auto-container">
+                <div className="contact-title">
+                  <h2>{apiErrorMessage}</h2>
                 </div>
-                {/* Description */}
-                <p className="text-sm text-gray-600">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Architecto assumenda aut debitis, ducimus...
-                </p>
-                {/* Instructor */}
-                <div className="mt-3 flex items-center space-x-2 border-t pt-3">
-                  <img
-                    src="https://i.pravatar.cc/30"
-                    alt="Instructor"
-                    className="w-8 h-8 rounded-full"
-                  />
-                  <div>
-                    <p className="text-sm font-medium text-blue-600">
-                      Adrian Demian
-                    </p>
-                    <p className="text-xs text-gray-500">Instructor</p>
+              </div>
+            </section>
+          ) : course.length > 0 ? (
+            course.map((cat, index) => (
+              <div className="bg-white rounded shadow hover:shadow-lg transition">
+                <div className="flex flex-col sm:flex-row">
+                  {/* Icon */}
+                  <div className="flex items-center justify-center bg-blue-100 w-full sm:w-40 h-32 sm:h-auto">
+                    <svg
+                      className="w-12 h-12 text-blue-600"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M3 3h18v18H3V3z" />
+                    </svg>
+                  </div>
+                  {/* Content */}
+                  <div className="flex-1 p-4">
+                    <h2 className="text-lg font-semibold text-gray-800">
+                      {cat.title}
+                    </h2>
+                    {/* Rating */}
+                    <div className="flex items-center space-x-1 text-yellow-500 my-1">
+                      <span>★</span>
+                      <span>★</span>
+                      <span>★</span>
+                      <span className="text-gray-400">★</span>
+                      <span className="text-gray-400">★</span>
+                    </div>
+                    {/* Description */}
+                    <p className="text-sm text-gray-600">{cat.description}</p>
+                    {/* Instructor */}
+                    <div className="mt-3 flex items-center space-x-2 border-t pt-3">
+                      <img
+                        src="https://i.pravatar.cc/30"
+                        alt="Instructor"
+                        className="w-8 h-8 rounded-full"
+                      />
+                      <div>
+                        <p className="text-sm font-medium text-gray-600">
+                          {cat.category_name}
+                        </p>
+                        <p className="text-xs text-gray-500">Instructor</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
-          {/* Card 2 */}
-          <div className="bg-white rounded shadow hover:shadow-lg transition">
-            <div className="flex flex-col sm:flex-row">
-              {/* Icon */}
-              <div className="flex items-center justify-center bg-blue-100 w-full sm:w-40 h-32 sm:h-auto">
-                <svg
-                  className="w-12 h-12 text-blue-600"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M3 3h18v18H3V3z" />
-                </svg>
-              </div>
-              {/* Content */}
-              <div className="flex-1 p-4">
-                <h2 className="text-lg font-semibold text-gray-800">
-                  CSS Awesomeness with LESS Processing
-                </h2>
-                {/* Rating */}
-                <div className="flex items-center space-x-1 text-yellow-500 my-1">
-                  <span>★</span>
-                  <span>★</span>
-                  <span>★</span>
-                  <span className="text-gray-400">★</span>
-                  <span className="text-gray-400">★</span>
-                </div>
-                {/* Description */}
-                <p className="text-sm text-gray-600">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Architecto assumenda aut debitis, ducimus...
-                </p>
-                {/* Instructor */}
-                <div className="mt-3 flex items-center space-x-2 border-t pt-3">
-                  <img
-                    src="https://i.pravatar.cc/31"
-                    alt="Instructor"
-                    className="w-8 h-8 rounded-full"
-                  />
-                  <div>
-                    <p className="text-sm font-medium text-blue-600">
-                      Jane Smith
-                    </p>
-                    <p className="text-xs text-gray-500">Instructor</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          {/* Card 3 */}
-          <div className="bg-white rounded shadow hover:shadow-lg transition">
-            <div className="flex flex-col sm:flex-row">
-              {/* Icon */}
-              <div className="flex items-center justify-center bg-blue-100 w-full sm:w-40 h-32 sm:h-auto">
-                <svg
-                  className="w-12 h-12 text-blue-600"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M3 3h18v18H3V3z" />
-                </svg>
-              </div>
-              {/* Content */}
-              <div className="flex-1 p-4">
-                <h2 className="text-lg font-semibold text-gray-800">
-                  CSS Awesomeness with LESS Processing
-                </h2>
-                {/* Rating */}
-                <div className="flex items-center space-x-1 text-yellow-500 my-1">
-                  <span>★</span>
-                  <span>★</span>
-                  <span>★</span>
-                  <span className="text-gray-400">★</span>
-                  <span className="text-gray-400">★</span>
-                </div>
-                {/* Description */}
-                <p className="text-sm text-gray-600">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Architecto assumenda aut debitis, ducimus...
-                </p>
-                {/* Instructor */}
-                <div className="mt-3 flex items-center space-x-2 border-t pt-3">
-                  <img
-                    src="https://i.pravatar.cc/31"
-                    alt="Instructor"
-                    className="w-8 h-8 rounded-full"
-                  />
-                  <div>
-                    <p className="text-sm font-medium text-blue-600">
-                      Jane Smith
-                    </p>
-                    <p className="text-xs text-gray-500">Instructor</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+            ))
+          ) : (
+            <h4 className="font-medium">Empty</h4>
+          )}
         </div>
         {/* Pagination */}
         <div className="flex mt-8">

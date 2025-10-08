@@ -166,7 +166,7 @@ function LoginForm(props) {
 
     const loginUser = loginService.logIn(formData);
     console.log(loginUser);
-    loginUser
+    loginUser 
       .then((response) => response.json())
       .then((response) => {
         if (response.status === "success") {

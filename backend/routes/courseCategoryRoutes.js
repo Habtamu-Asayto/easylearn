@@ -14,4 +14,20 @@ router.post(
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   categoryController.createCategory
 );
+
+router.get(
+  "/api/category",
+  [authMiddleware.verifyToken, authMiddleware.isAdmin],
+  categoryController.getAllCategory
+);
+router.put(
+  "/api/category/:id",
+  [authMiddleware.verifyToken, authMiddleware.isAdmin],
+  categoryController.updateCategory
+);
+router.delete(
+  "/api/category/:id",
+  [authMiddleware.verifyToken, authMiddleware.isAdmin],
+  categoryController.deleteCategory
+);
 module.exports = router;

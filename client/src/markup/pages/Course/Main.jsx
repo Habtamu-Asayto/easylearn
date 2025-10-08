@@ -1,8 +1,47 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Footer from "../../components/Footer/Footer";
-import { Link } from "react-router-dom";
-import { Plus } from "react-feather";
+import { Link } from "react-router-dom"; 
+import courseService from "../../../services/course.service";
+import { useAuth } from "../../../contexts/AuthContext";
 function Main({ onShowAllMain }) {
+  
+  const { user } = useAuth();
+  let token = null;
+  if (user) {
+    token = user.user_token;
+  }
+
+  const [apiError, setApiError] = useState(false);
+  const [apiErrorMessage, setApiErrorMessage] = useState(null);
+  const [course, setCourse] = useState([]);
+  useEffect(() => {
+    // Call the getAllStudents function
+    const allCourse = courseService.getAllCourses(token);
+    allCourse
+      .then((res) => {
+        if (!res.ok) {
+         console.log("Here is: "+res.status);
+          setApiError(true);
+          if (res.status === 401) {
+            setApiErrorMessage("Please login again");
+          } else if (res.status === 403) {
+            setApiErrorMessage("You are not authorized to view this page");
+          } else {
+            setApiErrorMessage("Please try again later");
+          }
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (data.data.length !== 0) {
+          console.log(data.data);
+          setCourse(data.data);
+        }
+      })
+      .catch((err) => {
+        // console.log(err);
+      });
+  }, []);
   return (
     <div className="flex-1 overflow-y-auto">
       {/* Header */}
@@ -34,180 +73,69 @@ function Main({ onShowAllMain }) {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {/* Card 1 */}
-          <div className="card max-w-sm w-full bg-white rounded-2xl overflow-hidden shadow">
-            {/* Card Header */}
-            <div className="bg-gray-200 from-blue-400 to-indigo-500 flex items-center justify-center h-32">
-              <div className="bg-white p-4 rounded-full shadow-md">
-                {/* Replace with your icon */}
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-10 w-10 text-blue-600"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 14l9-5-9-5-9 5 9 5zm0 0v7m0-7l-9-5m9 5l9-5"
-                  />
-                </svg>
+          {apiError ? (
+            <section className="contact-section">
+              <div className="auto-container">
+                <div className="contact-title">
+                  <h2>{apiErrorMessage}</h2>
+                </div>
               </div>
-            </div>
-            {/* Card Body */}
-            <div className="p-6 text-center">
-              <h2 className="text-xl font-bold text-gray-800">
-                Awesome CSS with LESS Processing
-              </h2>
-            </div>
-            {/* Card Footer */}
-            <div className="border-t border-gray-200 px-6 py-4 flex justify-center">
-              <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500 text-white font-medium hover:bg-indigo-600 transition">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M11 17l-4-4m0 0l4-4m-4 4h14"
-                  />
-                </svg>
-                Edit Course
-              </button>
-            </div>
-          </div>
-          {/* Card 2 */}
-          <div className="card max-w-sm w-full bg-white rounded-2xl overflow-hidden shadow">
-            {/* Card Header */}
-            <div className="bg-gray-200 from-blue-400 to-indigo-500 flex items-center justify-center h-32">
-              <div className="bg-white p-4 rounded-full shadow-md">
-                {/* Replace with your icon */}
-                <svg
-                  className="w-10 h-10 text-blue-500"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M3 3h18v18H3V3z" />
-                </svg>
+            </section>
+          ) : course.length > 0 ? (
+            course.map((cat, index) => (
+              <div className="card max-w-sm w-full bg-white rounded-2xl overflow-hidden shadow">
+                {/* Card Header */}
+                <div className="bg-gray-200 from-blue-400 to-indigo-500 flex items-center justify-center h-32">
+                  <div className="bg-white p-4 rounded-full shadow-md">
+                    {/* Replace with your icon */}
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-10 w-10 text-blue-600"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M12 14l9-5-9-5-9 5 9 5zm0 0v7m0-7l-9-5m9 5l9-5"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                {/* Card Body */}
+                <div className="p-6 text-center">
+                  <h2 className="text-xl font-bold text-gray-800">
+                   {cat.title}
+                  </h2>
+                </div>
+                {/* Card Footer */}
+                <div className="border-t border-gray-200 px-6 py-4 flex justify-center">
+                  <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500 text-white font-medium hover:bg-indigo-600 transition">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-4 w-4"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M11 17l-4-4m0 0l4-4m-4 4h14"
+                      />
+                    </svg>
+                    Edit Course
+                  </button>
+                </div>
               </div>
-            </div>
-            {/* Card Body */}
-            <div className="p-6 text-center">
-              <h2 className="text-xl font-bold text-gray-800">
-                Awesome CSS with LESS Processing
-              </h2>
-            </div>
-            {/* Card Footer */}
-            <div className="border-t border-gray-200 px-6 py-4 flex justify-center">
-              <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500 text-white font-medium hover:bg-indigo-600 transition">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M11 17l-4-4m0 0l4-4m-4 4h14"
-                  />
-                </svg>
-                Edit Course
-              </button>
-            </div>
-          </div>
-          {/* Card 3 */}
-          <div className="card max-w-sm w-full bg-white rounded-2xl overflow-hidden shadow">
-            {/* Card Header */}
-            <div className="bg-gray-200 from-blue-400 to-indigo-500 flex items-center justify-center h-32">
-              <div className="bg-white p-4 rounded-full shadow-md">
-                {/* Replace with your icon */}
-                <svg
-                  className="w-10 h-10 text-red-500"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M4 4h16v16H4V4z" />
-                </svg>
-              </div>
-            </div>
-            {/* Card Body */}
-            <div className="p-6 text-center">
-              <h2 className="text-xl font-bold text-gray-800">
-                Awesome CSS with LESS Processing
-              </h2>
-            </div>
-            {/* Card Footer */}
-            <div className="border-t border-gray-200 px-6 py-4 flex justify-center">
-              <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500 text-white font-medium hover:bg-indigo-600 transition">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M11 17l-4-4m0 0l4-4m-4 4h14"
-                  />
-                </svg>
-                Edit Course
-              </button>
-            </div>
-          </div>
-          {/* Card 4*/}
-          <div className="card max-w-sm w-full bg-white rounded-2xl overflow-hidden shadow">
-            {/* Card Header */}
-            <div className="bg-gray-200 from-blue-400 to-indigo-500 flex items-center justify-center h-32">
-              <div className="bg-white p-4 rounded-full shadow-md">
-                {/* Replace with your icon */}
-                <svg
-                  className="w-10 h-10 text-red-500"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M4 4h16v16H4V4z" />
-                </svg>
-              </div>
-            </div>
-            {/* Card Body */}
-            <div className="p-6 text-center">
-              <h2 className="text-xl font-bold text-gray-800">
-                Awesome CSS with LESS Processing
-              </h2>
-            </div>
-            {/* Card Footer */}
-            <div className="border-t border-gray-200 px-6 py-4 flex justify-center">
-              <button className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500 text-white font-medium hover:bg-indigo-600 transition">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M11 17l-4-4m0 0l4-4m-4 4h14"
-                  />
-                </svg>
-                Edit Course
-              </button>
-            </div>
-          </div>
+            ))
+          ) : (
+            <h4 className="font-medium">Empty</h4>
+          )}
+          
           {/*Add Course*/}
           {/* Add New Course Card */}
 

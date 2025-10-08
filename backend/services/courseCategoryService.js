@@ -1,7 +1,5 @@
 // Import the query function from the db.config.js file
 const conn = require("../config/db");
-// Import the bcrypt module
-const bcrypt = require("bcrypt");
 // A function to check if user exists in the database
 
 async function checkIfCategoryExists(category) {
@@ -13,7 +11,6 @@ async function checkIfCategoryExists(category) {
   }
   return false;
 }
-
 // A function to create a new user
 async function createCategory(category) {
   let createCategory = {};
@@ -25,19 +22,27 @@ async function createCategory(category) {
     if (rows.affectedRows !== 1) {
       return false;
     }
-      
-    // construct to the user object to return
-    createCategory = {
-      user_id: user_id,
-    };
   } catch (err) {
     console.log(err);
   }
   // Return the user object
   return createCategory;
 }
-
-module.exports ={
-    createCategory,
-    checkIfCategoryExists
+// Get all categories
+async function getAllCategory() {
+  const query = "SELECT * FROM course_category";
+  const rows = await conn.query(query);
+    
+    if (rows) {
+      console.log("Category -> ", rows);
+      return rows;
+    } else {
+      console.log("Sm Error");
+    }
 }
+
+module.exports = {
+  createCategory,
+  checkIfCategoryExists,
+  getAllCategory,
+};

@@ -8,7 +8,7 @@ import { format } from "date-fns"; // To properly format the date on the table
 import studentService from "../../../services/user.service.js";
 import AddStudent from "../Modal/AddStudent.jsx";
 
-const StudentTable = () => {
+const StudentTable = () => { 
   // Create all the states we need to store the data
   // Create the student state to store the student data
   const index = 0;
@@ -21,7 +21,7 @@ const StudentTable = () => {
   const { user } = useAuth();
   let token = null; // To store the token
   if (user) {
-    token = user.user_token; 
+    token = user.user_token;  
     
   }
 
@@ -31,7 +31,7 @@ const StudentTable = () => {
     allStudents
       .then((res) => {
         console.log(res);
-        
+         
         if (!res.ok) {
         //   console.log("Here is: "+res.status);
           setApiError(true);

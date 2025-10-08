@@ -4,7 +4,7 @@ import categoryService from "../../../services/coursecategory.service.js";
 // Import the useAuth hook
 import { useAuth } from "../../../contexts/AuthContext.jsx";
 
-const AddCategory = ({ isOpen, onClose }) => {
+const AddCategory = ({ isOpen, onClose, editmodal, addmodal }) => {
   const [category_name, setCategory] = useState("");
   // Error
   const [categoryError, setCategoryError] = useState("");
@@ -18,7 +18,17 @@ const AddCategory = ({ isOpen, onClose }) => {
   if (user && user.user_token) {
     loggedInUserToken = user.user_token;
   }
-  const handleAdd = (e) => {
+  useEffect(() => {
+    if (editmodal) {
+      // Fill values
+      setCategory(editmodal.category_name || "");
+    } else {
+      setCategory("");
+    }
+  }, [editmodal]);
+
+  // Handler
+  const handleAdd = async (e) => {
     e.preventDefault();
     // Handle client side validations
     let valid = true; // Flag
@@ -27,7 +37,7 @@ const AddCategory = ({ isOpen, onClose }) => {
       setCategoryError("Category is required");
       valid = false;
     } else {
-      setCategory("");
+      setCategoryError("");
     }
 
     // If the form is not valid, do not submit
@@ -39,22 +49,39 @@ const AddCategory = ({ isOpen, onClose }) => {
     };
     // Pass the form data to the service
     try {
-      const data = categoryService.createCategory(formData, loggedInUserToken);
-      //   console.log("Response:", data);
+      let response;
+      if (editmodal) {
+        // EDIT MODE
+        response = await categoryService.updateCategory(
+          editmodal.category_id,
+          formData,
+          loggedInUserToken
+        );
+      } else {
+        // ADD MODE
+        response = await categoryService.createCategory(
+          formData,
+          loggedInUserToken
+        );
+      }
 
-      if (data.error) {
-        setServerError(data.error);
+      if (response.error) {
+        setServerError(response.error);
       } else {
         setServerError("");
         setSuccess(true);
-        //  Optional: show a toast instead of full reload
-        setTimeout(() => (window.location.href = "/category"), 1500);
+        setTimeout(() => {
+          console.log("Success");
+           window.location.href = "/category";
+        }, 700);
       }
     } catch (error) {
-      console.error("Error creating student:", error);
-      setServerError("Something went wrong while adding the category.");
+      setServerError("Something went wrong");
+      console.error(error);
     }
   };
+
+  
   if (!isOpen) return null;
   return (
     <AnimatePresence>
@@ -72,9 +99,9 @@ const AddCategory = ({ isOpen, onClose }) => {
           w-full max-w-md sm:max-w-lg md:max-w-xl relative
           overflow-y-auto  
         "
-            initial={{ scale: 0.9, opacity: 0, y: 30 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.9, opacity: 0, y: 30 }}
+            initial={{ opacity: 0, scale: 0.8, y: 50 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 50 }}
             transition={{ type: "spring", stiffness: 200, damping: 20 }}
           >
             {/* Close Button */}
@@ -89,7 +116,7 @@ const AddCategory = ({ isOpen, onClose }) => {
               {editingStudent ? "Edit Student" : "Add New Student"}
             </h2> */}
             <h2 className="text-xl sm:text-2xl font-semibold mb-6 text-gray-800 text-center">
-              Add New Category
+              {editmodal ? "Edit category" : " Add New Category"}
             </h2>
 
             {/* Example Form */}
@@ -133,6 +160,16 @@ const AddCategory = ({ isOpen, onClose }) => {
                 >
                   Save
                 </button>
+                {editmodal ? ( 
+                    <button
+                      type="button" 
+                      className="px-4 py-2 rounded-lg border bg-red-500 border-gray-300 hover:bg-gray-100 transition cursor-pointer"
+                    >
+                      Delete
+                    </button> 
+                ) : (
+                  <></>
+                )}
               </div>
             </form>
           </motion.div>

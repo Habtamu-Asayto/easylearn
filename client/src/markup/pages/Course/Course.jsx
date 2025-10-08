@@ -1,4 +1,4 @@
-import react, { useState } from "react";
+import React, { useState } from "react";
 
 import Sidebar from "../../components/Sidebar/Sidebar.jsx";
 // Import the auth hook
@@ -9,8 +9,9 @@ function Course() {
   const [isOpen, setIsOpen] = useState(false);
   // Destructure the auth hook
   const { isLogged, isAdmin, isInstructor, isStudent } = useAuth();
-   
+
   const [activePage, setActivePage] = useState("main");
+
   if (isLogged) {
     if (isAdmin || isInstructor) {
       return (

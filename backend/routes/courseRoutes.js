@@ -1,26 +1,23 @@
+// Import the express module
 const express = require("express");
-const {
-  getAllCourse,
-  getCourseById,
-  insertCourse,
-  updateCourse,
-  deleteCourse,
-} = require("../controllers/courseController");
+// Call the router method from express to create the router
 const router = express.Router();
+// Import the employee controller
+const courseController = require("../controllers/courseController");
+// Import middleware
+const authMiddleware = require("../middlewares/auth.middleware");
 
-//Get all Categories
-router.get("/getall", getAllCourse);
+// we can restrict on both back and front end
+//User Routes
+router.post(
+  "/api/course",
+  [authMiddleware.verifyToken, authMiddleware.isAdmin],
+  courseController.createCourse
+);
 
-//Get course category by ID
-router.get("/get/:id", getCourseById);
-
-//Insert new course category
-router.post("/insert", insertCourse);
-
-//Insert new course category
-router.put("/update/:id", updateCourse);
-
-//Delete course category
-router.delete("/delete/:id", deleteCourse);
-
+router.get(
+  "/api/courses",
+  [authMiddleware.verifyToken, authMiddleware.isAdmin],
+  courseController.getAllCoure
+);
 module.exports = router;

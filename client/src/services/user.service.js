@@ -47,7 +47,7 @@ const getAllStudents = async (token) => {
     headers: {
       "Content-Type": "application/json",
       "x-access-token": token,
-    },
+    },    
   };
   const response = await fetch(`${api_url}/api/students`, requestOptions);
   return response;

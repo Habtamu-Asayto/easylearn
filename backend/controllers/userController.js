@@ -72,7 +72,7 @@ async function getAllStudents(req, res, next) {
   // Call the getAllStudents method from the user service
   const students = await userService.getAllStudents();
   console.log("students");
-  if (!students) {
+  if (!students) { 
     res.status(400).json({
       error: "Failed to get all students!",
     });
