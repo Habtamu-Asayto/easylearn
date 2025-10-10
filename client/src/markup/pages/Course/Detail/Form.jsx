@@ -8,19 +8,20 @@ import { toast } from "react-toastify";
 import { motion, AnimatePresence, time } from "framer-motion";
 import ToggleButton from "../../../components/Toggle/ToggleButton";
 import { format, formatDistanceToNow } from "date-fns";
+import ExpandableLessons from "../Lesson/LessonCard";
 
 function Form({ editCourse, onSuccess }) {
   const [isOpen, setIsOpen] = useState(false);
   // Subtract Current time with updated time
-const overviewUpdated = editCourse?.overview?.updated_at
-  ? formatDistanceToNow(new Date(editCourse.overview.updated_at), {
-      addSuffix: true,
-    })
-  : "N/A";
+  const overviewUpdated = editCourse?.overview?.updated_at
+    ? formatDistanceToNow(new Date(editCourse.overview.updated_at), {
+        addSuffix: true,
+      })
+    : "N/A";
 
-const courseUpdated = editCourse?.updated_at
-  ? formatDistanceToNow(new Date(editCourse.updated_at), { addSuffix: true })
-  : "N/A";
+  const courseUpdated = editCourse?.updated_at
+    ? formatDistanceToNow(new Date(editCourse.updated_at), { addSuffix: true })
+    : "N/A";
   // Fetch All categories
   const [categories, setCategories] = useState("");
   const [loading, setLoading] = useState(true);
@@ -133,7 +134,7 @@ const courseUpdated = editCourse?.updated_at
     };
 
     try {
-      if (!!editCourse?.overview_id) {
+      if (!!editCourse?.overview.overview_id) {
         console.log("Updating overview...");
         response = await courseService.updateOverview(formData, token);
         toast.success("Overview updated successfully!");
@@ -288,6 +289,7 @@ const courseUpdated = editCourse?.updated_at
         toast.success("Lessons added successfully!");
         // Reset all lessons after success
         setLessons([]);
+        setTimeout(() => (window.location.href = `/courses`), 1200);
       } else {
         toast.error(res.error || "Failed to add lessons");
       }
@@ -296,7 +298,7 @@ const courseUpdated = editCourse?.updated_at
       toast.error("Server error while adding lessons");
     }
   };
-  const lessonsFromDb = editCourse?.lessons || [];
+
   const renderContent = () => {
     switch (activeTab) {
       case "Overview":
@@ -625,44 +627,10 @@ const courseUpdated = editCourse?.updated_at
             {/* Editor area (center) */}
             <div className="lg:col-span-9">
               <div className="bg-gray-50 overflow-hidden fade-in">
-                {lessonsFromDb.length === 0 ? (
-                  <p className="text-gray-600 italic">
-                    No lessons available for this course.
-                  </p>
-                ) : (
-                  lessonsFromDb.map((lesson, index) => (
-                    <div className="border border-gray-300 rounded-lg shadow-sm mb-3 overflow-hidden">
-                      <button
-                        onClick={() => setIsOpen(!isOpen)}
-                        className="w-full text-left px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-t-lg flex justify-between items-center transition-colors"
-                      >
-                        <span className="font-semibold text-gray-800">
-                          Lesson {index + 1}: {lesson.lesson_title}
-                        </span>
-                        <span
-                          className={`text-gray-600 transform transition-transform duration-300 ${
-                            isOpen ? "rotate-180" : "rotate-0"
-                          }`}
-                        >
-                          {isOpen ? "−" : "+"}
-                        </span>
-                      </button>
-
-                      {/* Animated section */}
-                      <div
-                        className={`transition-all duration-500 ease-in-out overflow-hidden ${
-                          isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
-                        }`}
-                      >
-                        <div className="p-4 bg-white border-t border-gray-200">
-                          <p className="text-gray-700 mb-2">
-                            {lesson.content}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
+                <ExpandableLessons
+                  courseId={editCourse?.course_id}
+                  token={token}
+                />
                 <div className="flex items-center border-b border-gray-200 px-4 sm:px-6 py-3 gap-3 bg-white">
                   {serverError && (
                     <div

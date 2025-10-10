@@ -180,10 +180,8 @@ async function getAllCourse() {
     }
   });
 
-
   return courses;
 }
-
 
 // async function checkOverview(courseID) {
 //   const query = `SELECT * FROM course_overview WHERE course_id = ?;`;
@@ -203,10 +201,9 @@ async function deleteCourse(courseId) {
     await conn.query("DELETE FROM lessons WHERE course_id = ?", [courseId]);
 
     // Delete the main course
-    const result = await conn.query(
-      "DELETE FROM courses WHERE course_id = ?",
-      [courseId]
-    );
+    const result = await conn.query("DELETE FROM courses WHERE course_id = ?", [
+      courseId,
+    ]);
 
     // Return true only if main course deleted
     return result.affectedRows > 0;
@@ -215,7 +212,6 @@ async function deleteCourse(courseId) {
     throw err;
   }
 }
-
 
 async function addLessons(lessons) {
   if (!Array.isArray(lessons) || lessons.length === 0) {
@@ -235,7 +231,7 @@ async function addLessons(lessons) {
       VALUES ${placeholders}
     `;
 
-    // ✅ now conn.query returns [rows, fields]
+    // now conn.query returns [rows, fields]
     const [result] = await conn2.query(query, values);
     console.log("Insert result:", result);
     return result;
@@ -244,8 +240,16 @@ async function addLessons(lessons) {
     throw err;
   }
 }
+const getLessonsByCourseService = async (courseId) => {
+  console.log("Query result 1: ", courseId);
 
-
+  const [rows] = await conn2.query(
+    `SELECT * FROM lessons WHERE course_id = ?;`,
+    [courseId]
+  );
+  console.log("Query result:", rows);
+  return rows;
+};
 
 module.exports = {
   createCourse,
@@ -254,6 +258,7 @@ module.exports = {
   updateCourse,
   deleteCourse,
   createOverview,
-  updateOverview, 
-  addLessons
+  updateOverview,
+  addLessons,
+  getLessonsByCourseService,
 };

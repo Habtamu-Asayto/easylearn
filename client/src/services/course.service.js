@@ -122,6 +122,19 @@ const createLesson = async (formData, loggedInUserToken) => {
   return data; // return the actual array or object
 };
 
+const getLessonsByCourse = async (courseId, token) => {
+  const response = await fetch(`${api_url}/api/lessons/${courseId}`, {
+    headers: {
+      "Content-Type": "application/json",
+      "x-access-token": token,
+    },
+  });
+
+  if (!response.ok) throw new Error("Failed to fetch lessons");
+
+  return response.json();
+};
+
  const courseService = {
    createCourse,
    getAllCourses,
@@ -129,6 +142,7 @@ const createLesson = async (formData, loggedInUserToken) => {
    deleteCourse,
    createOverview,
    updateOverview,
-   createLesson
+   getLessonsByCourse,
+   createLesson,
  };
 export default courseService;

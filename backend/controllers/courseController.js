@@ -219,7 +219,6 @@ async function deleteCourse(req, res) {
       .status(400)
       .json({ status: false, error: "Course ID is required" });
   }
-
   try {
     const deleted = await courseService.deleteCourse(courseId);
 
@@ -240,6 +239,26 @@ async function deleteCourse(req, res) {
   }
 }
 
+const getLessonsByCourse = async (req, res) => {
+  const { courseId } = req.params;
+//  console.log("Fetching lessons  id", courseId);
+  try {
+    const lessons = await courseService.getLessonsByCourseService(courseId);
+
+    res.status(200).json({
+      success: true,
+      data: lessons,
+    });
+  } catch (error) {
+    console.error("Error fetching lessons:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch lessons",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   createCourse,
   getAllCourse,
@@ -248,4 +267,5 @@ module.exports = {
   createOverview,
   updateOverview,
   createLessons,
+  getLessonsByCourse,
 };

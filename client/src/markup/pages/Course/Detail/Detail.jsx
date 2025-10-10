@@ -23,7 +23,7 @@ function Detail() {
         const course = data.data.find((c) => c.course_id === parseInt(id));
 
         if (!course) {
-          alert("Course not found");
+          // alert("Course not found");
           navigate("/courses");
         } else {
           setCourseData(course);

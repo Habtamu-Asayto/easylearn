@@ -48,6 +48,12 @@ router.get(
   courseController.getAllCourse
 );
 
+
+router.get(
+  "/api/lessons/:courseId",
+  [authMiddleware.verifyToken, authMiddleware.isAdmin],
+  courseController.getLessonsByCourse
+); 
 //Delete course category
  router.delete(
   "/api/courses/:id",
