@@ -89,7 +89,7 @@ function Form({ editCourse, onSuccess }) {
       if (editCourse) {
         response = await courseService.updateCourse(
           editCourse.course_id,
-          formData,
+          formData, 
           token
         );
       } else {

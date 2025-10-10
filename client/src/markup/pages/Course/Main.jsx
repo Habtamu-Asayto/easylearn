@@ -132,7 +132,7 @@ function Main({ onShowAllMain }) {
                 {/* Card Body */}
                 <div className="p-6 text-center">
                   <Link
-                    to={`/edit-course/${cat.course_id}`}
+                    to={`/course-detail/${cat.course_id}`}
                     className="text-xl font-bold text-gray-800"
                   >
                     {cat.title}
@@ -162,11 +162,11 @@ function Main({ onShowAllMain }) {
                   </Link>
                   <button
                     onClick={() => handleDeleteCourse(cat.course_id)}
-                    className="flex items-center ml-5 gap-2 px-4 py-2 rounded-lg bg-red-400 text-white font-medium hover:bg-red-300 transition"
+                    className="flex cursor-pointer items-center ml-5 gap-2 px-4 py-2 rounded-lg bg-red-400 text-white font-medium hover:bg-red-300 transition"
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5  cursor-pointer"
+                      className="h-5 w-5"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"

@@ -149,7 +149,7 @@ const handleEditClick = (student) => {
                           new Date(student.created_at),
                           "MM-dd-yyyy | HH:mm"
                         )}
-                      </td>
+                      </td> 
                       <td className="px-3 sm:px-6 py-3 text-center whitespace-nowrap">
                         <div className="flex justify-center gap-2">
                           <button

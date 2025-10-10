@@ -22,6 +22,7 @@ import EditCourse from "./markup/pages/Course/Edit/EditCourse.jsx";
 // Toast
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css"; 
+import Detail from "./markup/pages/Course/Detail/Detail.jsx";
 
 function BeforeLoginLayout({ children }) {
   return (
@@ -148,6 +149,16 @@ function App() {
             <AfterLoginLayout>
               <PrivateAuthRoute roles={[1, 2]}>
                 <EditCourse />
+              </PrivateAuthRoute>
+            </AfterLoginLayout>
+          }
+        />
+        <Route
+          path="/course-detail/:id"
+          element={
+            <AfterLoginLayout>
+              <PrivateAuthRoute roles={[1, 2]}>
+                <Detail />
               </PrivateAuthRoute>
             </AfterLoginLayout>
           }

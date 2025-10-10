@@ -14,7 +14,7 @@ async function createCourse(req, res) {
       });
     }
 
-    // 2️⃣ Attach instructor from token
+    // Attach instructor from token
     if (!req.user || !req.user.user_id) {
       return res.status(401).json({ status: false, error: "Unauthorized" });
     }
@@ -47,6 +47,99 @@ async function createCourse(req, res) {
   }
 }
 
+async function createOverview(req, res) {
+  try {
+    // console.log("Received body:", req.body); // <-- debug incoming data
+
+    const { course_id, detail, skill, duration } = req.body;
+
+    // Validate required fields
+    if (!course_id) {
+      return res.status(400).json({
+        status: false,
+        error: "course_id is required",
+      });
+    }
+
+    // Fallback overview to null if undefined
+    const courseData = {
+      course_id: course_id ?? null, // use null if undefined
+      overview_detail: detail ?? null,
+      required_skill: skill ?? null,
+      duration: duration ?? null,
+    };
+
+    // Create the course overview
+    const inserted = await courseService.createOverview(courseData);
+
+    if (!inserted) {
+      return res.status(400).json({
+        status: false,
+        error: "Failed to add Course Overview!",
+      });
+    }
+
+    console.log("Overview added successfully!");
+    return res.status(200).json({
+      status: true,
+      message: "success",
+    });
+  } catch (error) {
+    console.error("Error creating overview:", error);
+    return res.status(500).json({
+      status: false,
+      error: "Something went wrong while adding the course.",
+    });
+  }
+}
+
+async function updateOverview(req, res) {
+  try {
+    // console.log("Received body:", req.body); // <-- debug incoming data
+
+    const { course_id, detail, skill, duration, certificate } = req.body;
+
+    // Validate required fields
+    if (!course_id) {
+      return res.status(400).json({
+        status: false,
+        error: "course_id is required",
+      });
+    }
+
+    // Fallback overview to null if undefined
+    const courseData = {
+      course_id: course_id ?? null, // use null if undefined
+      overview_detail: detail ?? null,
+      required_skill: skill ?? null,
+      duration: duration ?? null,
+      certificate: certificate ?? null,
+    };
+
+    // Create the course overview
+    const inserted = await courseService.updateOverview(courseData);
+
+    if (!inserted) {
+      return res.status(400).json({
+        status: false,
+        error: "Failed to add Course Overview!",
+      });
+    }
+
+    console.log("Overview updated successfully!");
+    return res.status(200).json({
+      status: true,
+      message: "success",
+    });
+  } catch (error) {
+    console.error("Error updating overview:", error);
+    return res.status(500).json({
+      status: false,
+      error: "Something went wrong while adding the overvieww.",
+    });
+  }
+}
+
 async function updateCourse(req, res, next) {
   try {
     const courseData = req.body;
@@ -74,7 +167,7 @@ async function updateCourse(req, res, next) {
   }
 }
 
-async function getAllCoure(req, res, next) {
+async function getAllCourse(req, res, next) {
   const course = await courseService.getAllCourse();
   if (!course) {
     res.status(400).json({
@@ -90,7 +183,7 @@ async function getAllCoure(req, res, next) {
 
 async function deleteCourse(req, res) {
   const courseId = req.params.id;
-  console.log("1st:", courseId);
+
   if (!courseId) {
     return res
       .status(400)
@@ -98,9 +191,8 @@ async function deleteCourse(req, res) {
   }
 
   try {
-
     const deleted = await courseService.deleteCourse(courseId);
-    
+
     if (deleted) {
       return res
         .status(200)
@@ -116,10 +208,12 @@ async function deleteCourse(req, res) {
       .status(500)
       .json({ status: false, error: "Something went wrong" });
   }
-} 
+}
 module.exports = {
   createCourse,
-  getAllCoure,
-  updateCourse, 
-  deleteCourse
+  getAllCourse,
+  updateCourse,
+  deleteCourse,
+  createOverview,
+  updateOverview,
 };

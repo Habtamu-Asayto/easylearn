@@ -28,7 +28,7 @@ async function logIn(req, res, next) {
       user_full_name: user.data.user_full_name,
     };
     const token = jwt.sign(payload, jwtSecret, {
-      expiresIn: "24h",
+      expiresIn: "1h",
     });
     // console.log(token);
     const sendBack = {

@@ -24,8 +24,9 @@ import loginService from "../../../services/login.service.js";
 // Import the auth hook
 import { useAuth } from "../../../Contexts/AuthContext";
 
-import { useLocation, Link } from "react-router-dom";
-function Sidebar({ isOpen, setIsOpen }) {
+import { useLocation, Link } from "react-router-dom"; 
+
+function Sidebar({ isOpen, setIsOpen }) { 
   const [openMenu, setOpenMenu] = useState({ courses: false, forum: false });
   // Destructure the auth hook
   const { user, isLogged, isAdmin, isInstructor, isStudent } = useAuth();
@@ -45,7 +46,11 @@ function Sidebar({ isOpen, setIsOpen }) {
   };
 
   const location = useLocation();
-  const currentPath = location.pathname;
+  const currentPath = location.pathname;  
+
+   // Regex to match /edit-course/ followed by any number
+   const isEditCoursePath = /^\/edit-course\/\d+$/.test(currentPath);
+   const isDetailCoursePath = /^\/course-detail\/\d+$/.test(currentPath);
 
   return (
     <div>
@@ -315,7 +320,9 @@ function Sidebar({ isOpen, setIsOpen }) {
                     className={`flex items-center w-full px-4 py-3 rounded-lg transition-colors ${
                       currentPath === "/courses" ||
                       currentPath === "/add-course" ||
-                      currentPath === "/category"
+                      currentPath === "/category" ||
+                      isEditCoursePath ||
+                      isDetailCoursePath
                         ? "bg-blue-500 text-white"
                         : "hover:bg-blue-100 text-gray-700"
                     }`}

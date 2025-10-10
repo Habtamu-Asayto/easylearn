@@ -15,7 +15,39 @@ const createCourse = async (formData, loggedInUserToken) => {
   const response = await fetch(`${api_url}/api/add-course`, requestOptions);
   const data = await response.json(); // parse JSON here
   return data; // return the actual array or object
-};
+};// A function to send post request to create a new User
+
+// A function to send post request to create a new User
+const createOverview = async (formData, loggedInUserToken) => {
+  
+  const requestOptions = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-access-token": loggedInUserToken,
+    },
+    body: JSON.stringify(formData),
+  };
+  const response = await fetch(`${api_url}/api/add-overview`, requestOptions);
+  const data = await response.json(); // parse JSON here
+  return data; // return the actual array or object
+};// A function to send post request to create a new User
+ 
+// A function to send post request to create a new User
+const updateOverview = async (formData, loggedInUserToken) => {
+  
+  const requestOptions = {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "x-access-token": loggedInUserToken,
+    },
+    body: JSON.stringify(formData),
+  };
+  const response = await fetch(`${api_url}/api/add-overview`, requestOptions);
+  const data = await response.json(); // parse JSON here
+  return data; // return the actual array or object
+};// A function to send post request to create a new User
 
 // A function to send post request to create a new User
 const updateCourse = async (id, formData, loggedInUserToken) => {
@@ -46,7 +78,7 @@ const getAllCourses = async (token) => {
   };
   const response = await fetch(`${api_url}/api/courses`, requestOptions);
   return response;
-};
+}; 
 
 const deleteCourse = async (id, token) => {
   const requestOptions = {
@@ -70,15 +102,14 @@ const deleteCourse = async (id, token) => {
   }
 
   return data;
-};
+}; 
 
-  
-
-
-const courseService = {
-  createCourse,
-  getAllCourses,
-  updateCourse, 
-  deleteCourse
-};
+ const courseService = {
+   createCourse,
+   getAllCourses,
+   updateCourse,
+   deleteCourse,
+   createOverview,
+   updateOverview,
+ };
 export default courseService;

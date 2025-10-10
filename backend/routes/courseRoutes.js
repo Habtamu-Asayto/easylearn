@@ -15,28 +15,38 @@ router.post(
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   courseController.createCourse
 );
+
+//User Routes
+router.post(
+  "/api/add-overview",
+  [authMiddleware.verifyToken, authMiddleware.isAdmin],
+  courseController.createOverview
+);
+
+router.put(
+  "/api/add-overview",
+  [authMiddleware.verifyToken, authMiddleware.isAdmin],
+  courseController.updateOverview
+);
+
 //Update Routes
 router.put(
   "/api/add-course/:id",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   courseController.updateCourse
 );
-
+ 
 router.get(
   "/api/courses",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
-  courseController.getAllCoure
+  courseController.getAllCourse
 );
 
 //Delete course category
- 
-
-router.delete(
+ router.delete(
   "/api/courses/:id",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   courseController.deleteCourse
 );
-
-
  
 module.exports = router;

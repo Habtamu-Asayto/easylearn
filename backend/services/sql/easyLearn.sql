@@ -55,6 +55,19 @@ CREATE TABLE IF NOT EXISTS `courses` (
     FOREIGN KEY (category_id) REFERENCES course_category(category_id)
 ) ENGINE=InnoDB; 
 
+CREATE TABLE IF NOT EXISTS `course_overview`(
+    `overview_id` INT AUTO_INCREMENT,
+    `overview_detail` TEXT,
+    `required_skill` VARCHAR(250),
+    `duration` VARCHAR(250),
+    `certificate` BOOLEAN DEFAULT FALSE,
+    `course_id` INT NOT NULL,
+    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (overview_id),
+    FOREIGN KEY (course_id) REFERENCES courses(course_id)
+)ENGINE=InnoDB; 
+
 CREATE TABLE IF NOT EXISTS `Lessons` (
     `lesson_id` INT AUTO_INCREMENT,
     `course_id` INT NOT NULL,

@@ -8,7 +8,9 @@ const userService = require("../services/userService.js");
 
 // A function to verify the token received from the frontend
 const verifyToken = async (req, res, next) => {
-  let token = req.headers["x-access-token"];
+  let token =
+    req.headers["x-access-token"] ||
+    req.headers["authorization"]?.split(" ")[1];
   if (!token) {
     return res.status(403).send({
       status: "fail",
