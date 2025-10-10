@@ -22,6 +22,12 @@ router.post(
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   courseController.createOverview
 );
+//Lesson Routes
+router.post(
+  "/api/add-lesson",
+  [authMiddleware.verifyToken, authMiddleware.isAdmin],
+  courseController.createLessons
+);
 
 router.put(
   "/api/add-overview",

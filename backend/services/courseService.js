@@ -1,6 +1,7 @@
 // Import the query function from db.config.js
 const conn = require("../config/db");
 
+const conn2 = require("../config/db2"); // adjust path
 // Check if a course with the same title already exists
 async function checkIfCourseExists(courseTitle) {
   const query = "SELECT * FROM courses WHERE title = ?";
@@ -37,14 +38,15 @@ async function createCourse(course) {
 async function createOverview(overview) {
   try {
     const query = `
-      INSERT INTO course_overview (overview_detail, required_skill, duration, course_id)
-      VALUES (?, ?, ?, ?)
+      INSERT INTO course_overview (overview_detail, required_skill, duration, certificate, course_id)
+      VALUES (?, ?, ?, ?,?)
     `;
     // ❗ Don't destructure here — conn.query returns rows directly
     const result = await conn.query(query, [
       overview.overview_detail,
       overview.required_skill,
       overview.duration,
+      overview.certificate,
       overview.course_id,
     ]);
 
@@ -108,29 +110,80 @@ async function updateCourse(courseId, course) {
 async function getAllCourse() {
   const query = `
     SELECT 
-    c.course_id,
-    c.title,
-    c.description,
-    c.category_id,
-    ui.user_full_name AS instructor_name,
-    c.created_at,
-    c.updated_at,
-    co.overview_id,
-    co.overview_detail,
-    co.required_skill,
-    co.duration,
-    co.certificate,
-    co.created_at AS overview_created_at,
-    co.updated_at AS overview_updated_at
-FROM courses c
-JOIN users u ON c.instructor_id = u.user_id
-JOIN user_info ui ON u.user_id = ui.user_id
-LEFT JOIN course_overview co ON c.course_id = co.course_id;
-`;
+      c.course_id,
+      c.title,
+      c.description,
+      c.category_id,
+      ui.user_full_name AS instructor_name,
+      c.created_at,
+      c.updated_at,
+      co.overview_id,
+      co.overview_detail,
+      co.required_skill,
+      co.duration,
+      co.certificate,
+      co.created_at AS overview_created_at,
+      co.updated_at AS overview_updated_at,
+      le.lesson_id,
+      le.title AS lesson_title,
+      le.content,
+      le.video_url,
+      le.created_at AS lesson_created_at,
+      le.updated_at AS lesson_updated_at
+    FROM courses c
+    LEFT JOIN user_info ui ON c.instructor_id = ui.user_id
+    LEFT JOIN course_overview co ON c.course_id = co.course_id
+    LEFT JOIN lessons le ON c.course_id = le.course_id
+    ORDER BY c.course_id, le.lesson_id;
+  `;
+
   const rows = await conn.query(query);
-  // console.log("getAllCourse -> ", rows);
-  return rows;
+
+  const courses = [];
+  const map = new Map();
+
+  rows.forEach((row) => {
+    if (!map.has(row.course_id)) {
+      map.set(row.course_id, {
+        course_id: row.course_id,
+        title: row.title,
+        description: row.description,
+        category_id: row.category_id,
+        instructor_name: row.instructor_name,
+        created_at: row.created_at,
+        updated_at: row.updated_at,
+        overview: row.overview_id
+          ? {
+              overview_id: row.overview_id,
+              overview_detail: row.overview_detail,
+              required_skill: row.required_skill,
+              duration: row.duration,
+              certificate: !!row.certificate,
+              created_at: row.overview_created_at,
+              updated_at: row.overview_updated_at,
+            }
+          : null, // <-- null if no overview
+        lessons: [],
+      });
+      courses.push(map.get(row.course_id));
+    }
+
+    if (row.lesson_id) {
+      map.get(row.course_id).lessons.push({
+        lesson_id: row.lesson_id,
+        title: row.lesson_title,
+        content: row.content,
+        video_url: row.video_url,
+        created_at: row.lesson_created_at,
+        updated_at: row.lesson_updated_at,
+      });
+    }
+  });
+
+
+  return courses;
 }
+
 
 // async function checkOverview(courseID) {
 //   const query = `SELECT * FROM course_overview WHERE course_id = ?;`;
@@ -139,19 +192,59 @@ LEFT JOIN course_overview co ON c.course_id = co.course_id;
 //   return rows.length > 0;
 // }
 
-// Delete a course by ID
 async function deleteCourse(courseId) {
+  if (!courseId) throw new Error("Course ID is required");
+
   try {
-    const result = await conn.query("DELETE FROM courses WHERE course_id = ?", [
+    // Delete child rows first
+    await conn.query("DELETE FROM course_overview WHERE course_id = ?", [
       courseId,
     ]);
-    // console.log("Delete result:", result);
-    return result.affectedRows === 1;
+    await conn.query("DELETE FROM lessons WHERE course_id = ?", [courseId]);
+
+    // Delete the main course
+    const result = await conn.query(
+      "DELETE FROM courses WHERE course_id = ?",
+      [courseId]
+    );
+
+    // Return true only if main course deleted
+    return result.affectedRows > 0;
   } catch (err) {
     console.error("Delete course error:", err);
-    return false;
+    throw err;
   }
 }
+
+
+async function addLessons(lessons) {
+  if (!Array.isArray(lessons) || lessons.length === 0) {
+    throw new Error("No lessons provided");
+  }
+
+  try {
+    const placeholders = lessons.map(() => "(?,?,?,?)").join(",");
+    const values = [];
+
+    lessons.forEach((l) => {
+      values.push(l.course_id, l.lesson_title, l.content, l.video_url || null);
+    });
+
+    const query = `
+      INSERT INTO lessons (course_id, title, content, video_url)
+      VALUES ${placeholders}
+    `;
+
+    // ✅ now conn.query returns [rows, fields]
+    const [result] = await conn2.query(query, values);
+    console.log("Insert result:", result);
+    return result;
+  } catch (err) {
+    console.error("Add lesson error:", err);
+    throw err;
+  }
+}
+
 
 
 module.exports = {
@@ -162,4 +255,5 @@ module.exports = {
   deleteCourse,
   createOverview,
   updateOverview, 
+  addLessons
 };

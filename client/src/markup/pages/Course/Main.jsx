@@ -58,8 +58,7 @@ function Main({ onShowAllMain }) {
       } else {
         toast.error(res.error || "Failed to delete course");
       }
-    } catch (err) {
-      console.error(err);
+    } catch (err) { 
       toast.error("Something went wrong while deleting");
     }
   };

@@ -46,12 +46,42 @@ async function createCourse(req, res) {
     });
   }
 }
+async function createLessons(req, res) {
+  try {
+    const lessons = req.body;
+    console.log("Received lessons:", lessons);
+
+    if (!lessons || lessons.length === 0) {
+      return res
+        .status(400)
+        .json({ status: false, error: "No lessons provided" });
+    }
+
+    const result = await courseService.addLessons(lessons);
+    console.log("Affected rows:", result.affectedRows);
+
+    if (result.affectedRows > 0) {
+      return res
+        .status(200)
+        .json({ status: true, message: "Lessons added successfully!" });
+    } else {
+      return res
+        .status(400)
+        .json({ status: false, error: "No lessons inserted." });
+    }
+  } catch (err) {
+    console.error("Error adding lessons:", err);
+    return res
+      .status(500)
+      .json({ status: false, error: "Internal server error" });
+  }
+}
 
 async function createOverview(req, res) {
   try {
     // console.log("Received body:", req.body); // <-- debug incoming data
 
-    const { course_id, detail, skill, duration } = req.body;
+    const { course_id, detail, skill, duration, certificate } = req.body;
 
     // Validate required fields
     if (!course_id) {
@@ -67,6 +97,7 @@ async function createOverview(req, res) {
       overview_detail: detail ?? null,
       required_skill: skill ?? null,
       duration: duration ?? null,
+      certificate: certificate ?? null,
     };
 
     // Create the course overview
@@ -183,7 +214,6 @@ async function getAllCourse(req, res, next) {
 
 async function deleteCourse(req, res) {
   const courseId = req.params.id;
-
   if (!courseId) {
     return res
       .status(400)
@@ -209,6 +239,7 @@ async function deleteCourse(req, res) {
       .json({ status: false, error: "Something went wrong" });
   }
 }
+
 module.exports = {
   createCourse,
   getAllCourse,
@@ -216,4 +247,5 @@ module.exports = {
   deleteCourse,
   createOverview,
   updateOverview,
+  createLessons,
 };

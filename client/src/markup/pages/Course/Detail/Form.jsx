@@ -8,16 +8,19 @@ import { toast } from "react-toastify";
 import { motion, AnimatePresence, time } from "framer-motion";
 import ToggleButton from "../../../components/Toggle/ToggleButton";
 import { format, formatDistanceToNow } from "date-fns";
+
 function Form({ editCourse, onSuccess }) {
+  const [isOpen, setIsOpen] = useState(false);
   // Subtract Current time with updated time
-  const overviewUpdated = editCourse?.overview_updated_at
-    ? formatDistanceToNow(new Date(editCourse.overview_updated_at), {
-        addSuffix: true,
-      })
-    : "N/A";
-  const courseUpdated = editCourse?.updated_at
-    ? formatDistanceToNow(new Date(editCourse.updated_at), { addSuffix: true })
-    : "N/A";
+const overviewUpdated = editCourse?.overview?.updated_at
+  ? formatDistanceToNow(new Date(editCourse.overview.updated_at), {
+      addSuffix: true,
+    })
+  : "N/A";
+
+const courseUpdated = editCourse?.updated_at
+  ? formatDistanceToNow(new Date(editCourse.updated_at), { addSuffix: true })
+  : "N/A";
   // Fetch All categories
   const [categories, setCategories] = useState("");
   const [loading, setLoading] = useState(true);
@@ -31,10 +34,23 @@ function Form({ editCourse, onSuccess }) {
   const [description, setDescription] = useState(editCourse?.description || "");
   const [categoryId, setCategoryId] = useState(editCourse?.category_id || "");
 
-  const [skill, setSkill] = useState(editCourse?.required_skill || "");
-  const [duration, setDuration] = useState(editCourse?.duration || "");
-  const [certificate, setCertificate] = useState(false);
-  const [detail, setDetail] = useState(editCourse?.overview_detail || "");
+  // const [skill, setSkill] = useState(editCourse?.required_skill || "");
+  // const [duration, setDuration] = useState(editCourse?.duration || "");
+  // const [certificate, setCertificate] = useState(false);
+  // const [detail, setDetail] = useState(editCourse?.overview_detail || "");
+
+  const [duration, setDuration] = useState(
+    editCourse?.overview?.duration || ""
+  );
+  const [skill, setSkill] = useState(
+    editCourse?.overview?.required_skill || ""
+  );
+  const [detail, setDetail] = useState(
+    editCourse?.overview?.overview_detail || ""
+  );
+  const [certificate, setCertificate] = useState(
+    editCourse?.overview?.certificate || false
+  );
 
   // Errors
   const [skillError, setSkillError] = useState("");
@@ -47,6 +63,11 @@ function Form({ editCourse, onSuccess }) {
   const [success, setSuccess] = useState("");
   const [serverError, setServerError] = useState("");
 
+  // Errors of Lesson
+  const [lessonTitleError, setLessonTitleError] = useState([]);
+  const [contentError, setContentError] = useState([]);
+  const [videoURLError, setVideoURLError] = useState([]);
+
   const { user } = useAuth();
 
   let token = null;
@@ -58,6 +79,7 @@ function Form({ editCourse, onSuccess }) {
   const [buttonLabel, setButtonLabel] = useState("");
   useEffect(() => {
     // Populate categories
+
     categoryService
       .getCategoryForCourse(token)
       .then((result) => {
@@ -69,11 +91,15 @@ function Form({ editCourse, onSuccess }) {
         console.error(err);
         setLoading(false);
       });
-    if (!editCourse?.overview_id) {
+
+    if (!editCourse?.overview.overview_id) {
       setButtonLabel("Add Overview");
     } else {
       setButtonLabel("Update Overview");
     }
+
+    // When page refresh the form removed
+    lessons.forEach((_, i) => handleRemoveLesson(i));
   }, []);
 
   const handleSubmitOverview = async (e) => {
@@ -117,7 +143,7 @@ function Form({ editCourse, onSuccess }) {
         toast.success("Overview created successfully!");
       }
       setTimeout(() => {
-        const newCourseId = response.data?.course_id; // adjust based on your backend response
+        // const newCourseId = response.data?.course_id; // adjust based on your backend response
         window.location.href = `/courses`;
       }, 1500);
     } catch (err) {
@@ -180,7 +206,8 @@ function Form({ editCourse, onSuccess }) {
         // Backend sent success
         toast.success("Course Inserted successfully");
         setTimeout(() => {
-          window.location.href = `/course-detail/:${course_id}`;
+          // window.location.href = `/course-detail/:${course_id}`;
+          window.location.href = `/course-detail/${editCourse?.course_id}`;
         }, 1500);
       }
     } catch (err) {
@@ -193,32 +220,83 @@ function Form({ editCourse, onSuccess }) {
   const tabs = ["Course detail", "Overview", "Lessons", "Instructor"];
   const [activeTab, setActiveTab] = useState("Course detail");
 
-
-
-  
   // Hooks for Add and remove form
-  const [fields, setFields] = useState([
-    { lesson_title: "", content: "", video_url: "" },
+  const [lessons, setLessons] = useState([
+    {
+      course_id: editCourse.course_id,
+      lesson_title: "",
+      content: "",
+      video_url: "",
+    },
   ]);
 
-  // Add a new empty form row
-  const handleAddField = () => {
-    setFields([...fields, { lesson_title: "", content: "", video_url: "" }]);
+  const handleAddLesson = () => {
+    setLessons([
+      ...lessons,
+      {
+        course_id: editCourse.course_id,
+        lesson_title: "",
+        content: "",
+        video_url: "",
+      },
+    ]);
   };
 
   // Remove a form row
-  const handleRemoveField = (index) => {
-    const newFields = fields.filter((_, i) => i !== index);
-    setFields(newFields);
+  const handleRemoveLesson = (index) => {
+    setLessons(lessons.filter((_, i) => i !== index));
   };
 
   // Update form values
   const handleChange = (index, field, value) => {
-    const updatedFields = [...fields];
-    updatedFields[index][field] = value;
-    setFields(updatedFields);
+    const updated = [...lessons];
+    updated[index][field] = value;
+    setLessons(updated);
   };
 
+  const handleSubmitLesson = async (e) => {
+    e.preventDefault();
+    let valid = true;
+    // Reset errors
+    const titleErrors = [];
+    const contentErrors = [];
+    lessons.forEach((lesson, index) => {
+      if (!lesson.lesson_title.trim()) {
+        titleErrors[index] = `Lesson ${index + 1}: Title is required`;
+        valid = false;
+      }
+      if (!lesson.content.trim()) {
+        contentErrors[index] = `Lesson ${index + 1}: Content is required`;
+        valid = false;
+      }
+
+      //  if (lesson.video_url && !/^https?:\/\/\S+$/.test(lesson.video_url)) {
+      //    videoErrors[index] = `Lesson ${index + 1}: Video URL must be valid`;
+      //    valid = false;
+      //  }
+    });
+
+    setLessonTitleError(titleErrors);
+    setContentError(contentErrors);
+
+    if (!valid) return; // Stop submission if any lesson is invalid
+    try {
+      // const payload = { lessons };
+      const res = await courseService.createLesson(lessons, token);
+
+      if (res.status) {
+        toast.success("Lessons added successfully!");
+        // Reset all lessons after success
+        setLessons([]);
+      } else {
+        toast.error(res.error || "Failed to add lessons");
+      }
+    } catch (err) {
+      console.error("Error creating lessons:", err);
+      toast.error("Server error while adding lessons");
+    }
+  };
+  const lessonsFromDb = editCourse?.lessons || [];
   const renderContent = () => {
     switch (activeTab) {
       case "Overview":
@@ -315,7 +393,7 @@ function Form({ editCourse, onSuccess }) {
 
                     <div>
                       <ToggleButton
-                        initialState={!!editCourse?.certificate}
+                        initialState={!!editCourse?.overview.certificate}
                         value={certificate}
                         onChange={setCertificate}
                         label="Have it certificate ?"
@@ -547,7 +625,44 @@ function Form({ editCourse, onSuccess }) {
             {/* Editor area (center) */}
             <div className="lg:col-span-9">
               <div className="bg-gray-50 overflow-hidden fade-in">
-                {/* Tabs */}
+                {lessonsFromDb.length === 0 ? (
+                  <p className="text-gray-600 italic">
+                    No lessons available for this course.
+                  </p>
+                ) : (
+                  lessonsFromDb.map((lesson, index) => (
+                    <div className="border border-gray-300 rounded-lg shadow-sm mb-3 overflow-hidden">
+                      <button
+                        onClick={() => setIsOpen(!isOpen)}
+                        className="w-full text-left px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-t-lg flex justify-between items-center transition-colors"
+                      >
+                        <span className="font-semibold text-gray-800">
+                          Lesson {index + 1}: {lesson.lesson_title}
+                        </span>
+                        <span
+                          className={`text-gray-600 transform transition-transform duration-300 ${
+                            isOpen ? "rotate-180" : "rotate-0"
+                          }`}
+                        >
+                          {isOpen ? "−" : "+"}
+                        </span>
+                      </button>
+
+                      {/* Animated section */}
+                      <div
+                        className={`transition-all duration-500 ease-in-out overflow-hidden ${
+                          isOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+                        }`}
+                      >
+                        <div className="p-4 bg-white border-t border-gray-200">
+                          <p className="text-gray-700 mb-2">
+                            {lesson.content}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
                 <div className="flex items-center border-b border-gray-200 px-4 sm:px-6 py-3 gap-3 bg-white">
                   {serverError && (
                     <div
@@ -569,9 +684,9 @@ function Form({ editCourse, onSuccess }) {
                 </div>
                 {/* Editor body */}
                 <div className="p-4 sm:p-6">
-                  <form className="space-y-4">
+                  <form onSubmit={handleSubmitLesson} className="space-y-4">
                     <AnimatePresence>
-                      {fields.map((field, index) => (
+                      {lessons.map((lesson, index) => (
                         <motion.div
                           key={index}
                           initial={{ opacity: 0, y: 10 }}
@@ -587,7 +702,7 @@ function Form({ editCourse, onSuccess }) {
                             <input
                               type="lesson_title"
                               placeholder="Lesson Title"
-                              value={field.lesson_title}
+                              value={lesson.lesson_title}
                               onChange={(e) =>
                                 handleChange(
                                   index,
@@ -597,6 +712,15 @@ function Form({ editCourse, onSuccess }) {
                               }
                               className="mt-2 mb-4 block w-full rounded-lg border bg-white border-gray-200 px-3 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-300"
                             />
+
+                            {lessonTitleError[index] && (
+                              <div
+                                className="text-red-600 text-sm mt-1"
+                                role="alert"
+                              >
+                                {lessonTitleError[index]}
+                              </div>
+                            )}
                           </div>
 
                           <div>
@@ -607,12 +731,20 @@ function Form({ editCourse, onSuccess }) {
                               rows={7}
                               type="content"
                               placeholder="Content"
-                              value={field.content}
+                              value={lesson.content}
                               onChange={(e) =>
                                 handleChange(index, "content", e.target.value)
                               }
                               className="mt-2 mb-4 block w-full rounded-lg border bg-white border-gray-200 px-3 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-300"
                             />
+                            {contentError[index] && (
+                              <div
+                                className="text-red-600 text-sm mt-1"
+                                role="alert"
+                              >
+                                {contentError[index]}
+                              </div>
+                            )}
                           </div>
 
                           <div>
@@ -622,7 +754,7 @@ function Form({ editCourse, onSuccess }) {
                             <input
                               type="video_url"
                               placeholder="Video URL"
-                              value={field.video_url}
+                              value={lesson.video_url}
                               onChange={(e) =>
                                 handleChange(index, "video_url", e.target.value)
                               }
@@ -632,7 +764,7 @@ function Form({ editCourse, onSuccess }) {
 
                           <button
                             type="button"
-                            onClick={() => handleRemoveField(index)}
+                            onClick={() => handleRemoveLesson(index)}
                             className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
                           >
                             Remove
@@ -645,17 +777,17 @@ function Form({ editCourse, onSuccess }) {
                     <div className="flex justify-between items-center mt-6">
                       <button
                         type="button"
-                        onClick={handleAddField}
-                        className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
+                        onClick={handleAddLesson}
+                        className="px-4 py-2 cursor-pointer bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
                       >
-                        + Add Row
+                        + Add Lesson
                       </button>
 
                       <button
                         type="submit"
-                        className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                        className="px-6 py-2 cursor-pointer bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
                       >
-                        Submit
+                        Submit Lesson
                       </button>
                     </div>
                   </form>

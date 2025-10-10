@@ -21,7 +21,7 @@ function Detail() {
         const res = await courseService.getAllCourses(token);
         const data = await res.json();
         const course = data.data.find((c) => c.course_id === parseInt(id));
-        
+
         if (!course) {
           alert("Course not found");
           navigate("/courses");
