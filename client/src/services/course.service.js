@@ -89,9 +89,7 @@ const deleteCourse = async (id, token) => {
       "x-access-token": token,
     },
   };
-
   const response = await fetch(`${api_url}/api/courses/${id}`, requestOptions);
-
   // Check if response is JSON first
   let data;
   try {
@@ -101,10 +99,29 @@ const deleteCourse = async (id, token) => {
     console.error("Failed to parse JSON:", err);
     return { status: false, error: "Server returned invalid response" };
   }
-
   return data;
 }; 
 
+const deleteLesson = async(id,token)=>{
+  const requestOptions = {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      "x-access-token": token,
+    },
+  };
+  const response = await fetch(`${api_url}/api/lesson/${id}`, requestOptions);
+  // Check if response is JSON first
+  let data;
+  try {
+    data = await response.json();
+  } catch (err) {
+    // If backend didn't return JSON (e.g., 500 error), return a fallback
+    console.error("Failed to parse JSON:", err);
+    return { status: false, error: "Server returned invalid response" };
+  }
+  return data;
+}
 
 // A function to send post request to create a new User
 const createLesson = async (formData, loggedInUserToken) => {
@@ -135,6 +152,19 @@ const getLessonsByCourse = async (courseId, token) => {
   return response.json();
 };
 
+const updateLesson = async (lessonId, lessonData, token) => {
+  const response = await fetch(`${api_url}/api/lesson/${lessonId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      "x-access-token": token,
+    },
+    body: JSON.stringify(lessonData),
+  });
+
+  return response.json();
+};
+
  const courseService = {
    createCourse,
    getAllCourses,
@@ -144,5 +174,7 @@ const getLessonsByCourse = async (courseId, token) => {
    updateOverview,
    getLessonsByCourse,
    createLesson,
+   deleteLesson,
+   updateLesson,
  };
 export default courseService;

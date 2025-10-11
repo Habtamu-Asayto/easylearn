@@ -239,6 +239,34 @@ async function deleteCourse(req, res) {
   }
 }
 
+
+async function deleteLesson(req, res) {
+  const lessonId = req.params.id;
+  if (!lessonId) {
+    return res
+      .status(400)
+      .json({ status: false, error: "Lesson ID is required" });
+  }
+  try {
+    const deleted = await courseService.deleteLesson(lessonId);
+
+    if (deleted) {
+      return res
+        .status(200)
+        .json({ status: true, message: "Lesson deleted successfully" });
+    } else {
+      return res
+        .status(404)
+        .json({ status: false, error: "Lesson not found or already deleted" });
+    }
+  } catch (err) {
+    console.error("Controller error:", err);
+    return res
+      .status(500)
+      .json({ status: false, error: "Something went wrong" });
+  }
+}
+
 const getLessonsByCourse = async (req, res) => {
   const { courseId } = req.params;
 //  console.log("Fetching lessons  id", courseId);
@@ -259,6 +287,37 @@ const getLessonsByCourse = async (req, res) => {
   }
 };
 
+const updateLesson = async (req, res) => {
+  const { lessonId } = req.params;
+  const lessonData = req.body;
+
+  try {
+    const result = await courseService.updateLesson(
+      lessonId,
+      lessonData
+    );
+
+    if (result.affectedRows === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Lesson not found" });
+    }
+
+    res
+      .status(200)
+      .json({ success: true, message: "Lesson updated successfully" });
+  } catch (error) {
+    console.error("Error updating lesson:", error);
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: "Failed to update lesson",
+        error: error.message,
+      });
+  }
+};
+
 module.exports = {
   createCourse,
   getAllCourse,
@@ -268,4 +327,6 @@ module.exports = {
   updateOverview,
   createLessons,
   getLessonsByCourse,
+  deleteLesson,
+  updateLesson,
 };

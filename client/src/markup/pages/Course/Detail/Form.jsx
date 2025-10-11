@@ -9,6 +9,7 @@ import { motion, AnimatePresence, time } from "framer-motion";
 import ToggleButton from "../../../components/Toggle/ToggleButton";
 import { format, formatDistanceToNow } from "date-fns";
 import ExpandableLessons from "../Lesson/LessonCard";
+import Instructor from "../About/Instructor";
 
 function Form({ editCourse, onSuccess }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -298,7 +299,15 @@ function Form({ editCourse, onSuccess }) {
       toast.error("Server error while adding lessons");
     }
   };
-
+const instructorData = {
+  name: "John Doe",
+  title: "Senior React Instructor",
+  bio: "John has 10+ years of experience teaching web development and loves making complex topics simple.",
+  profilePicture: "https://randomuser.me/api/portraits/men/32.jpg",
+  twitter: "https://twitter.com/johndoe",
+  linkedin: "https://linkedin.com/in/johndoe",
+  email: "john@example.com",
+};
   const renderContent = () => {
     switch (activeTab) {
       case "Overview":
@@ -766,13 +775,12 @@ function Form({ editCourse, onSuccess }) {
         );
       case "Instructor":
         return (
-          <div className="text-gray-700">
-            <p>
-              <strong>Name:</strong> John Doe
-            </p>
-            <p>
-              <strong>Email:</strong> john.doe@example.com
-            </p>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            {/* Editor area (center) */}
+            <div className="lg:col-span-9 p-5"> 
+                <Instructor instructor={instructorData} />
+            
+            </div>
           </div>
         );
       default:

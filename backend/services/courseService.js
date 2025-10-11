@@ -106,6 +106,20 @@ async function updateCourse(courseId, course) {
   }
 }
 
+const updateLesson = async (lessonId, lessonData) => {
+  const { title, content, video_url } = lessonData;
+
+  const [result] = await conn2.query(
+    `UPDATE lessons 
+     SET title = ?, content = ?, video_url = ?, updated_at = NOW() 
+     WHERE lesson_id = ?`,
+    [title, content, video_url, lessonId]
+  );
+
+  return result;
+};
+
+
 // Get all courses
 async function getAllCourse() {
   const query = `
@@ -213,6 +227,23 @@ async function deleteCourse(courseId) {
   }
 }
 
+async function deleteLesson(lessonId) {
+  if (!lessonId) throw new Error("Lesson ID is required");
+
+  try { 
+    // Delete the main course
+    const result = await conn.query("DELETE FROM lessons WHERE lesson_id = ?", [
+      lessonId,
+    ]);
+
+    // Return true only if main course deleted
+    return result.affectedRows > 0;
+  } catch (err) {
+    console.error("Delete course error:", err);
+    throw err;
+  }
+}
+
 async function addLessons(lessons) {
   if (!Array.isArray(lessons) || lessons.length === 0) {
     throw new Error("No lessons provided");
@@ -261,4 +292,6 @@ module.exports = {
   updateOverview,
   addLessons,
   getLessonsByCourseService,
+  deleteLesson,
+  updateLesson
 };

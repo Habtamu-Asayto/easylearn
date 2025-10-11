@@ -61,4 +61,18 @@ router.get(
   courseController.deleteCourse
 );
  
+//Delete course category
+ router.delete(
+  "/api/lesson/:id",
+  [authMiddleware.verifyToken, authMiddleware.isAdmin],
+  courseController.deleteLesson
+);
+
+// PUT /api/lessons/:lessonId
+router.put(
+  "/api/lesson/:lessonId",
+  [authMiddleware.verifyToken, authMiddleware.isAdmin],
+  courseController.updateLesson
+);
+ 
 module.exports = router;
