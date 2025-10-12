@@ -119,7 +119,6 @@ const updateLesson = async (lessonId, lessonData) => {
   return result;
 };
 
-
 // Get all courses
 async function getAllCourse() {
   const query = `
@@ -197,13 +196,6 @@ async function getAllCourse() {
   return courses;
 }
 
-// async function checkOverview(courseID) {
-//   const query = `SELECT * FROM course_overview WHERE course_id = ?;`;
-//   const rows = await conn.query(query, [courseID]);
-//   // console.log("checkIfCourseExists ->", rows);
-//   return rows.length > 0;
-// }
-
 async function deleteCourse(courseId) {
   if (!courseId) throw new Error("Course ID is required");
 
@@ -230,7 +222,7 @@ async function deleteCourse(courseId) {
 async function deleteLesson(lessonId) {
   if (!lessonId) throw new Error("Lesson ID is required");
 
-  try { 
+  try {
     // Delete the main course
     const result = await conn.query("DELETE FROM lessons WHERE lesson_id = ?", [
       lessonId,
@@ -282,6 +274,65 @@ const getLessonsByCourseService = async (courseId) => {
   return rows;
 };
 
+// Check if a quiz exists for a lesson
+async function getQuizzesByLesson(lessonId) {   
+  try {
+    const [rows] = await conn2.query(
+      `SELECT quiz_id FROM Quiz WHERE lesson_id = ?`,
+      [lessonId]
+    );
+    return rows; // empty array if no quiz
+  } catch (err) {
+    // console.error("getQuizzesByLesson error:", err);
+    throw err;
+  }  
+}
+
+
+async function createQuiz(quizData) { 
+  try { 
+    // 1️⃣ Insert quiz
+    const [quizResult] = await conn2.query(
+      `INSERT INTO Quiz (question, question_type, points, lesson_id) VALUES (?, ?, ?, ?)`,
+      [
+        quizData.question,
+        quizData.question_type,
+        quizData.points,
+        quizData.lesson_id,
+      ]
+    );
+    const quizId = quizResult.insertId;
+
+    // 2️⃣ Insert options if multiple_choice
+    if (
+      quizData.question_type === "multiple_choice" &&
+      quizData.options?.length > 0
+    ) {
+      const optionValues = quizData.options.map((opt) => [
+        quizId,
+        opt.text,
+        opt.isCorrect,
+      ]);
+      await conn2.query(
+        `INSERT INTO QuizOptions (quiz_id, option_text, is_correct) VALUES ?`,
+        [optionValues]
+      );
+    }
+
+    // 3️⃣ Insert teacher's answer for short_answer / true_false
+    if (quizData.question_type !== "multiple_choice" && quizData.answer_text) {
+      await conn.query(
+        `INSERT INTO QuizAnswers (quiz_id, short_answer) VALUES (?, ?)`,
+        [quizId, quizData.answer_text]
+      );
+    }
+ 
+    return quizId;
+  } catch (err) { 
+    throw err;
+  }  
+}
+
 module.exports = {
   createCourse,
   checkIfCourseExists,
@@ -293,5 +344,7 @@ module.exports = {
   addLessons,
   getLessonsByCourseService,
   deleteLesson,
-  updateLesson
+  updateLesson,
+  createQuiz,
+  getQuizzesByLesson,
 };

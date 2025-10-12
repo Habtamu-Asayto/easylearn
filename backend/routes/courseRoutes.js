@@ -74,5 +74,10 @@ router.put(
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   courseController.updateLesson
 );
+router.post(
+  "/api/add-quiz",
+  [authMiddleware.verifyToken, authMiddleware.isAdmin],
+  courseController.createQuiz
+);
  
 module.exports = router;

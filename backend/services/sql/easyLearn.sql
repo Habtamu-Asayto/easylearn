@@ -155,49 +155,40 @@ CREATE TABLE IF NOT EXISTS `Chat` (
     FOREIGN KEY (sender_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (receiver_id) REFERENCES users(user_id) ON DELETE CASCADE
 ) ENGINE=InnoDB; 
- 
-CREATE TABLE IF NOT EXISTS `Quiz` (
-    `quiz_id` INT AUTO_INCREMENT ,
-    `title` VARCHAR(150) NOT NULL,
-    `description` TEXT,
-    `total_marks` INT,
-    `created_by` INT,  
+  
+ CREATE TABLE IF NOT EXISTS `Quiz` (
+    `quiz_id` INT AUTO_INCREMENT,
+    `user_id` INT,
+    `lesson_id` INT NOT NULL,
+    `question` TEXT NOT NULL,
+    `question_type` ENUM('multiple_choice', 'true_false', 'short_answer') DEFAULT 'multiple_choice',
+    `points` INT DEFAULT 1,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (quiz_id),
-    FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE SET NULL
-) ENGINE=InnoDB; 
- 
-CREATE TABLE IF NOT EXISTS `Question` (
-    `question_id` INT AUTO_INCREMENT ,
-    `quiz_id` INT NOT NULL,
-    `question_text` TEXT NOT NULL,
-    `question_type` ENUM('mcq','true_false','short_answer') DEFAULT 'mcq',
-    `marks` INT DEFAULT 0,
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (question_id),
-    FOREIGN KEY (quiz_id) REFERENCES Quiz(quiz_id) ON DELETE CASCADE
-) ENGINE=InnoDB; 
-  
-CREATE TABLE IF NOT EXISTS `MCQOption` (
-    `option_id` INT AUTO_INCREMENT ,
-    `question_id` INT NOT NULL,
-    `option_text` VARCHAR(255) NOT NULL,
-    `is_correct` BOOLEAN DEFAULT FALSE,
-    PRIMARY KEY (option_id),
-    FOREIGN KEY (question_id) REFERENCES Question(question_id) ON DELETE CASCADE
-) ENGINE=InnoDB; 
-  
-CREATE TABLE IF NOT EXISTS `UserAnswer` (
-    `answer_id` INT AUTO_INCREMENT,
-    `user_id` INT NOT NULL,
-    `question_id` INT NOT NULL,
-    `selected_option_id` INT NULL,
-    `answer_text` TEXT NULL,
-    `submitted_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (answer_id),
-    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    FOREIGN KEY (question_id) REFERENCES Question(question_id) ON DELETE CASCADE,
-    FOREIGN KEY (selected_option_id) REFERENCES MCQOption(option_id) ON DELETE SET NULL
-) ENGINE=InnoDB; 
-  
+    PRIMARY KEY (`quiz_id`),
+    FOREIGN KEY (`lesson_id`) REFERENCES `Lessons`(`lesson_id`) ON DELETE CASCADE,
+    FOREIGN KEY (`user_id`) REFERENCES users(`user_id`) 
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS `QuizOptions` (
+  `option_id` INT AUTO_INCREMENT,
+  `quiz_id` INT NOT NULL,
+  `option_text` VARCHAR(255) NOT NULL,
+  `is_correct` BOOLEAN DEFAULT FALSE,
+  PRIMARY KEY (`option_id`),
+  FOREIGN KEY (`quiz_id`) REFERENCES Quiz(`quiz_id`) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS `QuizAnswers` (
+  `answer_id` INT AUTO_INCREMENT,
+  `quiz_id` INT NOT NULL,
+  `user_id` INT,
+  `selected_option_id` INT NULL,         
+  `short_answer` TEXT NULL,           
+  `is_correct` BOOLEAN DEFAULT NULL,    
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`answer_id`),
+  FOREIGN KEY (`quiz_id`) REFERENCES Quiz(`quiz_id`) ON DELETE CASCADE,
+  FOREIGN KEY (`user_id`) REFERENCES users(`user_id`),
+  FOREIGN KEY (`selected_option_id`) REFERENCES QuizOptions(`option_id`)
+) ENGINE=InnoDB;

@@ -165,6 +165,22 @@ const updateLesson = async (lessonId, lessonData, token) => {
   return response.json();
 };
 
+// A function to send post request to create a new User
+const createQuiz = async (formData, loggedInUserToken) => {
+  console.log("Creating Quiz...", formData);
+  const requestOptions = {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-access-token": loggedInUserToken,
+    },
+    body: JSON.stringify(formData),
+  };
+  const response = await fetch(`${api_url}/api/add-quiz`, requestOptions);
+  const data = await response.json(); // parse JSON here
+  return data; // return the actual array or object
+};
+
  const courseService = {
    createCourse,
    getAllCourses,
@@ -176,5 +192,6 @@ const updateLesson = async (lessonId, lessonData, token) => {
    createLesson,
    deleteLesson,
    updateLesson,
+   createQuiz,
  };
 export default courseService;

@@ -94,7 +94,7 @@ function Form({ editCourse, onSuccess }) {
         setLoading(false);
       });
 
-    if (!editCourse?.overview.overview_id) {
+    if (!editCourse?.overview?.overview_id) {
       setButtonLabel("Add Overview");
     } else {
       setButtonLabel("Update Overview");
@@ -135,7 +135,7 @@ function Form({ editCourse, onSuccess }) {
     };
 
     try {
-      if (!!editCourse?.overview.overview_id) {
+      if (!!editCourse?.overview?.overview_id) {
         console.log("Updating overview...");
         response = await courseService.updateOverview(formData, token);
         toast.success("Overview updated successfully!");
@@ -209,7 +209,7 @@ function Form({ editCourse, onSuccess }) {
         toast.success("Course Inserted successfully");
         setTimeout(() => {
           // window.location.href = `/course-detail/:${course_id}`;
-          window.location.href = `/course-detail/${editCourse?.course_id}`;
+          window.location.href = `/courses`;
         }, 1500);
       }
     } catch (err) {
@@ -242,11 +242,15 @@ function Form({ editCourse, onSuccess }) {
         video_url: "",
       },
     ]);
+    setIsOpen(true);
   };
 
   // Remove a form row
   const handleRemoveLesson = (index) => {
     setLessons(lessons.filter((_, i) => i !== index));
+    if (lessons.length === 1) {
+      setIsOpen(false);
+    }
   };
 
   // Update form values
@@ -299,15 +303,15 @@ function Form({ editCourse, onSuccess }) {
       toast.error("Server error while adding lessons");
     }
   };
-const instructorData = {
-  name: "John Doe",
-  title: "Senior React Instructor",
-  bio: "John has 10+ years of experience teaching web development and loves making complex topics simple.",
-  profilePicture: "https://randomuser.me/api/portraits/men/32.jpg",
-  twitter: "https://twitter.com/johndoe",
-  linkedin: "https://linkedin.com/in/johndoe",
-  email: "john@example.com",
-};
+  const instructorData = {
+    name: "John Doe",
+    title: "Senior React Instructor",
+    bio: "John has 10+ years of experience teaching web development and loves making complex topics simple.",
+    profilePicture: "https://randomuser.me/api/portraits/men/32.jpg",
+    twitter: "https://twitter.com/johndoe",
+    linkedin: "https://linkedin.com/in/johndoe",
+    email: "john@example.com",
+  };
   const renderContent = () => {
     switch (activeTab) {
       case "Overview":
@@ -404,7 +408,7 @@ const instructorData = {
 
                     <div>
                       <ToggleButton
-                        initialState={!!editCourse?.overview.certificate}
+                        initialState={!!editCourse?.overview?.certificate}
                         value={certificate}
                         onChange={setCertificate}
                         label="Have it certificate ?"
@@ -443,20 +447,23 @@ const instructorData = {
                     >
                       <div className="flex">
                         <p className="font-bold">Skill level : </p>
-                        <h1 className="ml-1">{editCourse.required_skill}</h1>
+                        <h1 className="ml-1">
+                          {editCourse.overview.required_skill ||
+                            "No skill provided"}
+                        </h1>
                       </div>
                     </Link>
                     <Link className="block w-full py-2 px-3 rounded-md hover:bg-gray-50 cursor-pointer">
                       <div className="flex">
                         <p className="font-bold">Duration : </p>
-                        <h1 className="">{editCourse.duration}</h1>
+                        <h1 className="ml-1">{editCourse.overview.duration}</h1>
                       </div>
                     </Link>
                     <Link className="block w-full py-2 px-3 rounded-md hover:bg-gray-50 cursor-pointer">
                       <div className="flex">
                         <p className="font-bold">Certificate :</p>
-                        <h1 className="">
-                          {editCourse.certificate ? "Yes" : "No"}
+                        <h1 className="ml-1">
+                          {editCourse.overview.certificate ? "Yes" : "No"}
                         </h1>
                       </div>
                     </Link>
@@ -687,12 +694,12 @@ const instructorData = {
                                   e.target.value
                                 )
                               }
-                              className="mt-2 mb-4 block w-full rounded-lg border bg-white border-gray-200 px-3 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                              className="mt-2 mb-1 block w-full rounded-lg border bg-white border-gray-200 px-3 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-300"
                             />
 
                             {lessonTitleError[index] && (
                               <div
-                                className="text-red-600 text-sm mt-1"
+                                className="text-red-600 text-sm"
                                 role="alert"
                               >
                                 {lessonTitleError[index]}
@@ -701,7 +708,7 @@ const instructorData = {
                           </div>
 
                           <div>
-                            <label className="block text-sm font-medium text-gray-600">
+                            <label className="block text-sm font-medium text-gray-600 mt-3">
                               Lesson Content
                             </label>
                             <textarea
@@ -712,7 +719,7 @@ const instructorData = {
                               onChange={(e) =>
                                 handleChange(index, "content", e.target.value)
                               }
-                              className="mt-2 mb-4 block w-full rounded-lg border bg-white border-gray-200 px-3 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                              className="mt-2 block w-full rounded-lg border bg-white border-gray-200 px-3 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-300"
                             />
                             {contentError[index] && (
                               <div
@@ -725,7 +732,7 @@ const instructorData = {
                           </div>
 
                           <div>
-                            <label className="block text-sm font-medium text-gray-600">
+                            <label className="block text-sm font-medium text-gray-600 mt-4">
                               Video URL
                             </label>
                             <input
@@ -755,18 +762,20 @@ const instructorData = {
                       <button
                         type="button"
                         onClick={handleAddLesson}
-                        className="px-4 py-2 cursor-pointer bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
+                        className="flex px-4 py-2 cursor-pointer bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
                       >
                         + Add Lesson
                       </button>
-
-                      <button
-                        type="submit"
-                        className="px-6 py-2 cursor-pointer bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-                      >
-                        Submit Lesson
-                      </button>
+                      {isOpen && (
+                        <button
+                          type="submit"
+                          className="px-6 py-2 cursor-pointer bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                        >
+                          Submit Lesson
+                        </button>
+                      )}
                     </div>
+                    {/* <Quiz />   */}
                   </form>
                 </div>
               </div>
@@ -777,9 +786,8 @@ const instructorData = {
         return (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Editor area (center) */}
-            <div className="lg:col-span-9 p-5"> 
-                <Instructor instructor={instructorData} />
-            
+            <div className="lg:col-span-9 p-5">
+              <Instructor instructor={instructorData} />
             </div>
           </div>
         );

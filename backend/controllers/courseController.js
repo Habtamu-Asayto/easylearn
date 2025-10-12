@@ -239,7 +239,6 @@ async function deleteCourse(req, res) {
   }
 }
 
-
 async function deleteLesson(req, res) {
   const lessonId = req.params.id;
   if (!lessonId) {
@@ -269,7 +268,7 @@ async function deleteLesson(req, res) {
 
 const getLessonsByCourse = async (req, res) => {
   const { courseId } = req.params;
-//  console.log("Fetching lessons  id", courseId);
+  //  console.log("Fetching lessons  id", courseId);
   try {
     const lessons = await courseService.getLessonsByCourseService(courseId);
 
@@ -292,10 +291,7 @@ const updateLesson = async (req, res) => {
   const lessonData = req.body;
 
   try {
-    const result = await courseService.updateLesson(
-      lessonId,
-      lessonData
-    );
+    const result = await courseService.updateLesson(lessonId, lessonData);
 
     if (result.affectedRows === 0) {
       return res
@@ -308,16 +304,65 @@ const updateLesson = async (req, res) => {
       .json({ success: true, message: "Lesson updated successfully" });
   } catch (error) {
     console.error("Error updating lesson:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Failed to update lesson",
-        error: error.message,
-      });
+    res.status(500).json({
+      success: false,
+      message: "Failed to update lesson",
+      error: error.message,
+    });
   }
 };
 
+async function createQuiz(req, res) {
+  try {
+    const { lesson_id, question, question_type, points, options, answer_text } =
+      req.body;
+
+    if (!lesson_id) {
+      return res
+        .status(400)
+        .json({ status: false, error: "Lesson id is required" });
+    }
+     const existingQuizzes = await courseService.getQuizzesByLesson(lesson_id);
+     if (existingQuizzes.length > 0) {
+       return res
+         .status(400)
+         .json({
+           status: false,
+           error: "A quiz already exists for this lesson.",
+         });
+     }
+
+    const QuizData = {
+      lesson_id,
+      question,
+      question_type,
+      points,
+      options, // pass full array
+      answer_text,
+    };
+    // Create the course overview
+    const inserted = await courseService.createQuiz(QuizData);
+
+    if (!inserted) {
+      return res.status(400).json({
+        status: false,
+        error: "Failed to add Quize!",
+      });
+    }
+
+    console.log("Quize added successfully!");
+    return res.status(200).json({
+      status: true,
+      message: "success",
+    });
+  } catch (error) {
+    console.error("Error creating Quize:", error);
+    return res.status(500).json({
+      status: false,
+      error: "Something went wrong while adding the Quize.",
+    });
+  }
+}
 module.exports = {
   createCourse,
   getAllCourse,
@@ -329,4 +374,5 @@ module.exports = {
   getLessonsByCourse,
   deleteLesson,
   updateLesson,
+  createQuiz,
 };

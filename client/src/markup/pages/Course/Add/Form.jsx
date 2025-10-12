@@ -49,6 +49,7 @@ function Form({ editCourse, onSuccess }) {
       });
   }, []);
 
+  // Add Course
   const handleSubmit = async (e) => {
     e.preventDefault();
     let valid = true; // Flag
