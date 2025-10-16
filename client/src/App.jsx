@@ -21,8 +21,11 @@ import EditCourse from "./markup/pages/Course/Edit/EditCourse.jsx";
 
 // Toast
 import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; 
+import "react-toastify/dist/ReactToastify.css";
 import Detail from "./markup/pages/Course/Detail/Detail.jsx";
+import Announcement from "./markup/pages/News/Announcement.jsx";
+import Billing from "./markup/pages/Billing/Billing.jsx";
+import Chat from "./markup/pages/Chat/Chat.jsx";
 
 function BeforeLoginLayout({ children }) {
   return (
@@ -65,7 +68,7 @@ function UnauthorizedLayout({ children }) {
 
 function App() {
   // Toast for any page
-   
+
   const user = JSON.parse(localStorage.getItem("user")); // check login state
   const location = useLocation(); // detect current route
 
@@ -132,6 +135,16 @@ function App() {
             </AfterLoginLayout>
           }
         />
+        <Route
+          path="/news"
+          element={
+            <AfterLoginLayout>
+              <PrivateAuthRoute roles={[1, 2]}>
+                <Announcement />
+              </PrivateAuthRoute>
+            </AfterLoginLayout>
+          }
+        />
 
         <Route
           path="/add-course"
@@ -173,21 +186,27 @@ function App() {
             </AfterLoginLayout>
           }
         />
-        {/* 👇 Catch-all route: redirect any unknown path to login
         <Route
-          path="/404"
+          path="/billing"
           element={
-            <UnauthorizedLayout>
-              <A404 />
-            </UnauthorizedLayout>
+            <AfterLoginLayout>
+              <PrivateAuthRoute roles={[1, 2]}>
+                <Billing />
+              </PrivateAuthRoute>
+            </AfterLoginLayout>
           }
         />
+
         <Route
-          path="*"
-          element={ 
-              <Navigate to="/404" replace />
+          path="/chat"
+          element={
+            <AfterLoginLayout>
+              <PrivateAuthRoute roles={[1, 2, 3]}>
+                <Chat />
+              </PrivateAuthRoute>
+            </AfterLoginLayout>
           }
-        /> */}
+        />
       </Routes>
       <ToastContainer
         position="top-right"

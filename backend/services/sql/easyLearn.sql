@@ -4,9 +4,23 @@
 CREATE TABLE IF NOT EXISTS `users` (
   `user_id` int(11) NOT NULL AUTO_INCREMENT,
   `user_email` varchar(255) NOT NULL, 
+  `profile_img` VARCHAR(255), 
+  `last_seen` DATETIME,
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (user_id), 
   UNIQUE (user_email) 
+) ENGINE=InnoDB;
+
+CREATE TABLE IF NOT EXISTS `messages` (
+    `id` INT AUTO_INCREMENT,
+    `sender_id` INT,
+    `receiver_id` INT,
+    `content` TEXT,
+    `is_ai` BOOLEAN DEFAULT FALSE,
+    `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
+     PRIMARY KEY (id), 
+     FOREIGN KEY (sender_id) REFERENCES users(user_id) ON DELETE CASCADE,
+     FOREIGN KEY (receiver_id) REFERENCES users(user_id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS `user_info` (
@@ -191,4 +205,19 @@ CREATE TABLE IF NOT EXISTS `QuizAnswers` (
   FOREIGN KEY (`quiz_id`) REFERENCES Quiz(`quiz_id`) ON DELETE CASCADE,
   FOREIGN KEY (`user_id`) REFERENCES users(`user_id`),
   FOREIGN KEY (`selected_option_id`) REFERENCES QuizOptions(`option_id`)
+) ENGINE=InnoDB;
+
+
+CREATE TABLE IF NOT EXISTS `news` (
+  `news_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11),
+  `title` VARCHAR(200) NOT NULL,         
+  `body` TEXT NOT NULL,     
+  `pinned` BOOLEAN DEFAULT FALSE,             
+  `unread` BOOLEAN DEFAULT TRUE, 
+  `audience` VARCHAR(100) DEFAULT 'All', 
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`news_id`),
+  FOREIGN KEY (`user_id`) REFERENCES users(`user_id`)
 ) ENGINE=InnoDB;

@@ -448,22 +448,22 @@ function Form({ editCourse, onSuccess }) {
                       <div className="flex">
                         <p className="font-bold">Skill level : </p>
                         <h1 className="ml-1">
-                          {editCourse.overview.required_skill ||
-                            "No skill provided"}
+                          {editCourse.overview?.required_skill ||
+                            "No"}
                         </h1>
                       </div>
                     </Link>
                     <Link className="block w-full py-2 px-3 rounded-md hover:bg-gray-50 cursor-pointer">
                       <div className="flex">
                         <p className="font-bold">Duration : </p>
-                        <h1 className="ml-1">{editCourse.overview.duration}</h1>
+                        <h1 className="ml-1">{editCourse.overview?.duration}</h1>
                       </div>
                     </Link>
                     <Link className="block w-full py-2 px-3 rounded-md hover:bg-gray-50 cursor-pointer">
                       <div className="flex">
                         <p className="font-bold">Certificate :</p>
                         <h1 className="ml-1">
-                          {editCourse.overview.certificate ? "Yes" : "No"}
+                          {editCourse.overview?.certificate ? "Yes" : "No"}
                         </h1>
                       </div>
                     </Link>

@@ -3,7 +3,6 @@ const api_url = "http://localhost:8080";
 
 // A function to send post request to create a new User
 const createCourse = async (formData, loggedInUserToken) => {
-  
   const requestOptions = {
     method: "POST",
     headers: {
@@ -15,11 +14,10 @@ const createCourse = async (formData, loggedInUserToken) => {
   const response = await fetch(`${api_url}/api/add-course`, requestOptions);
   const data = await response.json(); // parse JSON here
   return data; // return the actual array or object
-};// A function to send post request to create a new User
+}; // A function to send post request to create a new User
 
 // A function to send post request to create a new User
 const createOverview = async (formData, loggedInUserToken) => {
-  
   const requestOptions = {
     method: "POST",
     headers: {
@@ -33,10 +31,8 @@ const createOverview = async (formData, loggedInUserToken) => {
   return data; // return the actual array or object
 };
 
-
 // A function to send post request to create a new User
 const updateOverview = async (formData, loggedInUserToken) => {
-  
   const requestOptions = {
     method: "PUT",
     headers: {
@@ -48,7 +44,7 @@ const updateOverview = async (formData, loggedInUserToken) => {
   const response = await fetch(`${api_url}/api/add-overview`, requestOptions);
   const data = await response.json(); // parse JSON here
   return data; // return the actual array or object
-};// A function to send post request to create a new User
+}; // A function to send post request to create a new User
 
 // A function to send post request to create a new User
 const updateCourse = async (id, formData, loggedInUserToken) => {
@@ -79,7 +75,7 @@ const getAllCourses = async (token) => {
   };
   const response = await fetch(`${api_url}/api/courses`, requestOptions);
   return response;
-}; 
+};
 
 const deleteCourse = async (id, token) => {
   const requestOptions = {
@@ -100,9 +96,9 @@ const deleteCourse = async (id, token) => {
     return { status: false, error: "Server returned invalid response" };
   }
   return data;
-}; 
+};
 
-const deleteLesson = async(id,token)=>{
+const deleteLesson = async (id, token) => {
   const requestOptions = {
     method: "DELETE",
     headers: {
@@ -121,11 +117,10 @@ const deleteLesson = async(id,token)=>{
     return { status: false, error: "Server returned invalid response" };
   }
   return data;
-}
+};
 
 // A function to send post request to create a new User
 const createLesson = async (formData, loggedInUserToken) => {
-  
   const requestOptions = {
     method: "POST",
     headers: {
@@ -181,17 +176,17 @@ const createQuiz = async (formData, loggedInUserToken) => {
   return data; // return the actual array or object
 };
 
- const courseService = {
-   createCourse,
-   getAllCourses,
-   updateCourse,
-   deleteCourse,
-   createOverview,
-   updateOverview,
-   getLessonsByCourse,
-   createLesson,
-   deleteLesson,
-   updateLesson,
-   createQuiz,
- };
+const courseService = {
+  createCourse,
+  getAllCourses,
+  updateCourse,
+  deleteCourse,
+  createOverview,
+  updateOverview,
+  getLessonsByCourse,
+  createLesson,
+  deleteLesson,
+  updateLesson,
+  createQuiz,
+};
 export default courseService;

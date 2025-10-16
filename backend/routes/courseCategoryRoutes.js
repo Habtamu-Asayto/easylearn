@@ -10,24 +10,24 @@ const authMiddleware = require("../middlewares/auth.middleware");
  // we can restrict on both back and front end
 //User Routes 
 router.post(
-  "/api/category",
+  "/category",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   categoryController.createCategory
 );
 
 router.get(
-  "/api/category",
+  "/category",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   categoryController.getAllCategory
 );
 //Update Routes
 router.put(
-  "/api/category/:id",
+  "/category/:id",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   categoryController.updateCategory
 );
 router.delete(
-  "/api/category/:id",
+  "/category/:id",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   categoryController.deleteCategory
 );

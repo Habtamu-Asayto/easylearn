@@ -9,14 +9,14 @@ const authMiddleware = require("../middlewares/auth.middleware");
 
 // we can restrict on both back and front end
 //User Routes
-router.post("/api/user", userController.createUser);
+router.post("/user", userController.createUser);
 router.get( 
-  "/api/students",
+  "/students",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   userController.getAllStudents
 );
 router.post(
-  "/api/add-student",
+  "/add-student",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   userController.createStudent
 );

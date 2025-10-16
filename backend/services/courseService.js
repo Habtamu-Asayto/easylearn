@@ -33,7 +33,7 @@ async function createCourse(course) {
     throw err;
   }
 }
-
+ 
 // Create a new Overview
 async function createOverview(overview) {
   try {
@@ -346,5 +346,5 @@ module.exports = {
   deleteLesson,
   updateLesson,
   createQuiz,
-  getQuizzesByLesson,
+  getQuizzesByLesson, 
 };

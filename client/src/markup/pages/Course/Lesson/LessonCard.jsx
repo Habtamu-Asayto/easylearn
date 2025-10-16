@@ -41,11 +41,18 @@ function ExpandableLessons({ courseId, token }) {
     } else {
       setQuestionError("");
     }
-    if (!answerText) {
-      setAnswerError("Answer is required");
-      valid = false;
-    } else {
+    if (questionType === "true_false") {
+      if (!answerText) {
+        setAnswerError("Answer is required");
+        valid = false;
+      } else {
+        setAnswerError("");
+        setAnswerText("")
+      }
+    } 
+    else{
       setAnswerError("");
+      setAnswerText("");
     }
     if (questionType === "multiple_choice") {
       const hasEmptyText = options.some((opt) => opt.text.trim() === "");
@@ -520,22 +527,27 @@ function ExpandableLessons({ courseId, token }) {
                     )}
                   </div>
                 )}
-                  {(questionType === "short_answer" ||
+                {(questionType === "short_answer" ||
                   questionType === "true_false") && (
                   <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                     <div>
-                      <label>Answersss</label>
+                      <label>Answer</label>
                       <input
                         type="text"
                         name="answer"
                         id="answer"
                         value={answerText}
                         onChange={(e) => setAnswerText(e.target.value)}
-                        className="w-full border mt-1 border-gray-400 focus:border-blue-400 focus:outline-none rounded px-3 py-2 mb-3"
+                        className="w-full border mt-1 border-gray-400 focus:border-blue-400 focus:outline-none rounded px-3 py-2 mb-1"
                       />
+                      {answerError && (
+                        <p className="text-red-500 text-sm">
+                          {answerError}
+                        </p>
+                      )}
                     </div>
                   </div>
-                )}  
+                )}
                 <div>
                   <label> Point</label>
                   <input

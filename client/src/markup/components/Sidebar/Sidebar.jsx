@@ -16,7 +16,7 @@ import {
   LogOut,
   ArrowLeft,
   BellOff,
-  Users
+  Users,
 } from "react-feather";
 
 import loginService from "../../../services/login.service.js";
@@ -24,9 +24,9 @@ import loginService from "../../../services/login.service.js";
 // Import the auth hook
 import { useAuth } from "../../../Contexts/AuthContext";
 
-import { useLocation, Link } from "react-router-dom"; 
+import { useLocation, Link } from "react-router-dom";
 
-function Sidebar({ isOpen, setIsOpen }) { 
+function Sidebar({ isOpen, setIsOpen }) {
   const [openMenu, setOpenMenu] = useState({ courses: false, forum: false });
   // Destructure the auth hook
   const { user, isLogged, isAdmin, isInstructor, isStudent } = useAuth();
@@ -46,11 +46,11 @@ function Sidebar({ isOpen, setIsOpen }) {
   };
 
   const location = useLocation();
-  const currentPath = location.pathname;  
+  const currentPath = location.pathname;
 
-   // Regex to match /edit-course/ followed by any number
-   const isEditCoursePath = /^\/edit-course\/\d+$/.test(currentPath);
-   const isDetailCoursePath = /^\/course-detail\/\d+$/.test(currentPath);
+  // Regex to match /edit-course/ followed by any number
+  const isEditCoursePath = /^\/edit-course\/\d+$/.test(currentPath);
+  const isDetailCoursePath = /^\/course-detail\/\d+$/.test(currentPath);
 
   return (
     <div>
@@ -238,12 +238,12 @@ function Sidebar({ isOpen, setIsOpen }) {
                       </a>
                     </li>
                     <li>
-                      <a
-                        href="#"
+                      <Link
+                        to="/news"
                         className="flex items-center w-full px-4 py-3 rounded-lg hover:bg-blue-300"
                       >
                         Announcements
-                      </a>
+                      </Link>
                     </li>
                   </ul>
                 </li>
@@ -350,7 +350,11 @@ function Sidebar({ isOpen, setIsOpen }) {
                 <li>
                   <button
                     onClick={() => toggleMenu("forum")}
-                    className="flex items-center justify-between w-full px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-300 transition text-base cursor-pointer"
+                    className={`flex items-center w-full px-4 py-3 rounded-lg transition-colors cursor-pointer ${
+                      currentPath === "/chat"
+                        ? "bg-blue-500 text-white"
+                        : "hover:bg-blue-100 text-gray-700"
+                    }`}
                   >
                     <span className="flex items-center">
                       <MessageSquare className="w-5 h-5 mr-3" /> Message
@@ -374,15 +378,17 @@ function Sidebar({ isOpen, setIsOpen }) {
                   <ul
                     className={`overflow-hidden transition-all duration-300 ease-in-out pl-0 mt-1 space-y-1 text-base ${
                       openMenu.forum ? "max-h-60" : "max-h-0"
-                    }`}
+                    }  
+                    
+                    `}
                   >
                     <li>
-                      <a
-                        href="#"
-                        className="flex items-center w-full px-4 py-3 rounded-lg hover:bg-blue-300"
+                      <Link
+                        to="/chat"
+                        className={`flex items-center w-full px-4 py-3 rounded-lg transition-colors`}
                       >
                         Community
-                      </a>
+                      </Link>
                     </li>
                     <li>
                       <a
@@ -395,13 +401,17 @@ function Sidebar({ isOpen, setIsOpen }) {
                   </ul>
                 </li>
                 <li>
-                  <a
-                    href="#"
-                    className="flex items-center w-full px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-300 transition text-base cursor-pointer"
+                  <Link
+                    to="/news"
+                    className={`flex items-center w-full px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-300 transition text-base cursor-pointer ${
+                      currentPath === "/news"
+                        ? "bg-blue-500 text-white"
+                        : "hover:bg-blue-100 text-gray-700"
+                    }`}
                   >
                     <BellOff className="w-5 h-5 mr-3" />
                     Announcements
-                  </a>
+                  </Link>
                 </li>
               </ul>
 
@@ -420,13 +430,17 @@ function Sidebar({ isOpen, setIsOpen }) {
                 </li>
 
                 <li>
-                  <a
-                    href="#"
-                    className="flex items-center w-full px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-300 transition text-base cursor-pointer"
+                  <Link
+                    to="/billing"
+                    className={`flex items-center w-full px-4 py-3 rounded-lg transition-colors ${
+                      currentPath === "/billing"
+                        ? "bg-blue-500 text-white"
+                        : "hover:bg-blue-100 text-gray-700"
+                    }`}
                   >
                     <CreditCard className="w-5 h-5 mr-3" />
                     Billing
-                  </a>
+                  </Link>
                 </li>
 
                 <li>

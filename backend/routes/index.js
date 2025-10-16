@@ -4,17 +4,24 @@ const express = require("express");
 const router = express.Router();
 // Import the install router
 const installRouter = require("./installRoutes");
-// Import the user routes 
-const userRouter = require("./UserRoutes"); 
+// Import the user routes
+const userRouter = require("./UserRoutes");
 
-// Import the category routes 
-const categoryRouter = require("./courseCategoryRoutes"); 
-// Import the category routes 
-const courseRouter = require("./courseRoutes"); 
+// Import the category routes
+const categoryRouter = require("./courseCategoryRoutes");
+// Import the category routes
+const courseRouter = require("./courseRoutes");
 router.use(courseRouter);
+ 
+// Message
+const messageRouter = require("./messageRoute");
+router.use("/message",messageRouter);
+
+const newsRouter = require("./newsRoutes");
+router.use(newsRouter);
 
 //Import Login route
-const loginRouter = require("./loginRoutes")
+const loginRouter = require("./loginRoutes");
 
 // Add the install router to the main router
 router.use(installRouter);
@@ -26,6 +33,6 @@ router.use(userRouter);
 router.use(categoryRouter);
 
 //Add Login route
-router.use(loginRouter)
+router.use(loginRouter);
 // Export the router
 module.exports = router;

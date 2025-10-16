@@ -1,0 +1,33 @@
+ai-chat-app
+├── backend
+│   ├── server.js
+│   ├── socket.js
+├── config/
+│   └── db.js
+│   ├── routes/
+│   │   ├── messageRoutes.js
+│   │   └── aiRoutes.js
+│   ├── controllers/
+│   │   ├── messageController.js
+│   │   └── aiController.js
+│   ├── services/
+│   │   ├── aiService.js
+│   │   └── messageService.js
+│   └── models/
+│       └── Message.js
+
+frontend/
+    ├── src/
+    │   ├── page/
+    │   │   └── Chat/Chat.jsx   
+    │   ├── services/
+    │   │   └── api.js
+    │   ├── App.jsx
+    │   └── index.js
+    └── package.json
+
+1. Back end
+step 1:- install socket.io and openai libraries
+npm install openai socket.io 
+Front
+npm install socket.io-client

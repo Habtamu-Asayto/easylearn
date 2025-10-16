@@ -40,7 +40,7 @@ function LoginForm(props) {
   const { user } = useAuth();
   if (user && user.user_token) {
     loggedInUserToken = user.user_token;
-  }
+  }  console.log("Log :- ", loggedInUserToken.user_email);
 
   //Register user handeler
   const handleSubmit = (e) => {

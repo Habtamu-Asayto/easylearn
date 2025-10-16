@@ -11,71 +11,71 @@ const authMiddleware = require("../middlewares/auth.middleware");
 
 //User Routes
 router.post(
-  "/api/add-course",
+  "/add-course",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   courseController.createCourse
 );
 
 //User Routes
 router.post(
-  "/api/add-overview",
+  "/add-overview",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   courseController.createOverview
 );
 //Lesson Routes
 router.post(
-  "/api/add-lesson",
+  "/add-lesson",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   courseController.createLessons
 );
 
 router.put(
-  "/api/add-overview",
+  "/add-overview",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   courseController.updateOverview
 );
 
 //Update Routes
 router.put(
-  "/api/add-course/:id",
+  "/add-course/:id",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   courseController.updateCourse
 );
  
 router.get(
-  "/api/courses",
+  "/courses",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   courseController.getAllCourse
 );
 
 
 router.get(
-  "/api/lessons/:courseId",
+  "/lessons/:courseId",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   courseController.getLessonsByCourse
 ); 
 //Delete course category
  router.delete(
-  "/api/courses/:id",
+  "/courses/:id",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   courseController.deleteCourse
 );
  
 //Delete course category
  router.delete(
-  "/api/lesson/:id",
+  "/lesson/:id",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   courseController.deleteLesson
 );
 
-// PUT /api/lessons/:lessonId
+// PUT /lessons/:lessonId
 router.put(
-  "/api/lesson/:lessonId",
+  "/lesson/:lessonId",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   courseController.updateLesson
 );
 router.post(
-  "/api/add-quiz",
+  "/add-quiz",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   courseController.createQuiz
 );
