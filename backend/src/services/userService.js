@@ -2,12 +2,15 @@
 const conn = require("../config/db");
 // Import the bcrypt module
 const bcrypt = require("bcrypt");
-// A function to check if user exists in the database
+const crypto = require("crypto");
+const { sendVerificationEmail } = require("../utils/mailer");
+require("dotenv").config();
 
+// A function to check if user exists in the database
 async function checkIfUserExists(email) {
   const query = "SELECT * FROM users WHERE user_email = ? ";
   const rows = await conn.query(query, [email]);
-  console.log(rows);
+  // console.log(rows);
   if (rows.length > 0) {
     return true;
   }
@@ -16,7 +19,7 @@ async function checkIfUserExists(email) {
 
 // A function to create a new user
 async function createUser(user) {
-  let createdUser = {};
+  // const createUser=
   try {
     // Generate a salt and hash the password
     const salt = await bcrypt.genSalt(10);
@@ -24,8 +27,8 @@ async function createUser(user) {
     const hashedPassword = await bcrypt.hash(user.user_password, salt);
 
     // Insert the email in to the user table
-    const query = "INSERT INTO users (user_email) VALUES (?)";
-    const rows = await conn.query(query, [user.user_email]);
+    const query = "INSERT INTO users (user_email, is_verified) VALUES (?, ?)";
+    const rows = await conn.query(query, [user.user_email, 0]);
     console.log(rows);
     if (rows.affectedRows !== 1) {
       return false;
@@ -47,15 +50,32 @@ async function createUser(user) {
     const rows4 = await conn.query(query4, [user_id, user.user_role_id]);
     console.log("You did it ");
 
-    // construct to the user object to return
-    createUser = {
-      user_id: user_id,
-    };
+    // --- Generate verification token ---
+    const token = crypto.randomBytes(32).toString("hex");
+    const hours = parseInt(
+      process.env.VERIFICATION_TOKEN_EXPIRES_HOURS || "24",
+      10
+    );
+    const expires = new Date(Date.now() + hours * 3600 * 1000);
+
+    const updateTokenQuery = `
+      UPDATE users SET verification_token = ?, verification_token_expires = ? WHERE user_id = ?
+    `;
+    await conn.query(updateTokenQuery, [token, expires, user_id]);
+    // Send verification email (do not await to avoid long response? better to await and handle errors)
+    try {
+      await sendVerificationEmail(user.user_email, user.user_full_name, token);
+    } catch (mailErr) {
+      console.error("Failed to send verification email:", mailErr);
+      // You may want to continue (user created) or rollback — choose based on requirements.
+    }
+
+    // Return created user_id or minimal object
+    return { user_id };
   } catch (err) {
-    console.log(err);
+    console.error("createUser error:", err);
+    return false;
   }
-  // Return the user object
-  return createUser;
 }
 // A function to create a new user
 async function createStudent(user) {
@@ -132,5 +152,5 @@ module.exports = {
   createUser,
   getUserByEmail,
   getAllStudents,
-  createStudent
+  createStudent,
 };

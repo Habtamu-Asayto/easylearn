@@ -22,9 +22,8 @@ async function createUser(req, res, next) {
           error: "Failed to add the User!",
         });
       } else {
-        res.status(200).json({
-          status: "true",
-        });
+        // controller after create
+       res.status(200).json({ status: "pending_verification", message: "Check your email" });
       }
     } catch (error) {
       console.log(err);
@@ -83,8 +82,46 @@ async function getAllStudents(req, res, next) {
     });
   }
 }
+
+async function verifyEmail(req, res) {
+  const { email, token } = req.body;
+   console.log("Try to verify...");
+  try {
+    const user = await userService.getUserByEmail(email);
+
+    if (!user || user.length === 0) {
+      return res.status(400).json({ message: "User not found" });
+    }
+
+    const foundUser = user[0];
+
+    if (foundUser.verification_token !== token) {
+      return res.status(400).json({ message: "Invalid or expired token" });
+    }
+
+    const now = new Date();
+    if (new Date(foundUser.verification_token_expires) < now) {
+      return res.status(400).json({ message: "Token has expired" });
+    }
+
+ 
+    
+    // Mark user as verified
+    const query = `UPDATE users SET is_verified = 1, verification_token = NULL, verification_token_expires = NULL WHERE user_email = ?`;
+    await require("../config/db2").query(query, [email]);
+
+    return res.status(200).json({ message: "Email verified successfully" });
+  } catch (err) {
+    console.error("verifyEmail error:", err);
+    return res
+      .status(500)
+      .json({ message: "Server error during verification" });
+  }
+}
+
 module.exports = {
   createUser,
   getAllStudents,
-  createStudent
+  createStudent,
+  verifyEmail,
 };

@@ -52,10 +52,30 @@ const getAllStudents = async (token) => {
   const response = await fetch(`${api_url}/api/students`, requestOptions);
   return response;
 };
+
+const resendVerification = async () => {
+  try {
+    const res = await fetch(`${api_url}/api/auth/resend-verification`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: user_email }),
+    });
+    const d = await res.json();
+    if (res.ok) {
+      alert("Verification email resent. Check your inbox.");
+    } else {
+      alert(d.error || "Could not resend.");
+    }
+  } catch (err) {
+    alert("Error resending verification: " + err.message);
+  }
+};
+
 // Export all the functions
 const userService = {
   createUser,
   getAllStudents,
   createStudent,
+  resendVerification
 };
 export default userService;

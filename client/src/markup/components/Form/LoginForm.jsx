@@ -3,6 +3,7 @@ import feather from "feather-icons";
 import userService from "../../../services/user.service";
 import { useNavigate, useLocation } from "react-router-dom";
 import loginService from "../../../services/login.service";
+import { toast } from "react-toastify";
 
 // Import the useAuth hook
 import { useAuth } from "../../../contexts/AuthContext.jsx";
@@ -14,7 +15,8 @@ function LoginForm(props) {
     feather.replace(); // replace feather icons after render
   }, []);
 
-  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState("");
   const location = useLocation();
 
   const [user_email, setEmail] = useState("");
@@ -40,10 +42,11 @@ function LoginForm(props) {
   const { user } = useAuth();
   if (user && user.user_token) {
     loggedInUserToken = user.user_token;
-  }  console.log("Log :- ", loggedInUserToken.user_email);
+  }
 
   //Register user handeler
   const handleSubmit = (e) => {
+    setIsLoading(true); 
     // Prevent the default behavior of the form
     e.preventDefault();
     // Handle client side validations
@@ -97,7 +100,6 @@ function LoginForm(props) {
     newuser
       .then((response) => response.json())
       .then((data) => {
-        // console.log(data);
         // If Error is returned from the API server, set the error message
         if (data.error) {
           setServerError(data.error);
@@ -105,13 +107,17 @@ function LoginForm(props) {
           // Handle successful response
           setSuccess(true);
           setServerError("");
-          // Redirect to the users page after 2 seconds
-          // For now, just redirect to the home page
- 
-          setTimeout(() => {
-            // window.location.href = '/admin/users';
-            window.location.href = "/";
-          }, 100);
+          toast.success(
+            `Registration successfull, please verify on you email ${user_email}`
+          );
+          setEmail("");
+          setFullName("");
+          setPassword("");
+          setPhoneNumber("");
+          // setTimeout(() => {
+          //   // window.location.href = '/admin/users';
+          //   window.location.href = "/";
+          // }, 100);
         }
       })
       // Handle Catch
@@ -123,11 +129,15 @@ function LoginForm(props) {
           error.message ||
           error.toString();
         setServerError(resMessage);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   };
 
   //Login handler
   const handleLogin = async (event) => {
+    setIsLoading(true);
     event.preventDefault();
     // Handle client side validations here
     let valid = true; // Flag
@@ -161,39 +171,31 @@ function LoginForm(props) {
       user_email,
       user_password,
     };
-    console.log(formData);
-    // Call the service
 
     const loginUser = loginService.logIn(formData);
-    console.log(loginUser);
-    loginUser 
+    loginUser
       .then((response) => response.json())
       .then((response) => {
         if (response.status === "success") {
           // Save the user in the local storage
+
           if (response.data.user_token) {
-            // console.log(response.data);
             localStorage.setItem("user", JSON.stringify(response.data));
-          }
-          // Redirect the user to the dashboard
-          // navigate('/admin');
-          console.log(location);
-          if (location.pathname === "/login") {
-            // navigate('/admin');
-            // window.location.replace('/admin');
-            // To home for now
+          } 
+          if (location.pathname === "/login") { 
             window.location.replace("/welcome");
           } else {
             window.location.reload();
           }
         } else {
           // Show an error message
-          setServerError(response.message);
+          toast.error(response.message); 
         }
       })
       .catch((err) => {
-        console.log(err);
         setServerError("An error has occurred. Please try again later." + err);
+      }).finally(()=>{
+        setIsLoading(false);
       });
   };
   return (
@@ -272,7 +274,7 @@ function LoginForm(props) {
                   type="submit"
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded shadow-md transition duration-200 cursor-pointer"
                 >
-                  Sign In
+                  {isLoading ? "Logging..." : "Login"}
                 </button>
               </div>
 
@@ -325,6 +327,18 @@ function LoginForm(props) {
             </h1>
             <p className="text-gray-600">Join our learning community</p>
           </div>
+          {/* {success && (
+              <div className="p-4 bg-green-50 border border-green-200 rounded">
+                <h3 className="font-semibold">Registration successful</h3>
+                <p>
+                  We sent a verification email to <strong>{user_email}</strong>.
+                  Please click the link in that email to activate your account.
+                </p>
+                <p>
+                  If you don't see it, check spam or{" "}
+                  {/* <button onClick={resendVerification}>resend</button>.</p>  </div> */}
+          {/* )} */}
+
           <form
             className="space-y-3 animate-fade-in-up"
             onSubmit={handleSubmit}
@@ -418,9 +432,10 @@ function LoginForm(props) {
               <div className="w-full">
                 <button
                   type="submit"
+                  disabled={isLoading}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-200 cursor-pointer"
                 >
-                  Add user
+                  {isLoading ? "Registering..." : "Add User"}
                 </button>
               </div>
             </div>

@@ -27,6 +27,17 @@ async function logIn(userData) {
       };
       return returnData;
     }
+
+    console.log("Checker");
+
+    // Check email verification
+    if (!user[0].is_verified) {
+      return {
+        status: "error",
+        message: "Please verify your email before logging in.",
+      };
+    }
+
     returnData = {
       status: "success",
       data: user[0],

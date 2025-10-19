@@ -11,6 +11,14 @@ CREATE TABLE IF NOT EXISTS `users` (
   UNIQUE (user_email) 
 ) ENGINE=InnoDB;
 
+-- -- ALTER TABLE users
+--   ADD COLUMN is_verified TINYINT(1) NOT NULL DEFAULT 0,
+--   ADD COLUMN verification_token VARCHAR(128) NULL,
+--   ADD COLUMN verification_token_expires DATETIME NULL;
+
+-- -- Optional: index token for faster lookup
+-- CREATE INDEX idx_verification_token ON users (verification_token);
+
 CREATE TABLE IF NOT EXISTS `messages` (
     `id` INT AUTO_INCREMENT,
     `sender_id` INT,

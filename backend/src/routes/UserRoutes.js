@@ -7,9 +7,11 @@ const userController = require("../controllers/userController");
 // Import middleware
 const authMiddleware = require("../middlewares/auth.middleware");
 
+
 // we can restrict on both back and front end
 //User Routes
 router.post("/user", userController.createUser);
+router.post("/verify-email", userController.verifyEmail);
 router.get( 
   "/students",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],

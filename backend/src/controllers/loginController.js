@@ -7,18 +7,19 @@ const jwtSecret = process.env.JWT_SECRET;
 
 // Handle user login
 async function logIn(req, res, next) {
+  console.log("logIn controller called"); // top of controller
+ 
   try {
-    console.log(req.body); 
     const userData = req.body;
     // Call the logIn method from the login service
     const user = await loginService.logIn(userData);
+
     // If the user is not found
-    if (user.status === "fail") {
-      res.status(403).json({
+    if (user.status === "fail" || user.status === "error") {
+      return res.status(403).json({
         status: user.status,
         message: user.message,
       });
-      // console.log(user.message);
     }
     // If successful, send a response to the client
     const payload = {
@@ -39,7 +40,10 @@ async function logIn(req, res, next) {
       message: "user logged in successfully",
       data: sendBack,
     });
-  } catch (error) {}
+  } catch (error) {
+    console.error("logIn controller error:", error);
+    res.status(500).json({ status: "error", message: "Server error" });
+  }
 }
 
 // Export the functions

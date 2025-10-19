@@ -26,6 +26,7 @@ import Detail from "./markup/pages/Course/Detail/Detail.jsx";
 import Announcement from "./markup/pages/News/Announcement.jsx";
 import Billing from "./markup/pages/Billing/Billing.jsx";
 import Chat from "./markup/pages/Chat/Chat.jsx";
+import EmailVerification from "./markup/components/Form/EmailVerification.jsx";
 
 function BeforeLoginLayout({ children }) {
   return (
@@ -207,6 +208,9 @@ function App() {
             </AfterLoginLayout>
           }
         />
+      </Routes>
+      <Routes>
+        <Route path="/verify-email" element={<EmailVerification />} />
       </Routes>
       <ToastContainer
         position="top-right"

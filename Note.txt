@@ -1,3 +1,10 @@
+To send email to register
+
+npm install nodemailer dotenv crypto
+
+
+
+
 ai-chat-app
 ├── backend
 │   ├── server.js

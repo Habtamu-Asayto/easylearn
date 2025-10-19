@@ -16,7 +16,7 @@ const corsOptions = {
 // Create a variable to hold our port number
 const port = process.env.PORT;
 // Import the router
-const router = require("../routes");
+const router = require("./routes");
  
 // Create the webserver
 const app = express();

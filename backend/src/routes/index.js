@@ -12,6 +12,7 @@ const categoryRouter = require("./courseCategoryRoutes");
 // Import the category routes
 const courseRouter = require("./courseRoutes");
 router.use(courseRouter);
+
  
 // Message
 const messageRouter = require("./messageRoute");
@@ -19,6 +20,9 @@ router.use("/message",messageRouter);
 
 const newsRouter = require("./newsRoutes");
 router.use(newsRouter);
+
+const authRoutes = require("./auth.routes");
+router.use("/api/auth", authRoutes);
 
 //Import Login route
 const loginRouter = require("./loginRoutes");

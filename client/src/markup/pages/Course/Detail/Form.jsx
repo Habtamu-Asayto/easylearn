@@ -304,13 +304,12 @@ function Form({ editCourse, onSuccess }) {
     }
   };
   const instructorData = {
-    name: "John Doe",
+    name: "Habtamu Asayto",
     title: "Senior React Instructor",
-    bio: "John has 10+ years of experience teaching web development and loves making complex topics simple.",
-    profilePicture: "https://randomuser.me/api/portraits/men/32.jpg",
-    twitter: "https://twitter.com/johndoe",
-    linkedin: "https://linkedin.com/in/johndoe",
-    email: "john@example.com",
+    bio: "Has 10+ years of experience teaching web development and loves making complex topics simple.",
+    profilePicture: "../../../../assets/images/photo.jpg", 
+    linkedin: "https://linkedin.com/in/habtamu-takele",
+    email: "habtamuasayto360@gmail.com",
   };
   const renderContent = () => {
     switch (activeTab) {
@@ -448,15 +447,16 @@ function Form({ editCourse, onSuccess }) {
                       <div className="flex">
                         <p className="font-bold">Skill level : </p>
                         <h1 className="ml-1">
-                          {editCourse.overview?.required_skill ||
-                            "No"}
+                          {editCourse.overview?.required_skill || "No"}
                         </h1>
                       </div>
                     </Link>
                     <Link className="block w-full py-2 px-3 rounded-md hover:bg-gray-50 cursor-pointer">
                       <div className="flex">
                         <p className="font-bold">Duration : </p>
-                        <h1 className="ml-1">{editCourse.overview?.duration}</h1>
+                        <h1 className="ml-1">
+                          {editCourse.overview?.duration}
+                        </h1>
                       </div>
                     </Link>
                     <Link className="block w-full py-2 px-3 rounded-md hover:bg-gray-50 cursor-pointer">
