@@ -12,9 +12,15 @@
   "dependencies": {
     "bcrypt": "^6.0.0",
     "colors": "^1.4.0",
+    "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+<<<<<<< HEAD
     "crypto": "^1.0.1",
     "dotenv": "^17.2.3",
+=======
+    "dotenv": "^17.2.2",
+    "easylearn": "file:..",
+>>>>>>> a90b863adf9f2fc29aac777925311dbe31558158
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.1",

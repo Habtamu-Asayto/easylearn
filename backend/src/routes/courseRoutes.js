@@ -41,28 +41,27 @@ router.put(
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   courseController.updateCourse
 );
- 
+
 router.get(
   "/courses",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   courseController.getAllCourse
 );
 
-
 router.get(
   "/lessons/:courseId",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   courseController.getLessonsByCourse
-); 
+);
 //Delete course category
- router.delete(
+router.delete(
   "/courses/:id",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   courseController.deleteCourse
 );
- 
+
 //Delete course category
- router.delete(
+router.delete(
   "/lesson/:id",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   courseController.deleteLesson
@@ -79,5 +78,5 @@ router.post(
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   courseController.createQuiz
 );
- 
+
 module.exports = router;

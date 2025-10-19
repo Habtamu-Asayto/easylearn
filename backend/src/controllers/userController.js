@@ -1,6 +1,6 @@
 //Import user service
 const userService = require("../services/userService");
- 
+
 //Create User
 async function createUser(req, res, next) {
   // check if token arives
@@ -38,7 +38,9 @@ async function createStudent(req, res, next) {
   // check if token arives
   console.log(req.headers);
   // Check if User email already exists in the database
-  const userExists = await userService.checkIfUserExists(req.body.student_email);
+  const userExists = await userService.checkIfUserExists(
+    req.body.student_email
+  );
   // If user exists, send a response to the client
   if (userExists) {
     res.status(400).json({
@@ -66,12 +68,12 @@ async function createStudent(req, res, next) {
     }
   }
 }
-// Create the getAllStudents controller 
+// Create the getAllStudents controller
 async function getAllStudents(req, res, next) {
   // Call the getAllStudents method from the user service
   const students = await userService.getAllStudents();
   console.log("students");
-  if (!students) { 
+  if (!students) {
     res.status(400).json({
       error: "Failed to get all students!",
     });
@@ -123,5 +125,8 @@ module.exports = {
   createUser,
   getAllStudents,
   createStudent,
+<<<<<<< HEAD
   verifyEmail,
+=======
+>>>>>>> a90b863adf9f2fc29aac777925311dbe31558158
 };

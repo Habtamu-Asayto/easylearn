@@ -3,7 +3,7 @@ async function createNews(req, res) {
   try {
     if (!req.user || !req.user.user_id) {
       return res.status(401).json({ status: false, error: "Unauthorized" });
-    } 
+    }
 
     const news = req.body; // FIX: use req.body
     const newsData = {
@@ -12,7 +12,7 @@ async function createNews(req, res) {
       body: news.body,
       audience: news.audience,
     };
-      
+
     const inserted = await newsService.createNews(newsData);
     if (!inserted) {
       return res
@@ -44,7 +44,6 @@ async function getNews(req, res, next) {
     });
   }
 }
-
 
 module.exports = {
   createNews,

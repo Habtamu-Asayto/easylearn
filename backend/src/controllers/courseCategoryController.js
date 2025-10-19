@@ -4,21 +4,21 @@ const db = require("../config/db");
 //Create User
 async function createCategory(req, res, next) {
   // check if token arives
-  // console.log(req.headers); 
+  // console.log(req.headers);
   // Check if User email already exists in the database
   const categoryExists = await categoryService.checkIfCategoryExists(
     req.body.category_name
-  ); 
+  );
   // If user exists, send a response to the client
   if (categoryExists) {
     res.status(400).json({
       error: "This category is created before!",
-    }); 
+    });
   } else {
     try {
       const catData = req.body;
       // Create the user
-      const cat = await categoryService.createCategory(catData)
+      const cat = await categoryService.createCategory(catData);
       if (!cat) {
         res.status(400).json({
           error: "Failed to add category!",
@@ -27,7 +27,7 @@ async function createCategory(req, res, next) {
         res.status(200).json({
           status: "true",
         });
-      } 
+      }
     } catch (error) {
       // console.log(error);
       res.status(400).json({
@@ -55,7 +55,10 @@ async function updateCategory(req, res, next) {
   try {
     const categoryData = req.body;
     const courseId = req.params.id;
-    const updated = await categoryService.updateCategory(courseId, categoryData);
+    const updated = await categoryService.updateCategory(
+      courseId,
+      categoryData
+    );
     if (!updated) {
       return res.status(400).json({ error: "Failed to update course!" });
     }
@@ -69,7 +72,6 @@ async function updateCategory(req, res, next) {
   }
 }
 
-
 async function deleteCategory(req, res) {
   const categoryId = req.params.id;
   // console.log("1st:", courseId);?
@@ -80,7 +82,6 @@ async function deleteCategory(req, res) {
   }
 
   try {
- 
     const deleted = await categoryService.deleteCategory(categoryId);
     console.log(categoryId);
     if (deleted) {
@@ -98,11 +99,11 @@ async function deleteCategory(req, res) {
       .status(500)
       .json({ status: false, error: "Something went wrong" });
   }
-} 
+}
 
 module.exports = {
   createCategory,
   getAllCategory,
-  updateCategory, 
-  deleteCategory
+  updateCategory,
+  deleteCategory,
 };

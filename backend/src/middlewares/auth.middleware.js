@@ -28,7 +28,7 @@ const verifyToken = async (req, res, next) => {
     // console.log("Here is the decoded token");
     // console.log(decoded);
     // req.user_email = decoded.user_email;
-    req.user = decoded; 
+    req.user = decoded;
     next();
   });
 };
@@ -40,7 +40,7 @@ const isAdmin = async (req, res, next) => {
   console.log(req.user_email);
   const user_email = req.user.user_email;
   const user = await userService.getUserByEmail(user_email);
-  if (role=== 1 || role  === 2) {
+  if (role === 1 || role === 2) {
     next();
   } else {
     return res.status(403).send({
@@ -49,10 +49,10 @@ const isAdmin = async (req, res, next) => {
     });
   }
 };
- 
+
 const authMiddleware = {
   verifyToken,
-  isAdmin, 
+  isAdmin,
 };
 
 module.exports = authMiddleware;
