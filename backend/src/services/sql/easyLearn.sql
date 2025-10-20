@@ -1,6 +1,6 @@
  
 
--- Employee tables 
+-- User tables 
 CREATE TABLE IF NOT EXISTS `users` (
   `user_id` int(11) NOT NULL AUTO_INCREMENT,
   `user_email` varchar(255) NOT NULL, 
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `messages` (
     `id` INT AUTO_INCREMENT,
     `sender_id` INT,
     `receiver_id` INT,
-    `content` TEXT,
+    `message` TEXT,
     `is_ai` BOOLEAN DEFAULT FALSE,
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
      PRIMARY KEY (id), 

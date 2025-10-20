@@ -10,10 +10,6 @@ async function logIn(req, res, next) {
   console.log("logIn controller called"); // top of controller
  
   try {
-<<<<<<< HEAD
-=======
-    console.log(req.body);
->>>>>>> a90b863adf9f2fc29aac777925311dbe31558158
     const userData = req.body;
     // Call the logIn method from the login service
     const user = await loginService.logIn(userData);

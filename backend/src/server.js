@@ -10,6 +10,8 @@ require("dotenv").config();
 const sanitize = require("sanitize");
 // Import the CORS module
 const cors = require("cors");
+const http = require("http");
+const { initSocket } = require("./socket");
 // Set up the CORS options to allow requests from our front-end
 const corsOptions = {
   origin: process.env.FRONTEND_URL,
@@ -19,11 +21,6 @@ const corsOptions = {
 const port = process.env.PORT;
 // Import the router
 const router = require("./routes");
-<<<<<<< HEAD
- 
-=======
-
->>>>>>> a90b863adf9f2fc29aac777925311dbe31558158
 // Create the webserver
 const app = express();
 // Add the CORS middleware
@@ -37,9 +34,12 @@ app.use(express.json());
 app.use(sanitize.middleware);
 // Add the routes to the application as middleware
 app.use("/api", router);
+
+const server = http.createServer(app);
+initSocket(server);
 // Start the webserver
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`Server running on port : ${port}`);
 });
 // Export the webserver for use in the application
-module.exports = app;
+module.exports = server;

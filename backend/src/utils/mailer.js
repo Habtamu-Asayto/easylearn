@@ -4,18 +4,20 @@ require("dotenv").config();
 
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
-  port: parseInt(process.env.SMTP_PORT, 10),
-  secure: false, // true if 465
+  port: 465, // use 465 for SSL
+  secure: true, //  true for 465
   auth: {
     user: process.env.SMTP_USER,
-    pass: process.env.SMTP_PASS,
+    pass: process.env.SMTP_PASS, // must be Gmail App Password
+  },
+  tls: {
+    rejectUnauthorized: false, // helps if SSL validation fails locally
   },
 });
-
 // verify transporter once on startup (optional)
 transporter.verify((err, success) => {
   if (err) {
-    console.error("SMTP verify failed:", err);
+    console.error("SMTP Connection Failed:", err);
   } else {
     console.log("SMTP is ready to send messages");
   }

@@ -23,7 +23,12 @@ async function createUser(req, res, next) {
         });
       } else {
         // controller after create
-       res.status(200).json({ status: "pending_verification", message: "Check your email" });
+        res
+          .status(200)
+          .json({
+            status: "pending_verification",
+            message: "Check your email",
+          });
       }
     } catch (error) {
       console.log(err);
@@ -87,7 +92,7 @@ async function getAllStudents(req, res, next) {
 
 async function verifyEmail(req, res) {
   const { email, token } = req.body;
-   console.log("Try to verify...");
+  console.log("Try to verify...");
   try {
     const user = await userService.getUserByEmail(email);
 
@@ -106,8 +111,6 @@ async function verifyEmail(req, res) {
       return res.status(400).json({ message: "Token has expired" });
     }
 
- 
-    
     // Mark user as verified
     const query = `UPDATE users SET is_verified = 1, verification_token = NULL, verification_token_expires = NULL WHERE user_email = ?`;
     await require("../config/db2").query(query, [email]);
@@ -125,8 +128,5 @@ module.exports = {
   createUser,
   getAllStudents,
   createStudent,
-<<<<<<< HEAD
   verifyEmail,
-=======
->>>>>>> a90b863adf9f2fc29aac777925311dbe31558158
 };

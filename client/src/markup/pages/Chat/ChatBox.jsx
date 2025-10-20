@@ -1,49 +1,124 @@
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
+import { socket } from "../../../socket";
+import {
+  fetchContacts,
+  fetchMessages,
+  sendMessage,
+} from "../../../services/chat.service";
+import { useAuth } from "../../../contexts/AuthContext";
 
-function ChatBox() {
+export default function ChatBox() {
+  const { user, isLogged, isAdmin, isInstructor, isStudent } = useAuth();
+  const [contacts, setContacts] = useState([]);
+  const [selectedContact, setSelectedContact] = useState(null);
+  const [selectedContactId, setSelectedContactId] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState("");
+  const messagesEndRef = useRef(null);
+
+  const [onlineUsers, setOnlineUsers] = useState([]);
+
+  useEffect(() => {
+    fetchContacts().then((res) => {
+      const currentUserId =user?.user_id;
+      // const currentUserId = res.data.map((contact) => contact.user_id);
+      socket.auth = { userId: currentUserId };
+
+      setContacts(res.data);
+    });
+    socket.connect();
+    socket.on("online_users", (users) => {
+      setOnlineUsers(users); // users = array of user IDs
+    });
+
+    socket.on("receive_message", (msg) => {
+      if (msg.from === selectedContact?.id) {
+        setMessages((prev) => [...prev, msg]);
+      }
+    });
+
+    return () => socket.disconnect();
+  }, [selectedContact]);
+  //  Auto-scroll to bottom on new messages
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const handleSend = async () => {
+    if (!newMessage || !selectedContact) return;
+    
+    await sendMessage(selectedContact.user_id, newMessage);
+    socket.emit("send_message", {
+      from: user?.user_id, 
+      to: selectedContact.user_id,
+      message: newMessage,
+      createdAt: new Date(),
+    });
+    setMessages((prev) => [
+      ...prev,
+      { from: "me", message: newMessage, createdAt: new Date() },
+    ]);
+    setNewMessage("");
+  };
+
+  const selectContact = async (contact) => {
+    setSelectedContactId(contact.user_id);
+    setSelectedContact(contact);
+    const res = await fetchMessages(contact.user_id);
+    setMessages(res.data || []);
+  };
+
+  // Check if tryping
+  const [isTyping, setIsTyping] = useState(false);
+  socket.on("typing", (data) => {
+    if (data.from === selectedContact?.user_id) {
+      setIsTyping(data.isTyping); // true or false
+    }
+  });
   return (
     <div className="flex w-full max-w-7xl h-[90vh] bg-white rounded-x overflow-hidden border border-gray-200">
       {/* Contact List */}
       <aside className="w-1/4 bg-gray-50 border-r border-gray-200 hidden lg:block">
         <div className="p-4 flex items-center border-b border-gray-200">
-          <img
-            src="https://i.pravatar.cc/40?img=1"
-            className="w-12 h-12 rounded-full border-2 border-green-400"
-          />
-          <div className="ml-3">
-            <p className="font-semibold text-gray-800">Samantha Michael</p>
-            <p className="text-xs text-green-500">Online</p>
-          </div>
-        </div>
+          <div>
+            {contacts
+              .filter((c) => c.user_id !== user?.user_id)
+              .map((c) => {
+                const contactId = c.user_id; // 👈 use the correct property
+                const isSelected = selectedContactId === contactId;
 
-        <div className="divide-y divide-gray-100 overflow-y-auto">
-          {[
-            {
-              name: "Adrian Demian",
-              img: 2,
-              msg: "Looking forward to...",
-            },
-            { name: "Michelle Anister", img: 3, msg: "Nice design!" },
-            {
-              name: "James Carter",
-              img: 4,
-              msg: "Let’s catch up soon",
-            },
-          ].map((c, i) => (
-            <div
-              key={i}
-              className="flex items-center p-4 hover:bg-gray-100 cursor-pointer transition"
-            >
-              <img
-                src={`https://i.pravatar.cc/40?img=${c.img}`}
-                className="w-10 h-10 rounded-full mr-3"
-              />
-              <div className="flex-1">
-                <p className="font-medium text-gray-800">{c.name}</p>
-                <p className="text-xs text-gray-500 truncate">{c.msg}</p>
-              </div>
-            </div>
-          ))}
+                return (
+                  <div
+                    key={contactId}
+                    onClick={() => selectContact(c)}
+                    className={`flex w-57 items-center p-3 rounded-lg cursor-pointer transition border-l-4 ${
+                      isSelected
+                        ? "bg-blue-50 border-blue-500"
+                        : "border-transparent hover:bg-gray-100"
+                    }`}
+                  >
+                    <img
+                      src="https://i.pravatar.cc/40?img=11"
+                      alt="profile"
+                      className="w-10 h-10 rounded-full mr-3"
+                    />
+                    <div>
+                      <p
+                        className={`font-medium ${
+                          isSelected ? "text-blue-700" : "text-gray-800"
+                        }`}
+                      >
+                        {c.user_full_name}
+                      </p>
+                      {/* <p className="text-xs text-green-500">Online</p> */}
+                      {onlineUsers.includes(c.user_id) && (
+                        <p className="text-xs text-green-500">Online</p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
         </div>
       </aside>
 
@@ -53,15 +128,33 @@ function ChatBox() {
         <div className="flex items-center justify-between p-4 bg-gray-50 border-b border-gray-200">
           <div className="flex items-center">
             <img
-              src="https://i.pravatar.cc/40?img=2"
+              src={
+                selectedContact?.profile_img
+                  ? selectedContact.profile_img
+                  : "https://i.pravatar.cc/40?img=2"
+              }
               className="w-10 h-10 rounded-full border-2 border-green-400"
+              alt="profile"
             />
             <div className="ml-3">
-              <p className="font-semibold text-gray-800">Adrian Demian</p>
-              <p className="text-xs text-green-500">Typing...</p>
+              <p className="font-semibold text-gray-800">
+                {selectedContact?.user_full_name ||
+                  selectedContact?.user_email ||
+                  "Select a contact"}
+              </p>
+              <p className="text-xs text-green-500">
+                {isTyping
+                  ? "Typing..."
+                  : onlineUsers.includes(selectedContact?.user_id)
+                  ? "Online"
+                  : selectedContact?.last_seen
+                  ? `Last seen: ${new Date(
+                      selectedContact.last_seen
+                    ).toLocaleTimeString()}`
+                  : "Offline"}
+              </p>
             </div>
           </div>
-          <span className="text-xs text-gray-400">Last seen: 2 min ago</span>
         </div>
 
         {/* Messages */}
@@ -108,9 +201,11 @@ function ChatBox() {
           <input
             type="text"
             placeholder="Type your message..."
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
             className="flex-1 bg-gray-100 text-gray-800 placeholder-gray-400 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
-          <button className="ml-3 bg-blue-500 hover:bg-blue-600 transition text-white px-5 py-2 rounded-full flex items-center shadow-md">
+          <button onClick={handleSend} className="ml-3 bg-blue-500 hover:bg-blue-600 transition text-white px-5 py-2 rounded-full flex items-center shadow-md">
             <svg
               className="w-4 h-4 mr-2"
               fill="currentColor"
@@ -126,5 +221,3 @@ function ChatBox() {
     </div>
   );
 }
-
-export default ChatBox;

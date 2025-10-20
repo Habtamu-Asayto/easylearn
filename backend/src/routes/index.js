@@ -15,8 +15,8 @@ router.use(courseRouter);
 
  
 // Message
-const messageRouter = require("./messageRoute");
-router.use("/message",messageRouter);
+const chatRouter = require("./chatRoute");
+router.use(chatRouter);
 
 const newsRouter = require("./newsRoutes");
 router.use(newsRouter);

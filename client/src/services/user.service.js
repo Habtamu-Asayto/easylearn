@@ -18,7 +18,7 @@ const createStudent = async (formData, loggedInUserToken) => {
   try {
     const response = await fetch(`${api_url}/api/add-student`, {
       method: "POST",
-      headers: {
+      headers: { 
         "Content-Type": "application/json",
         "x-access-token": loggedInUserToken,
       },

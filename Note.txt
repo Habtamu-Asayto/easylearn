@@ -1,40 +1,22 @@
-To send email to register
+src/
+ ├─ components/
+ │    ├─ ChatArea.jsx
+ │    └─ ContactList.jsx
+ ├─ pages/
+ │    └─ ChatPage.jsx
+ ├─ services/
+ │    └─ chatService.js
+ ├─ socket.js
+ └─ App.jsx
 
-npm install nodemailer dotenv crypto
-
-
-
-
-ai-chat-app
-├── backend
-│   ├── server.js
-│   ├── socket.js
-├── config/
-│   └── db.js
-│   ├── routes/
-│   │   ├── messageRoutes.js
-│   │   └── aiRoutes.js
-│   ├── controllers/
-│   │   ├── messageController.js
-│   │   └── aiController.js
-│   ├── services/
-│   │   ├── aiService.js
-│   │   └── messageService.js
-│   └── models/
-│       └── Message.js
-
-frontend/
-    ├── src/
-    │   ├── page/
-    │   │   └── Chat/Chat.jsx   
-    │   ├── services/
-    │   │   └── api.js
-    │   ├── App.jsx
-    │   └── index.js
-    └── package.json
-
-1. Back end
-step 1:- install socket.io and openai libraries
-npm install openai socket.io 
-Front
-npm install socket.io-client
+ backend/
+ ├─ controllers/
+ │    └─ chatController.js
+ ├─ routes/
+ │    └─ chatRoute.js
+ ├─ services/
+ │    └─ chatService.js
+ ├─ models/
+ │    └─ db.js
+ ├─ socket.js
+ └─ server.js
