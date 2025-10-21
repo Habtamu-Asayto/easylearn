@@ -22,7 +22,7 @@ import {
 import loginService from "../../../services/login.service.js";
 
 // Import the auth hook
-import { useAuth } from "../../../Contexts/AuthContext";
+import { useAuth } from "../../../contexts/AuthContext";
 
 import { useLocation, Link } from "react-router-dom";
 
@@ -420,13 +420,17 @@ function Sidebar({ isOpen, setIsOpen }) {
               </h5>
               <ul className="space-y-2">
                 <li>
-                  <a
-                    href="#"
-                    className="flex items-center w-full px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-300 transition text-base cursor-pointer"
+                  <Link
+                    to="/profile"
+                    className={`flex items-center w-full px-4 py-3 rounded-lg transition-colors ${
+                      currentPath === "/profile"
+                        ? "bg-blue-500 text-white"
+                        : "hover:bg-blue-100 text-gray-700"
+                    }`}
                   >
                     <User className="w-5 h-5 mr-3" />
                     Profile
-                  </a>
+                  </Link>
                 </li>
 
                 <li>
@@ -503,19 +507,6 @@ function Sidebar({ isOpen, setIsOpen }) {
                       openMenu.courses ? "max-h-60" : "max-h-0"
                     }`}
                   >
-                    {/* Display My courses based on user role */}
-                    {/* {user?.role_name === 1 ? (
-                      <li>
-                        <a
-                          href="#"
-                          className="flex items-center w-full px-4 py-3 rounded-lg hover:bg-blue-300"
-                        >
-                          My Courses
-                        </a>
-                      </li>
-                    ) : (
-                      <li></li>
-                    )} */}
                     <li>
                       <a
                         href="#"

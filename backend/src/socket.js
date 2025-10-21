@@ -5,41 +5,37 @@ const onlineUsers = new Set();
 
 exports.initSocket = (server) => {
   io = new Server(server, { cors: { origin: "*" } });
-  io.on("connection", (socket) => {
-    const userId = socket.handshake.auth.userId;
-    // console.log("Is there change: ", userId);
 
-    if (!userId) return; // ignore if no userId
+   io.on("connection", (socket) => {
+     const userId = socket.handshake.auth.userId;
+     if (!userId) return;
 
-    // Add user to online set
-    onlineUsers.add(userId);
+     socket.join(userId); // join room with userId
 
-    // Emit current online users to all clients
-    io.emit("online_users", Array.from(onlineUsers));
+     onlineUsers.add(userId);
+     io.emit("online_users", Array.from(onlineUsers));
 
-    // Listen for messages
-    socket.on("send_message", (msg) => {
-      io.emit("receive_message", msg);
-    });
+     socket.on("send_message", (msg) => {
+       io.to(msg.to).emit("receive_message", msg);
+     });
 
-    // Typing indicator
-    socket.on("typing", (data) => {
-      io.emit("typing", data);
-    });
+     socket.on("typing", (data) => {
+       const { to, from, isTyping } = data;
+       io.to(to).emit("typing", { from, isTyping }); // send to recipient room
+     });
 
-    socket.on("disconnect", async () => {
-      onlineUsers.delete(userId);
-      io.emit("online_users", Array.from(onlineUsers));
-      if (userId) {
-        try {
-          await conn.query(
-            "UPDATE users SET last_seen = NOW() WHERE user_id = ?",
-            [userId]
-          );
-        } catch (err) {
-          console.error("Failed to update last_seen:", err);
-        }
-      }
-    });
-  });
+     socket.on("disconnect", async () => {
+       onlineUsers.delete(userId);
+       io.emit("online_users", Array.from(onlineUsers));
+       try {
+         await conn.query(
+           "UPDATE users SET last_seen = NOW() WHERE user_id = ?",
+           [userId]
+         );
+       } catch (err) {
+         console.error("Failed to update last_seen:", err);
+       }
+     });
+   });
+
 };

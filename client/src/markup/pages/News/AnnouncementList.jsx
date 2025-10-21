@@ -251,23 +251,8 @@ function AnnouncementList() {
                       {/* Rating */}
                       <div className="flex items-center space-x-1 text-yellow-500">
                         {cat.body}
-                      </div>
-                      {/* Description */}
-                      <p className="text-sm text-gray-600">{cat.body}</p>
-                      {/* Instructor */}
-                      <div className="mt-3 flex items-center space-x-2 border-t pt-3">
-                        <img
-                          src="https://i.pravatar.cc/30"
-                          alt="Instructor"
-                          className="w-8 h-8 rounded-full"
-                        />
-                        <div>
-                          <p className="text-sm font-medium text-gray-600">
-                            {cat.body}
-                          </p>
-                          <p className="text-xs text-gray-500">Instructor</p>
-                        </div>
-                      </div>
+                      </div>  
+                   
                     </div>
                   </div>
                 </div>
@@ -279,32 +264,7 @@ function AnnouncementList() {
       ) : (
         <h4 className="font-medium">Empty</h4>
       )}
-      {/* Pagination */}
-      <div className="flex mt-8">
-        <div className="inline-flex items-center space-x-1">
-          {/* Prev */}
-          <button
-            className="px-3 py-2 rounded bg-gray-100 text-gray-500 cursor-not-allowed"
-            disabled
-          >
-            «
-          </button>
-          {/* Page numbers */}
-          <button className="px-3 py-2 rounded bg-blue-500 text-white">
-            1
-          </button>
-          <button className="px-3 py-2 rounded bg-white text-gray-700 border hover:bg-gray-50">
-            2
-          </button>
-          <button className="px-3 py-2 rounded bg-white text-gray-700 border hover:bg-gray-50">
-            3
-          </button>
-          {/* Next */}
-          <button className="px-3 py-2 rounded bg-white text-gray-700 border hover:bg-gray-50">
-            »
-          </button>
-        </div>
-      </div>
+     
     </main>
   );
 }

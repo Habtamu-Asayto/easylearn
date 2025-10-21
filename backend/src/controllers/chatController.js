@@ -7,15 +7,29 @@ exports.getContacts = async (req, res) => {
 
 exports.getMessages = async (req, res) => {
   const { contactId } = req.params;
-  const messages = await chatService.getMessages(contactId);
+  const userId = req.user.user_id;
+  const messages = await chatService.getMessages(userId, contactId);
   res.json(messages);
 };
+exports.getUnreadCount = async (req, res) => {
+  const userId = req.params.userId;
 
-exports.sendMessage = async (req, res) => {
+  if (!userId) {
+    return res.status(400).json({ error: "User ID is required" });
+  }
+
+  try {
+    const totalUnread = await chatService.getTotalUnread(userId);
+    return res.json({ totalUnread });
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to fetch unread count" });
+  }
+};
+
+exports.sendMessage = async (req, res) => { 
   const { to, message } = req.body;
-  const senderId = req.user.user_id; // assume authentication middleware
-  console.log("Sender  : ", senderId);
-  
+  const senderId = req.user.user_id; 
+
   await chatService.saveMessage(senderId, to, message);
-  res.status(201).json({ success: true });
+  res.status(201).json({ success: true, from: senderId, to, message });
 };

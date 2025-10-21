@@ -11,6 +11,7 @@ const verifyToken = async (req, res, next) => {
   let token =
     req.headers["x-access-token"] ||
     req.headers["authorization"]?.split(" ")[1];
+  // console.log("Token received from frontend:", token);
   if (!token) {
     return res.status(403).send({
       status: "fail",
@@ -19,15 +20,13 @@ const verifyToken = async (req, res, next) => {
   }
 
   jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-    if (err) {
+    if (err) { 
       return res.status(401).send({
         status: "fail",
         message: "Unauthorized!",
       });
     }
-    // console.log("Here is the decoded token");
-    // console.log(decoded);
-    // req.user_email = decoded.user_email;
+
     req.user = decoded;
     next();
   });

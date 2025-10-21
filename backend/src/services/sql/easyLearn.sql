@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS `messages` (
     `sender_id` INT,
     `receiver_id` INT,
     `message` TEXT,
+    `unread` BOOLEAN DEFAULT TRUE,
     `is_ai` BOOLEAN DEFAULT FALSE,
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
      PRIMARY KEY (id), 

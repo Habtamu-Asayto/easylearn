@@ -6,6 +6,7 @@ const router = express.Router();
 const installRouter = require("./installRoutes");
 // Import the user routes
 const userRouter = require("./UserRoutes");
+console.log("Routes loaded");
 
 // Import the category routes
 const categoryRouter = require("./courseCategoryRoutes");
@@ -13,10 +14,9 @@ const categoryRouter = require("./courseCategoryRoutes");
 const courseRouter = require("./courseRoutes");
 router.use(courseRouter);
 
- 
 // Message
-const chatRouter = require("./chatRoute");
-router.use(chatRouter);
+const messageRoutes = require("./chatRoute");
+router.use("/", messageRoutes);
 
 const newsRouter = require("./newsRoutes");
 router.use(newsRouter);

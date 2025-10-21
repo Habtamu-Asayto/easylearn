@@ -8,139 +8,262 @@ import {
 import { useAuth } from "../../../contexts/AuthContext";
 
 export default function ChatBox() {
-  const { user, isLogged, isAdmin, isInstructor, isStudent } = useAuth();
+  const { user } = useAuth();
   const [contacts, setContacts] = useState([]);
   const [selectedContact, setSelectedContact] = useState(null);
-  const [selectedContactId, setSelectedContactId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
-  const messagesEndRef = useRef(null);
-
   const [onlineUsers, setOnlineUsers] = useState([]);
+  const [isTyping, setIsTyping] = useState(false);
+  const [showContactsMobile, setShowContactsMobile] = useState(false);
 
+  const scrollableRef = useRef(null);
+  const selectedContactRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
+  //  Audio for message send
+  const sendSound = useRef(new Audio("/sounds/send.mp3"));
+
+  // Input change handler
+  const handleInputChange = (e) => {
+    setNewMessage(e.target.value);
+
+    // Emit typing status
+    if (selectedContact) {
+      socket.emit("typing", {
+        to: selectedContact.user_id,
+        from: user.user_id,
+        isTyping: e.target.value.length > 0,
+      });
+    }
+  };
+useEffect(() => {
+  selectedContactRef.current = selectedContact;
+
+  const handleTypingEvent = (data) => {
+    if (data.from !== selectedContactRef.current?.user_id) return;
+
+    setIsTyping(data.isTyping);
+
+    if (data.isTyping) {
+      // Clear previous timeout
+      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+
+      // Stop typing after 1.5s of inactivity
+      typingTimeoutRef.current = setTimeout(() => {
+        setIsTyping(false);
+      }, 1500);
+    }
+  };
+
+  socket.on("typing", handleTypingEvent);
+
+  return () => {
+    socket.off("typing", handleTypingEvent);
+  };
+}, [selectedContact]);
+
+  // Fetch contacts and initialize socket
   useEffect(() => {
-    fetchContacts().then((res) => {
-      const currentUserId =user?.user_id;
-      // const currentUserId = res.data.map((contact) => contact.user_id);
+    const init = async () => {
+      const res = await fetchContacts();
+      const currentUserId = user?.user_id;
       socket.auth = { userId: currentUserId };
 
-      setContacts(res.data);
-    });
-    socket.connect();
-    socket.on("online_users", (users) => {
-      setOnlineUsers(users); // users = array of user IDs
-    });
+      setContacts(
+        res.data
+          .filter((c) => c.user_id !== currentUserId)
+          .map((c) => ({ ...c, unreadCount: 0 }))
+      );
 
-    socket.on("receive_message", (msg) => {
-      if (msg.from === selectedContact?.id) {
-        setMessages((prev) => [...prev, msg]);
+      socket.connect();
+    };
+    init();
+
+    socket.on("online_users", (users) => setOnlineUsers(users));
+
+    const handleReceiveMessage = (msg) => {
+      // Only process messages sent to me
+      if (msg.to !== user.user_id) return;
+
+      if (
+        selectedContactRef.current &&
+        msg.from === selectedContactRef.current.user_id
+      ) {
+        // If current chat, show message
+        setMessages((prev) => [
+          ...prev,
+          { ...msg, createdAt: new Date(msg.createdAt) },
+        ]);
+      } else {
+        // Increment unread count only for this contact
+        setContacts((prev) =>
+          prev.map((c) =>
+            c.user_id === msg.from
+              ? { ...c, unreadCount: (c.unreadCount || 0) + 1 }
+              : c
+          )
+        );
       }
-    });
+    }; 
+    socket.on("receive_message", handleReceiveMessage);
 
-    return () => socket.disconnect();
-  }, [selectedContact]);
-  //  Auto-scroll to bottom on new messages
+    return () => {
+      socket.off("receive_message", handleReceiveMessage);
+      socket.disconnect();
+    };
+  }, [user?.user_id]);
+
+  // Auto-scroll
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (scrollableRef.current) {
+      scrollableRef.current.scrollTop = scrollableRef.current.scrollHeight;
+    }
   }, [messages]);
 
   const handleSend = async () => {
     if (!newMessage || !selectedContact) return;
-    
-    await sendMessage(selectedContact.user_id, newMessage);
-    socket.emit("send_message", {
-      from: user?.user_id, 
+
+    const msgObj = {
+      from: user.user_id,
       to: selectedContact.user_id,
       message: newMessage,
       createdAt: new Date(),
-    });
-    setMessages((prev) => [
-      ...prev,
-      { from: "me", message: newMessage, createdAt: new Date() },
-    ]);
+    };
+    // Play send sound
+    sendSound.current.play().catch((err) => console.log(err));
+
+    setMessages((prev) => [...prev, { ...msgObj, from: "me" }]);
+    socket.emit("send_message", msgObj);
+    await sendMessage(selectedContact.user_id, newMessage);
     setNewMessage("");
   };
 
   const selectContact = async (contact) => {
-    setSelectedContactId(contact.user_id);
     setSelectedContact(contact);
+    setContacts((prev) =>
+      prev.map((c) =>
+        c.user_id === contact.user_id ? { ...c, unreadCount: 0 } : c
+      )
+    );
+
     const res = await fetchMessages(contact.user_id);
-    setMessages(res.data || []);
+    const msgs = (res.data || []).map((m) => ({
+      ...m,
+      createdAt: new Date(m.created_at || m.createdAt),
+    }));
+    setMessages(msgs);
   };
 
-  // Check if tryping
-  const [isTyping, setIsTyping] = useState(false);
-  socket.on("typing", (data) => {
-    if (data.from === selectedContact?.user_id) {
-      setIsTyping(data.isTyping); // true or false
-    }
-  });
   return (
-    <div className="flex w-full max-w-7xl h-[90vh] bg-white rounded-x overflow-hidden border border-gray-200">
-      {/* Contact List */}
-      <aside className="w-1/4 bg-gray-50 border-r border-gray-200 hidden lg:block">
-        <div className="p-4 flex items-center border-b border-gray-200">
-          <div>
-            {contacts
-              .filter((c) => c.user_id !== user?.user_id)
-              .map((c) => {
-                const contactId = c.user_id; // 👈 use the correct property
-                const isSelected = selectedContactId === contactId;
+    <div className="flex w-full max-w-7xl h-[90vh] bg-white rounded-xl overflow-hidden border border-gray-200">
+      {/* Mobile toggle */}
+      {/* Mobile hamburger */}
+      <div className="lg:hidden flex p-2 border-b border-gray-200">
+        <button
+          onClick={() => setShowContactsMobile(!showContactsMobile)}
+          className="p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          {showContactsMobile ? (
+            // X / Close icon
+            <svg
+              className="w-6 h-6 text-blue-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          ) : (
+            // Hamburger icon
+            <svg
+              className="w-6 h-6 text-blue-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
+            </svg>
+          )}
+        </button>
+      </div>
 
-                return (
-                  <div
-                    key={contactId}
-                    onClick={() => selectContact(c)}
-                    className={`flex w-57 items-center p-3 rounded-lg cursor-pointer transition border-l-4 ${
-                      isSelected
-                        ? "bg-blue-50 border-blue-500"
-                        : "border-transparent hover:bg-gray-100"
+      {/* Contact List */}
+      <aside
+        className={`w-1/4 bg-gray-50 border-r border-gray-200 overflow-y-auto ${
+          showContactsMobile ? "block absolute z-50 h-full" : "hidden lg:block"
+        }`}
+      >
+        <div>
+          {contacts.map((c) => {
+            const isSelected = selectedContact?.user_id === c.user_id;
+            return (
+              <div
+                key={c.user_id}
+                onClick={() => selectContact(c)}
+                className={`flex items-center p-3 cursor-pointer border-l-4 ${
+                  isSelected
+                    ? "bg-blue-50 border-blue-500"
+                    : "border-transparent hover:bg-gray-100"
+                }`}
+              >
+                <img
+                  src={c.profile_img || "https://i.pravatar.cc/40?img=11"}
+                  alt="profile"
+                  className="w-10 h-10 rounded-full mr-3"
+                />
+                <div className="flex-1">
+                  <p
+                    className={`font-medium ${
+                      isSelected ? "text-blue-700" : "text-gray-800"
                     }`}
                   >
-                    <img
-                      src="https://i.pravatar.cc/40?img=11"
-                      alt="profile"
-                      className="w-10 h-10 rounded-full mr-3"
-                    />
-                    <div>
-                      <p
-                        className={`font-medium ${
-                          isSelected ? "text-blue-700" : "text-gray-800"
-                        }`}
-                      >
-                        {c.user_full_name}
-                      </p>
-                      {/* <p className="text-xs text-green-500">Online</p> */}
-                      {onlineUsers.includes(c.user_id) && (
-                        <p className="text-xs text-green-500">Online</p>
-                      )}
-                    </div>
+                    {c.user_full_name}
+                  </p>
+                  <div className="flex items-center text-xs mt-1">
+                    {onlineUsers.includes(c.user_id) && (
+                      <span className="text-green-500 mr-2">Online</span>
+                    )}
+                    {c.unreadCount > 0 && (
+                      <span className="bg-red-500 text-white rounded-full px-2">
+                        {c.unreadCount}
+                      </span>
+                    )}
                   </div>
-                );
-              })}
-          </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </aside>
 
       {/* Chat Area */}
       <div className="flex-1 flex flex-col relative">
         {/* Chat Header */}
+        {selectedContact && (
         <div className="flex items-center justify-between p-4 bg-gray-50 border-b border-gray-200">
           <div className="flex items-center">
             <img
               src={
-                selectedContact?.profile_img
-                  ? selectedContact.profile_img
-                  : "https://i.pravatar.cc/40?img=2"
+                selectedContact?.profile_img || "https://i.pravatar.cc/40?img=2"
               }
               className="w-10 h-10 rounded-full border-2 border-green-400"
               alt="profile"
             />
             <div className="ml-3">
               <p className="font-semibold text-gray-800">
-                {selectedContact?.user_full_name ||
-                  selectedContact?.user_email ||
-                  "Select a contact"}
+                {selectedContact?.user_full_name || ""}
               </p>
               <p className="text-xs text-green-500">
                 {isTyping
@@ -151,72 +274,90 @@ export default function ChatBox() {
                   ? `Last seen: ${new Date(
                       selectedContact.last_seen
                     ).toLocaleTimeString()}`
-                  : "Offline"}
+                  : ""}
               </p>
             </div>
           </div>
         </div>
+        )}
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50">
-          {/* Received Message */}
-          <div className="flex items-start space-x-3">
-            <img
-              src="https://i.pravatar.cc/40?img=2"
-              className="w-8 h-8 rounded-full"
-            />
-            <div className="bg-gray-200 text-gray-800 p-3 rounded-2xl max-w-xs shadow-sm">
-              <p>Hey Samantha 👋</p>
-              <p className="text-[10px] text-gray-500 mt-1 text-right">15:21</p>
-            </div>
-          </div>
+        <div
+          ref={scrollableRef}
+          className="flex-1 overflow-y-auto p-6 space-y-3 bg-gray-50"
+          style={{ paddingBottom: "80px" }}
+        >
+          {messages.map((msg, index) => {
+            const isSent = msg.from === user?.user_id || msg.from === "me";
 
-          {/* Sent Message */}
-          <div className="flex items-start justify-end space-x-3">
-            <div className="bg-blue-500 text-white p-3 rounded-2xl max-w-xs shadow-sm">
-              <p>Hi Adrian! Sure, tomorrow works great 😊</p>
-              <p className="text-[10px] text-blue-100 mt-1 text-right">15:22</p>
-            </div>
-            <img
-              src="https://i.pravatar.cc/40?img=1"
-              className="w-8 h-8 rounded-full"
-            />
-          </div>
+            return (
+              <div
+                key={index}
+                className={`flex items-end ${
+                  isSent ? "justify-end" : "justify-start"
+                } space-x-2`}
+              >
+                {/* Incoming avatar */}
+                {!isSent && (
+                  <img
+                    src={
+                      selectedContact?.profile_img ||
+                      "https://i.pravatar.cc/40?img=2"
+                    }
+                    className="w-8 h-8 rounded-sm"
+                    alt="profile"
+                  />
+                )}
 
-          {/* Another Received */}
-          <div className="flex items-start space-x-3">
-            <img
-              src="https://i.pravatar.cc/40?img=2"
-              className="w-8 h-8 rounded-full"
-            />
-            <div className="bg-gray-200 text-gray-800 p-3 rounded-2xl max-w-xs shadow-sm">
-              <p>Perfect! See you at 4PM then 👌</p>
-              <p className="text-[10px] text-gray-500 mt-1 text-right">15:24</p>
-            </div>
-          </div>
+                {/* Chat bubble */}
+                <div
+                  className={`
+            relative p-3 max-w-xs break-words
+            ${isSent ? "bg-blue-600 text-white" : "bg-gray-700 text-gray-100"}
+            rounded-tl-none rounded-tr-xl rounded-bl-xl rounded-br-none
+            hover:brightness-110 transition-all duration-150 shadow-md
+          `}
+                >
+                  <p className="whitespace-pre-wrap">{msg.message}</p>
+                  <p className="text-[10px] mt-1 opacity-70 text-right">
+                    {msg.createdAt.toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                </div>
+
+                {/* Outgoing avatar */}
+                {isSent && (
+                  <img
+                    src={user?.profile_img || "https://i.pravatar.cc/40?img=1"}
+                    className="w-8 h-8 rounded-sm"
+                    alt="profile"
+                  />
+                )}
+              </div>
+            );
+          })}
         </div>
 
         {/* Message Input */}
-        <div className="absolute bottom-0 w-full bg-white border-t border-gray-200 p-4 flex items-center">
-          <input
-            type="text"
-            placeholder="Type your message..."
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            className="flex-1 bg-gray-100 text-gray-800 placeholder-gray-400 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-          <button onClick={handleSend} className="ml-3 bg-blue-500 hover:bg-blue-600 transition text-white px-5 py-2 rounded-full flex items-center shadow-md">
-            <svg
-              className="w-4 h-4 mr-2"
-              fill="currentColor"
-              viewBox="0 0 20 20"
+        {selectedContact && (
+          <div className="absolute bottom-0 w-full bg-white border-t border-gray-200 p-4 flex items-center">
+            <input
+              type="text"
+              placeholder="Type your message..."
+              value={newMessage}
+              onChange={handleInputChange} // use new handler
+              className="flex-1 bg-gray-100 text-gray-800 placeholder-gray-400 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+            />
+            <button
+              onClick={handleSend}
+              className="ml-3 bg-blue-500 hover:bg-blue-600 transition text-white px-5 py-2 rounded-full flex items-center shadow-md"
             >
-              <path d="M2.003 5.884L10 9.882l7.997-3.998A1 1 0 0017.663 5H2.337a1 1 0 00-.334.884z" />
-              <path d="M18 8.118l-8 4-8-4V14a1 1 0 001 1h14a1 1 0 001-1V8.118z" />
-            </svg>
-            Send
-          </button>
-        </div>
+              Send
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

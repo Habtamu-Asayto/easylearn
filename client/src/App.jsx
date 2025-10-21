@@ -27,6 +27,7 @@ import Announcement from "./markup/pages/News/Announcement.jsx";
 import Billing from "./markup/pages/Billing/Billing.jsx";
 import Chat from "./markup/pages/Chat/Chat.jsx";
 import EmailVerification from "./markup/components/Form/EmailVerification.jsx";
+import Profile from "./markup/pages/Profile/Profile.jsx";
 
 function BeforeLoginLayout({ children }) {
   return (
@@ -204,6 +205,16 @@ function App() {
             <AfterLoginLayout>
               <PrivateAuthRoute roles={[1, 2, 3]}>
                 <Chat />
+              </PrivateAuthRoute>
+            </AfterLoginLayout>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <AfterLoginLayout>
+              <PrivateAuthRoute roles={[1, 2, 3]}>
+                <Profile />
               </PrivateAuthRoute>
             </AfterLoginLayout>
           }
