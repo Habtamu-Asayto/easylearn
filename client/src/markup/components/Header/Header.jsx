@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Bell } from "react-feather";
-import { useAuth } from "../../../contexts/AuthContext";
+import { useAuth } from "../../../Contexts/AuthContext";
 import { useLocation, Link } from "react-router-dom";
 import { getUnreadMessage } from "../../../services/chat.service";
 function Header() {
@@ -19,7 +19,6 @@ function Header() {
         console.error("Error fetching unread count:", err);
       }
     };
-    console.log("Un: ", unreadCount);
 
     fetchUnread();
     // Optional: refresh every 10 seconds
@@ -27,6 +26,8 @@ function Header() {
     return () => clearInterval(interval);
   }, [user?.user_id]);
   
+  console.log("Full user object:", `http://localhost:8080${user?.profile_img}`);
+
   return (
     <header className="bg-white border-b border-gray-200 py-4 px-6 justify-between items-center hidden md:flex">
       <h2 className="text-xl font-semibold text-dark">
@@ -46,7 +47,11 @@ function Header() {
           )}
         </Link>
         <img
-          src="http://learning.frontendmatter.com/html/images/people/110/guy-6.jpg"
+          src={
+            user?.profile_img
+              ? `http://localhost:8080${user.profile_img}`
+              : "/Image/profile.jpg"
+          }
           className="w-8 h-8 rounded-full hidden sm:block"
         />
       </div>

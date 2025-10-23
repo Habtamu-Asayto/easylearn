@@ -17,6 +17,12 @@ router.get(
   chatController.getUnreadCount
 );
 
+router.put(
+  "/mark-read/:senderId",
+  authMiddleware.verifyToken,
+  chatController.markAsRead
+);
+
 router.post(
   "/messages",
   authMiddleware.verifyToken,

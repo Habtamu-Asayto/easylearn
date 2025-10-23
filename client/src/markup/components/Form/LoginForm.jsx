@@ -6,7 +6,7 @@ import loginService from "../../../services/login.service";
 import { toast } from "react-toastify";
 
 // Import the useAuth hook
-import { useAuth } from "../../../contexts/AuthContext.jsx";
+import { useAuth } from "../../../Contexts/AuthContext.jsx";
 function LoginForm(props) {
   const [flipped, setFlipped] = useState(false);
   const [option, setOption] = useState("");
@@ -46,7 +46,7 @@ function LoginForm(props) {
 
   //Register user handeler
   const handleSubmit = (e) => {
-    setIsLoading(true); 
+    setIsLoading(true);
     // Prevent the default behavior of the form
     e.preventDefault();
     // Handle client side validations
@@ -181,20 +181,21 @@ function LoginForm(props) {
 
           if (response.data.user_token) {
             localStorage.setItem("user", JSON.stringify(response.data));
-          } 
-          if (location.pathname === "/login") { 
+          }
+          if (location.pathname === "/login") {
             window.location.replace("/welcome");
           } else {
             window.location.reload();
           }
         } else {
           // Show an error message
-          toast.error(response.message); 
+          toast.error(response.message);
         }
       })
       .catch((err) => {
         setServerError("An error has occurred. Please try again later." + err);
-      }).finally(()=>{
+      })
+      .finally(() => {
         setIsLoading(false);
       });
   };

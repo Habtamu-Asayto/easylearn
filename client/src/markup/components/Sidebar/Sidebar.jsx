@@ -3,12 +3,7 @@ import feather from "feather-icons";
 import {
   Menu,
   BookOpen,
-  Book,
-  Bell,
-  Award,
-  Mail,
-  Code,
-  Layout,
+  Book, 
   Home,
   MessageSquare,
   User,
@@ -22,11 +17,14 @@ import {
 import loginService from "../../../services/login.service.js";
 
 // Import the auth hook
-import { useAuth } from "../../../contexts/AuthContext";
+import { useAuth } from "../../../Contexts/AuthContext.jsx";
 
 import { useLocation, Link } from "react-router-dom";
+import userService from "../../../services/user.service.js";
 
 function Sidebar({ isOpen, setIsOpen }) {
+  // Fetch user profile picture
+
   const [openMenu, setOpenMenu] = useState({ courses: false, forum: false });
   // Destructure the auth hook
   const { user, isLogged, isAdmin, isInstructor, isStudent } = useAuth();
@@ -51,7 +49,6 @@ function Sidebar({ isOpen, setIsOpen }) {
   // Regex to match /edit-course/ followed by any number
   const isEditCoursePath = /^\/edit-course\/\d+$/.test(currentPath);
   const isDetailCoursePath = /^\/course-detail\/\d+$/.test(currentPath);
-
   return (
     <div>
       <header className="md:hidden bg-white border-b border-gray-200 p-4 flex justify-between items-center">
@@ -87,7 +84,11 @@ function Sidebar({ isOpen, setIsOpen }) {
           {/* Profile */}
           <div className="flex items-center mb-6">
             <img
-              src="http://learning.frontendmatter.com/html/images/people/110/guy-5.jpg"
+              src={
+                user?.profile_img
+                  ? `http://localhost:8080${user.profile_img}`
+                  : "/Image/profile.jpg"
+              }
               alt="profile"
               className="w-10 h-10 rounded-full mr-3"
             />

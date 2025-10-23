@@ -26,6 +26,21 @@ exports.getUnreadCount = async (req, res) => {
   }
 };
 
+exports.markAsRead = async (req, res) => {
+  const receiverId = req.user.user_id;
+  const { senderId } = req.params;
+  console.log("Welcome===", senderId);
+  
+
+  try {
+    await chatService.markMessagesAsRead(senderId, receiverId);
+    return res.json({ success: true });
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to mark messages as read" });
+  }
+};
+
+
 exports.sendMessage = async (req, res) => { 
   const { to, message } = req.body;
   const senderId = req.user.user_id; 

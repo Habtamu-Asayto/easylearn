@@ -19,6 +19,17 @@ exports.getTotalUnread = async (userId) => {
     throw err;
   }
 };
+exports.markMessagesAsRead = async (senderId, receiverId) => {
+  try {
+    await conn.query(
+      "UPDATE messages SET unread = FALSE WHERE sender_id = ? AND receiver_id = ? AND unread = TRUE",
+      [senderId, receiverId]
+    );
+  } catch (err) {
+    console.error("Error marking messages as read:", err);
+    throw err;
+  }
+};
 
 exports.getMessages = async (contactId, currentUserId) => {
   const [rows] = await conn.query(

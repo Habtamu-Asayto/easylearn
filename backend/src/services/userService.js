@@ -1,9 +1,11 @@
 // Import the query function from the db.config.js file
 const conn = require("../config/db");
+const conn2 = require("../config/db2");
 // Import the bcrypt module
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
 const { sendVerificationEmail } = require("../utils/mailer");
+const { log } = require("console");
 require("dotenv").config();
 
 // A function to check if user exists in the database
@@ -146,6 +148,44 @@ async function getAllStudents() {
   const rows = await conn.query(query, [3]);
   return rows;
 }
+
+const getUserProfile = async (userId) => {
+  const roleMap = {
+    1: "Admin",
+    2: "Instructor",
+    3: "Student",
+  };
+  const [rows] = await conn2.execute(
+    `SELECT u.user_id, u.user_email, u.profile_img, ui.user_full_name, ui.user_phone, ur.role_name AS role_id
+     FROM users u
+     LEFT JOIN user_info ui ON u.user_id = ui.user_id
+     LEFT JOIN user_role ur ON u.user_id = ur.user_id
+     WHERE u.user_id = ?`,
+    [userId]
+  );
+  if (!rows[0]) return null;
+
+  const userProfile = rows[0];
+  userProfile.role_name = roleMap[userProfile.role_id] || "User";
+
+  return userProfile;
+};
+const updateUserProfile = async (userId, data) => {
+  const { user_full_name, user_phone, profile_img } = data;
+
+  // Update user info
+  await conn2.execute(
+    `UPDATE user_info SET user_full_name = ?, user_phone = ? WHERE user_id = ?`,
+    [user_full_name, user_phone, userId]
+  );
+  if (profile_img) {
+    await conn2.execute(`UPDATE users SET profile_img = ? WHERE user_id = ?`, [
+      profile_img,
+      userId,
+    ]);
+  }
+  return getUserProfile(userId);
+};
 // Export the functions for use in the controller
 module.exports = {
   checkIfUserExists,
@@ -153,4 +193,6 @@ module.exports = {
   getUserByEmail,
   getAllStudents,
   createStudent,
+  getUserProfile,
+  updateUserProfile,
 };

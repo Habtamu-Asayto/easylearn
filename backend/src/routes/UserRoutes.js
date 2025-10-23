@@ -6,7 +6,34 @@ const router = express.Router();
 const userController = require("../controllers/userController");
 // Import middleware
 const authMiddleware = require("../middlewares/auth.middleware");
+const multer = require("multer");
+const path = require("path");
 
+// File upload config(Profile Image)
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/"); // folder where files are saved
+  },
+  filename: function (req, file, cb) {
+    cb(
+      null,
+      Date.now() + path.extname(file.originalname) // unique filename
+    );
+  },
+});
+const upload = multer({ storage });
+
+router.get(
+  "/users/profile",
+  authMiddleware.verifyToken,
+  userController.getUserProfile
+);
+router.put(
+  "/users/profile",
+  authMiddleware.verifyToken,
+  upload.single("profile_img"),
+  userController.updateUserProfile
+);
 // we can restrict on both back and front end
 //User Routes
 router.post("/user", userController.createUser);

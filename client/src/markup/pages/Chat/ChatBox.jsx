@@ -4,7 +4,10 @@ import {
   fetchContacts,
   fetchMessages,
   sendMessage,
+  markMessagesAsRead,
+  getUnreadMessage,
 } from "../../../services/chat.service";
+
 import { useAuth } from "../../../contexts/AuthContext";
 
 export default function ChatBox() {
@@ -16,6 +19,7 @@ export default function ChatBox() {
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
   const [showContactsMobile, setShowContactsMobile] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const scrollableRef = useRef(null);
   const selectedContactRef = useRef(null);
@@ -36,31 +40,31 @@ export default function ChatBox() {
       });
     }
   };
-useEffect(() => {
-  selectedContactRef.current = selectedContact;
+  useEffect(() => {
+    selectedContactRef.current = selectedContact;
 
-  const handleTypingEvent = (data) => {
-    if (data.from !== selectedContactRef.current?.user_id) return;
+    const handleTypingEvent = (data) => {
+      if (data.from !== selectedContactRef.current?.user_id) return;
 
-    setIsTyping(data.isTyping);
+      setIsTyping(data.isTyping);
 
-    if (data.isTyping) {
-      // Clear previous timeout
-      if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
+      if (data.isTyping) {
+        // Clear previous timeout
+        if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
 
-      // Stop typing after 1.5s of inactivity
-      typingTimeoutRef.current = setTimeout(() => {
-        setIsTyping(false);
-      }, 1500);
-    }
-  };
+        // Stop typing after 1.5s of inactivity
+        typingTimeoutRef.current = setTimeout(() => {
+          setIsTyping(false);
+        }, 1500);
+      }
+    };
 
-  socket.on("typing", handleTypingEvent);
+    socket.on("typing", handleTypingEvent);
 
-  return () => {
-    socket.off("typing", handleTypingEvent);
-  };
-}, [selectedContact]);
+    return () => {
+      socket.off("typing", handleTypingEvent);
+    };
+  }, [selectedContact]);
 
   // Fetch contacts and initialize socket
   useEffect(() => {
@@ -104,7 +108,7 @@ useEffect(() => {
           )
         );
       }
-    }; 
+    };
     socket.on("receive_message", handleReceiveMessage);
 
     return () => {
@@ -119,6 +123,25 @@ useEffect(() => {
       scrollableRef.current.scrollTop = scrollableRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // Fetch unread count
+  useEffect(() => {
+    const fetchUnread = async () => {
+      try {
+        if (!user?.user_id) return;
+        const res = await getUnreadMessage(user.user_id);
+        setUnreadCount(res.data.totalUnread || 0);
+      } catch (err) {
+        console.error("Error fetching unread count:", err);
+      }
+    };
+    console.log("Un: ", unreadCount);
+
+    fetchUnread();
+    // Optional: refresh every 10 seconds
+    const interval = setInterval(fetchUnread, 10000);
+    return () => clearInterval(interval);
+  }, [user?.user_id]);
 
   const handleSend = async () => {
     if (!newMessage || !selectedContact) return;
@@ -145,6 +168,8 @@ useEffect(() => {
         c.user_id === contact.user_id ? { ...c, unreadCount: 0 } : c
       )
     );
+    // mark all unread messages from this contact as read
+    await markMessagesAsRead(contact.user_id);
 
     const res = await fetchMessages(contact.user_id);
     const msgs = (res.data || []).map((m) => ({
@@ -252,33 +277,34 @@ useEffect(() => {
       <div className="flex-1 flex flex-col relative">
         {/* Chat Header */}
         {selectedContact && (
-        <div className="flex items-center justify-between p-4 bg-gray-50 border-b border-gray-200">
-          <div className="flex items-center">
-            <img
-              src={
-                selectedContact?.profile_img || "https://i.pravatar.cc/40?img=2"
-              }
-              className="w-10 h-10 rounded-full border-2 border-green-400"
-              alt="profile"
-            />
-            <div className="ml-3">
-              <p className="font-semibold text-gray-800">
-                {selectedContact?.user_full_name || ""}
-              </p>
-              <p className="text-xs text-green-500">
-                {isTyping
-                  ? "Typing..."
-                  : onlineUsers.includes(selectedContact?.user_id)
-                  ? "Online"
-                  : selectedContact?.last_seen
-                  ? `Last seen: ${new Date(
-                      selectedContact.last_seen
-                    ).toLocaleTimeString()}`
-                  : ""}
-              </p>
+          <div className="flex items-center justify-between p-4 bg-gray-50 border-b border-gray-200">
+            <div className="flex items-center">
+              <img
+                src={
+                  selectedContact?.profile_img ||
+                  "https://i.pravatar.cc/40?img=2"
+                }
+                className="w-10 h-10 rounded-full border-2 border-green-400"
+                alt="profile"
+              />
+              <div className="ml-3">
+                <p className="font-semibold text-gray-800">
+                  {selectedContact?.user_full_name || ""}
+                </p>
+                <p className="text-xs text-green-500">
+                  {isTyping
+                    ? "Typing..."
+                    : onlineUsers.includes(selectedContact?.user_id)
+                    ? "Online"
+                    : selectedContact?.last_seen
+                    ? `Last seen: ${new Date(
+                        selectedContact.last_seen
+                      ).toLocaleTimeString()}`
+                    : ""}
+                </p>
+              </div>
             </div>
           </div>
-        </div>
         )}
 
         {/* Messages */}
@@ -350,12 +376,14 @@ useEffect(() => {
               onChange={handleInputChange} // use new handler
               className="flex-1 bg-gray-100 text-gray-800 placeholder-gray-400 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
-            <button
-              onClick={handleSend}
-              className="ml-3 bg-blue-500 hover:bg-blue-600 transition text-white px-5 py-2 rounded-full flex items-center shadow-md"
-            >
-              Send
-            </button>
+            {newMessage.trim() !== "" && (
+              <button
+                onClick={handleSend}
+                className="ml-3 cursor-pointer bg-blue-500 hover:bg-blue-600 transition text-white px-5 py-2 rounded-full flex items-center shadow-md"
+              >
+                Send
+              </button>
+            )}
           </div>
         )}
       </div>

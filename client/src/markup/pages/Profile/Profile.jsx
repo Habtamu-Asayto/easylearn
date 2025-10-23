@@ -5,6 +5,7 @@ import Sidebar from "../../components/Sidebar/Sidebar.jsx";
 import { useAuth } from "../../../contexts/AuthContext.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
 import Header from "../../components/Header/Header.jsx";
+import ProfilePage from "./ProfilePage.jsx";
 
 function Profile() {
   const { user, isLogged, isAdmin, isInstructor, isStudent } = useAuth();
@@ -18,7 +19,7 @@ function Profile() {
             {/* Header */}
             <Header />
             {/* Dashboard Content */}
-            <main className="p-6">Profile Page</main>
+            <ProfilePage />
             <Footer />
           </div>
         </div>

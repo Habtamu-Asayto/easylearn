@@ -1,45 +1,51 @@
-// Import the express module
 const express = require("express");
-const path = require("path"); //For deployment path
-// const __dirname = path.resolve();
-// import express from express;
-
-// Import the dotenv module and call the config method to load the environment variables
-require("dotenv").config();
-// Import the sanitizer module
-const sanitize = require("sanitize");
-// Import the CORS module
+const path = require("path");
 const cors = require("cors");
 const http = require("http");
+require("dotenv").config();
+const sanitize = require("sanitize");
 const { initSocket } = require("./socket");
-// Set up the CORS options to allow requests from our front-end
-const corsOptions = {
-  origin: process.env.FRONTEND_URL,
-  optionsSuccessStatus: 200,
-};
-// Create a variable to hold our port number
-const port = process.env.PORT;
-// Import the router
 const router = require("./routes");
-// Create the webserver
+
+// --- Express App ---
 const app = express();
-// Add the CORS middleware
+
+// --- CORS Middleware ---
+const corsOptions = {
+  origin: "http://localhost:5173", // your frontend URL
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // allowed HTTP methods
+  allowedHeaders: ["Content-Type", "x-access-token"], // allowed request headers
+  credentials: true, // allow cookies/auth if needed
+};
 app.use(cors(corsOptions));
-// Add the express.json middleware to the application
+app.options(/.*/, cors(corsOptions));
+// app.use((req, res, next) => {
+//   res.header("Cross-Origin-Resource-Policy", "cross-origin");
+//   next();
+// });
+
+app.use(
+  "/uploads",
+  cors(corsOptions),
+  express.static(path.join(process.cwd(), "uploads"))
+);
+// --- JSON Middleware ---
 app.use(express.json());
 
-// make ready for deployment
-
-// Add the sanitizer to the express middleware
+// --- Sanitize Middleware ---
 app.use(sanitize.middleware);
-// Add the routes to the application as middleware
+
+// --- API Routes ---
 app.use("/api", router);
 
+// --- HTTP + Socket Setup ---
+const port = process.env.PORT || 8080;
 const server = http.createServer(app);
 initSocket(server);
-// Start the webserver
+
+// --- Start Server ---
 server.listen(port, () => {
-  console.log(`Server running on port : ${port}`);
+  console.log(`Server running on port: ${port}`);
 });
-// Export the webserver for use in the application
+
 module.exports = server;
