@@ -156,7 +156,7 @@ function ExpandableLessons({ courseId, token }) {
     }
   };
 
-  // Fetch lessons from backend
+  
   useEffect(() => {
     if (isOpen) {
       setQuestion("");
@@ -243,7 +243,7 @@ function ExpandableLessons({ courseId, token }) {
           <button
             onClick={() => toggleLesson(lesson.lesson_id)}
             className="w-full cursor-pointer  px-4 py-3 bg-gray-100 hover:bg-gray-200 flex justify-between items-center font-semibold text-gray-800"
-          >
+          > 
             <span>
               Lesson {index + 1}: {lesson.title}
             </span>

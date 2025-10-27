@@ -12,7 +12,7 @@ function Announcement() {
   const { isLogged, isAdmin, isInstructor, isStudent } = useAuth();
 
   if (isLogged) {
-    if (isAdmin || isInstructor) {
+    if (isAdmin || isInstructor || isStudent) {
       return (
         <div className="flex flex-col md:flex-row overflow-hidden h-screen">
           <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />

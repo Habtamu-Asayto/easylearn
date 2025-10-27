@@ -8,7 +8,7 @@ import {
   getUnreadMessage,
 } from "../../../services/chat.service";
 
-import { useAuth } from "../../../contexts/AuthContext";
+import { useAuth } from "../../../Contexts/AuthContext";
 
 export default function ChatBox() {
   const { user } = useAuth();
@@ -135,7 +135,6 @@ export default function ChatBox() {
         console.error("Error fetching unread count:", err);
       }
     };
-    console.log("Un: ", unreadCount);
 
     fetchUnread();
     // Optional: refresh every 10 seconds
@@ -179,6 +178,7 @@ export default function ChatBox() {
     setMessages(msgs);
   };
 
+  console.log("Full user object:", `http://localhost:8080${user?.profile_img}`);
   return (
     <div className="flex w-full max-w-7xl h-[90vh] bg-white rounded-xl overflow-hidden border border-gray-200">
       {/* Mobile toggle */}
@@ -244,7 +244,10 @@ export default function ChatBox() {
                 }`}
               >
                 <img
-                  src={c.profile_img || "https://i.pravatar.cc/40?img=11"}
+                  src={
+                    c.profile_img?`http://localhost:8080${c.profile_img}`:
+                    "https://i.pravatar.cc/40?img=11"
+                  }
                   alt="profile"
                   className="w-10 h-10 rounded-full mr-3"
                 />
@@ -280,9 +283,9 @@ export default function ChatBox() {
           <div className="flex items-center justify-between p-4 bg-gray-50 border-b border-gray-200">
             <div className="flex items-center">
               <img
-                src={
-                  selectedContact?.profile_img ||
-                  "https://i.pravatar.cc/40?img=2"
+                src={ 
+                   selectedContact?.profile_img?`http://localhost:8080${selectedContact?.profile_img }`:
+                    "https://i.pravatar.cc/40?img=11"
                 }
                 className="w-10 h-10 rounded-full border-2 border-green-400"
                 alt="profile"
@@ -327,8 +330,9 @@ export default function ChatBox() {
                 {!isSent && (
                   <img
                     src={
-                      selectedContact?.profile_img ||
-                      "https://i.pravatar.cc/40?img=2"
+                      selectedContact?.profile_img
+                        ? `http://localhost:8080${selectedContact?.profile_img}`
+                        : "https://i.pravatar.cc/40?img=11"
                     }
                     className="w-8 h-8 rounded-sm"
                     alt="profile"
@@ -356,7 +360,11 @@ export default function ChatBox() {
                 {/* Outgoing avatar */}
                 {isSent && (
                   <img
-                    src={user?.profile_img || "https://i.pravatar.cc/40?img=1"}
+                    src={
+                      user?.profile_img
+                        ? `http://localhost:8080${user?.profile_img}`
+                        : "https://i.pravatar.cc/40?img=11"
+                    }
                     className="w-8 h-8 rounded-sm"
                     alt="profile"
                   />

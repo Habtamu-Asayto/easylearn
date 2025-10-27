@@ -2,7 +2,7 @@ import React, { useState } from "react";
 
 import Sidebar from "../../components/Sidebar/Sidebar.jsx";
 // Import the auth hook
-import { useAuth } from "../../../contexts/AuthContext.jsx";
+import { useAuth } from "../../../Contexts/AuthContext.jsx";
 import Footer from "../../components/Footer/Footer.jsx";
 import Header from "../../components/Header/Header.jsx";
 import ProfilePage from "./ProfilePage.jsx";

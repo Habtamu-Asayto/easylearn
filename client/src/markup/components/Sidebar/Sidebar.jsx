@@ -3,7 +3,7 @@ import feather from "feather-icons";
 import {
   Menu,
   BookOpen,
-  Book, 
+  Book,
   Home,
   MessageSquare,
   User,
@@ -468,20 +468,28 @@ function Sidebar({ isOpen, setIsOpen }) {
               </h5>
               <ul className="space-y-2">
                 <li>
-                  <a
-                    href="#"
-                    className="flex items-center px-3 py-2 rounded-lg bg-blue-500 text-white"
+                  <Link
+                    to="/welcome"
+                    className={`flex items-center w-full px-4 py-3 rounded-lg hover:bg-blue-300 ${
+                      currentPath === "/welcome"
+                        ? "bg-blue-500 text-white"
+                        : "hover:bg-blue-100 text-gray-700"
+                    }`}
                   >
                     <Home className="w-5 h-5 mr-3" />
                     Dashboard
-                  </a>
+                  </Link>
                 </li>
 
                 {/* Courses */}
                 <li>
                   <button
                     onClick={() => toggleMenu("courses")}
-                    className="flex items-center justify-between w-full px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-300 transition text-base cursor-pointer"
+                    className={`flex items-center w-full px-4 py-3 rounded-lg transition-colors cursor-pointer ${
+                      currentPath === "/courses"
+                        ? "bg-blue-500 text-white"
+                        : "hover:bg-blue-100 text-gray-700"
+                    }`}
                   >
                     <span className="flex items-center">
                       <Book className="w-5 h-5 mr-3" />
@@ -509,88 +517,69 @@ function Sidebar({ isOpen, setIsOpen }) {
                     }`}
                   >
                     <li>
-                      <a
-                        href="#"
-                        className="flex items-center w-full px-4 py-3 rounded-lg hover:bg-blue-300"
+                      <Link
+                        to="/my-courses"
+                        className={`flex items-center w-full px-4 py-3 rounded-lg hover:bg-blue-300 ${
+                          currentPath === "/my-courses"
+                            ? "bg-blue-500 text-white"
+                            : "hover:bg-blue-100 text-gray-700"
+                        }`}
                       >
                         My Courses
-                      </a>
+                      </Link>
                     </li>
                     <li>
-                      <a
-                        href="#"
-                        className="flex items-center w-full px-4 py-3 rounded-lg hover:bg-blue-300"
+                      <Link
+                        to="/courses"
+                        className={`flex items-center w-full px-4 py-3 rounded-lg hover:bg-blue-300 ${
+                          currentPath === "/courses"
+                            ? "bg-blue-500 text-white"
+                            : "hover:bg-blue-100 text-gray-700"
+                        }`}
                       >
-                        Quizes
-                      </a>
+                        All courses
+                      </Link>
                     </li>
                     <li>
-                      <a
-                        href="#"
-                        className="flex items-center w-full px-4 py-3 rounded-lg hover:bg-blue-300"
+                      <Link
+                        to="/my-assignment"
+                        className={`flex items-center w-full px-4 py-3 rounded-lg hover:bg-blue-300 ${
+                          currentPath === "/my-assignment"
+                            ? "bg-blue-500 text-white"
+                            : "hover:bg-blue-100 text-gray-700"
+                        }`}
                       >
                         Assignments
-                      </a>
+                      </Link>
                     </li>
                   </ul>
                 </li>
-
-                {/* Forum */}
+                {/* Messaging */}
                 <li>
-                  <button
-                    onClick={() => toggleMenu("forum")}
-                    className="flex items-center justify-between w-full px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-300 transition text-base cursor-pointer"
-                  >
-                    <span className="flex items-center">
-                      <MessageSquare className="w-5 h-5 mr-3" /> Message
-                    </span>
-                    <svg
-                      className={`w-4 h-4 transform transition-transform ${
-                        openMenu.forum ? "rotate-180" : ""
-                      }`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </button>
-                  <ul
-                    className={`overflow-hidden transition-all duration-300 ease-in-out pl-0 mt-1 space-y-1 text-base ${
-                      openMenu.forum ? "max-h-60" : "max-h-0"
+                  <Link
+                    to="/chat"
+                    className={`flex items-center w-full px-4 py-3 rounded-lg hover:bg-blue-300 ${
+                      currentPath === "/chat"
+                        ? "bg-blue-500 text-white"
+                        : "hover:bg-blue-100 text-gray-700"
                     }`}
                   >
-                    <li>
-                      <a
-                        href="#"
-                        className="flex items-center w-full px-4 py-3 rounded-lg hover:bg-blue-300"
-                      >
-                        Community
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="#"
-                        className="flex items-center w-full px-4 py-3 rounded-lg hover:bg-blue-300"
-                      >
-                        Chat
-                      </a>
-                    </li>
-                  </ul>
+                    <Home className="w-5 h-5 mr-3" />
+                    Messaging
+                  </Link>
                 </li>
                 <li>
-                  <a
-                    href="#"
-                    className="flex items-center w-full px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-300 transition text-base cursor-pointer"
+                  <Link
+                    to="/news"
+                    className={`flex items-center w-full px-4 py-3 rounded-lg hover:bg-blue-300 ${
+                      currentPath === "/news"
+                        ? "bg-blue-500 text-white"
+                        : "hover:bg-blue-100 text-gray-700"
+                    }`}
                   >
                     <BellOff className="w-5 h-5 mr-3" />
                     Announcements
-                  </a>
+                  </Link>
                 </li>
               </ul>
 
@@ -599,25 +588,33 @@ function Sidebar({ isOpen, setIsOpen }) {
               </h5>
               <ul className="space-y-2">
                 <li>
-                  <a
-                    href="#"
-                    className="flex items-center w-full px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-300 transition text-base cursor-pointer"
+                  <Link
+                    to="/profile"
+                    className={`flex items-center w-full px-4 py-3 rounded-lg hover:bg-blue-300 ${
+                      currentPath === "/profile"
+                        ? "bg-blue-500 text-white"
+                        : "hover:bg-blue-100 text-gray-700"
+                    }`}
                   >
                     <User className="w-5 h-5 mr-3" />
                     Profile
-                  </a>
+                  </Link>
                 </li>
-
+                {/* Billing */}
                 <li>
-                  <a
-                    href="#"
-                    className="flex items-center w-full px-4 py-3 rounded-lg text-gray-700 hover:bg-blue-300 transition text-base cursor-pointer"
+                  <Link
+                    to="/billing"
+                    className={`flex items-center w-full px-4 py-3 rounded-lg hover:bg-blue-300 ${
+                      currentPath === "/billing"
+                        ? "bg-blue-500 text-white"
+                        : "hover:bg-blue-100 text-gray-700"
+                    }`}
                   >
                     <CreditCard className="w-5 h-5 mr-3" />
                     Billing
-                  </a>
+                  </Link>
                 </li>
-
+                {/* Logout */}
                 <li>
                   <a
                     href="/"

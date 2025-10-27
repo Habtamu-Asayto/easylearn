@@ -2,11 +2,13 @@ import React, { useState, useEffect } from "react";
 import Footer from "../../components/Footer/Footer";
 import { Link, Links } from "react-router-dom";
 import courseService from "../../../services/course.service";
-import { useAuth } from "../../../contexts/AuthContext";
+import { useAuth } from "../../../Contexts/AuthContext";
 import { toast } from "react-toastify";
+import Header from "../../components/Header/Header";
+import { BookOpen, UserPlus } from "react-feather";
 
 function Main({ onShowAllMain }) {
-  const { user } = useAuth();
+  const { user, isLoggedIn, isAdmin, isInstructor, isStudent } = useAuth();
   let token = null;
   if (user) {
     token = user.user_token;
@@ -15,8 +17,7 @@ function Main({ onShowAllMain }) {
   const [apiError, setApiError] = useState(false);
   const [apiErrorMessage, setApiErrorMessage] = useState(null);
   const [course, setCourse] = useState([]);
-  useEffect(() => { 
-
+  useEffect(() => {
     // Call the getAllStudents function
     const allCourse = courseService.getAllCourses(token);
     allCourse
@@ -54,11 +55,11 @@ function Main({ onShowAllMain }) {
       if (res.status) {
         // Remove deleted course from state
         setCourse(course.filter((c) => c.course_id !== courseId));
-         toast.success("Course deleted successfully")
+        toast.success("Course deleted successfully");
       } else {
         toast.error(res.error || "Failed to delete course");
       }
-    } catch (err) { 
+    } catch (err) {
       toast.error("Something went wrong while deleting");
     }
   };
@@ -66,32 +67,22 @@ function Main({ onShowAllMain }) {
   return (
     <div className="flex-1 overflow-y-auto">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 py-4 px-6 justify-between items-center hidden md:flex">
-        <h2 className="text-xl font-semibold text-dark">My Courses</h2>
-        <div className="flex items-center space-x-2 md:space-x-4">
-          <div className="relative">
-            <i data-feather="bell" className="w-5 h-5 text-gray-500" />
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-              4
-            </span>
-          </div>
-          <img
-            src="http://learning.frontendmatter.com/html/images/people/110/guy-6.jpg"
-            className="w-8 h-8 rounded-full hidden sm:block"
-          />
-        </div>
-      </header>
+      <Header />
+
       {/* Dashboard Content */}
       <main className="p-6">
         {/* Overview */}
-        <div id="all-courses" className="flex justify-end p-4">
-          <button
-            className="px-5 py-2 border border-gray-300 rounded shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 hover:shadow-md transition"
-            onClick={onShowAllMain}
-          >
-            ALL COURSES
-          </button>
-        </div>
+        {isAdmin ||
+          (isInstructor && (
+            <div id="all-courses" className="flex justify-end p-4">
+              <button
+                className="px-5 py-2 border border-gray-300 rounded shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 hover:shadow-md transition"
+                onClick={onShowAllMain}
+              >
+                ALL COURSES
+              </button>
+            </div>
+          ))}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {/* Card 1 */}
           {apiError ? (
@@ -130,56 +121,81 @@ function Main({ onShowAllMain }) {
                 </div>
                 {/* Card Body */}
                 <div className="p-6 text-center">
-                  <Link
-                    to={`/course-detail/${cat.course_id}`}
-                    className="text-xl font-bold text-gray-800"
-                  >
-                    {cat.title}
-                  </Link>
+                  {isAdmin ||
+                    (isInstructor && (
+                      <Link
+                        to={`/course-detail/${cat.course_id}`}
+                        className="text-xl font-bold text-gray-800"
+                      >
+                        {cat.title}
+                      </Link>
+                    ))}
+                  {isStudent && (
+                      <Link
+                        to={`/stud-course-detail/${cat.course_id}`}
+                        className="text-xl font-bold text-gray-800"
+                      >
+                        {cat.title}
+                      </Link>
+                    )}
                 </div>
                 {/* Card Footer */}
-                <div className="border-t border-gray-200 px-6 py-4 flex justify-center">
-                  <Link
-                    to={`/edit-course/${cat.course_id}`}
-                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500 text-white font-medium hover:bg-indigo-600 transition"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-4 w-4"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
+                {isStudent && (
+                  <div className="border-t border-gray-200 px-6 py-4 flex justify-center">
+                    <Link
+                      to={`/edit-course/${cat.course_id}`}
+                      className="flex items-center gap-2 px-16 py-2 rounded-lg bg-blue-500 text-white font-medium hover:bg-blue-600 transition"
                     >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M11 17l-4-4m0 0l4-4m-4 4h14"
-                      />
-                    </svg>
-                    Edit Course
-                  </Link>
-                  <button
-                    onClick={() => handleDeleteCourse(cat.course_id)}
-                    className="flex cursor-pointer items-center ml-5 gap-2 px-4 py-2 rounded-lg bg-red-400 text-white font-medium hover:bg-red-300 transition"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={2}
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4m-4 0a1 1 0 00-1 1v1h6V4a1 1 0 00-1-1m-4 0h4"
-                      />
-                    </svg>
-                    Delete
-                  </button>
-                </div>
+                      <BookOpen size={18} />
+                      Enroll
+                    </Link>
+                  </div>
+                )}
+                {isAdmin ||
+                  (isInstructor && (
+                    <div className="border-t border-gray-200 px-6 py-4 flex justify-center">
+                      <Link
+                        to={`/edit-course/${cat.course_id}`}
+                        className="flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-500 text-white font-medium hover:bg-indigo-600 transition"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-4 w-4"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M11 17l-4-4m0 0l4-4m-4 4h14"
+                          />
+                        </svg>
+                        Edit Course
+                      </Link>
+                      <button
+                        onClick={() => handleDeleteCourse(cat.course_id)}
+                        className="flex cursor-pointer items-center ml-5 gap-2 px-4 py-2 rounded-lg bg-red-400 text-white font-medium hover:bg-red-300 transition"
+                      >
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4m-4 0a1 1 0 00-1 1v1h6V4a1 1 0 00-1-1m-4 0h4"
+                          />
+                        </svg>
+                        Delete
+                      </button>
+                    </div>
+                  ))}
               </div>
             ))
           ) : (
@@ -187,19 +203,21 @@ function Main({ onShowAllMain }) {
           )}
 
           {/*Add Course*/}
-          {/* Add New Course Card */}
-
-          <Link
-            to="/add-course"
-            className="card max-w-sm w-full flex items-center justify-center rounded-2xl 
+          {isAdmin || isInstructor ? (
+            <Link
+              to="/add-course"
+              className="card max-w-sm w-full flex items-center justify-center rounded-2xl 
                  border-2 border-dashed border-gray-300 bg-gray-50 
                  hover:border-indigo-400 hover:bg-indigo-50 
                  transition-all duration-200 cursor-pointer"
-          >
-            <span className="text-5xl text-gray-400 font-light hover:text-indigo-400">
-              +
-            </span>
-          </Link>
+            >
+              <span className="text-5xl text-gray-400 font-light hover:text-indigo-400">
+                +
+              </span>
+            </Link>
+          ) : (
+            <></>
+          )}
         </div>
 
         {/* Pagination */}

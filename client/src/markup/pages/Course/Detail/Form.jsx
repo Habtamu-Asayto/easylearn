@@ -653,7 +653,7 @@ function Form({ editCourse, onSuccess }) {
                       className="text-red-600 text-sm mb-2 mt-2"
                       role="alert"
                     >
-                      {serverError}
+                      {serverError} 
                     </div>
                   )}
                   {success && (

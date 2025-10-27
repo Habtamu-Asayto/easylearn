@@ -322,13 +322,13 @@ async function createQuiz(req, res) {
         .status(400)
         .json({ status: false, error: "Lesson id is required" });
     }
-    const existingQuizzes = await courseService.getQuizzesByLesson(lesson_id);
-    if (existingQuizzes.length > 0) {
-      return res.status(400).json({
-        status: false,
-        error: "A quiz already exists for this lesson.",
-      });
-    }
+    // const existingQuizzes = await courseService.getQuizzesByLesson(lesson_id);
+    // if (existingQuizzes.length > 0) {
+    //   return res.status(400).json({
+    //     status: false,
+    //     error: "A quiz already exists for this lesson.",
+    //   });
+    // }
 
     const QuizData = {
       lesson_id,

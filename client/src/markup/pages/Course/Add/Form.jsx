@@ -1,7 +1,7 @@
 import Footer from "../../../components/Footer/Footer";
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../../../../contexts/AuthContext";
+import { useAuth } from "../../../../Contexts/AuthContext";
 import categoryService from "../../../../services/coursecategory.service";
 import courseService from "../../../../services/course.service";
 import { toast } from "react-toastify";

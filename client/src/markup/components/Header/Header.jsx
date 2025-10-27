@@ -25,17 +25,28 @@ function Header() {
     const interval = setInterval(fetchUnread, 10000);
     return () => clearInterval(interval);
   }, [user?.user_id]);
-  
-  console.log("Full user object:", `http://localhost:8080${user?.profile_img}`);
 
   return (
     <header className="bg-white border-b border-gray-200 py-4 px-6 justify-between items-center hidden md:flex">
       <h2 className="text-xl font-semibold text-dark">
-        {currentPath === "/profile"
-          ? "Profile"
-          : "/chat"
-          ? "Messaging"
-          : "Dashboard"}
+        {user?.role_name === 2 &&
+          (currentPath === "/profile"
+            ? "Profile"
+            : "/chat"
+            ? "Messaging"
+            : "Dashboard")}
+        {user?.role_name === 3 &&
+          ((currentPath === "/welcome"
+            ? "Student dashboard"
+            : currentPath === "/courses"
+            ? "Courses"
+            : currentPath === "/chat"
+            ? "Messaging"
+            : currentPath === "/profile"
+            ? "Profile"
+            : currentPath === "/my-courses"
+            ? "My courses"
+            : ""))}
       </h2>
       <div className="flex items-center space-x-2 md:space-x-4">
         <Link to="/chat" className="relative">

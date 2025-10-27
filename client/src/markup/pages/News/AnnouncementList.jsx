@@ -5,6 +5,7 @@ import { useAuth } from "../../../Contexts/AuthContext";
 import { toast } from "react-toastify";
 import newsService from "../../../services/news.services";
 function AnnouncementList() {
+    const { isLogged, isAdmin, isInstructor, isStudent } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
@@ -107,6 +108,7 @@ function AnnouncementList() {
         </div>
         <div className="flex items-center space-x-3">
           {/* View toggle */}
+          {isAdmin || isInstructor?
           <div className="flex space-x-2">
             <button
               className="px-5 py-2 border cursor-pointer border-gray-300 rounded shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 hover:shadow-md transition"
@@ -115,6 +117,7 @@ function AnnouncementList() {
               Add Annoucement
             </button>
           </div>
+          :<></>}
         </div>
       </div>
       {/* Add News modal */}

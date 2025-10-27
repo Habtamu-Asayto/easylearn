@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Form from "./Form"; // your form component
 import courseService from "../../../../services/course.service";
-import { useAuth } from "../../../../contexts/AuthContext";
+import { useAuth } from "../../../../Contexts/AuthContext";
 import Sidebar from "../../../components/Sidebar/Sidebar";
 
 function Detail() {

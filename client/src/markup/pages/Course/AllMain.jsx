@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import Footer from "../../components/Footer/Footer";
 
 import courseService from "../../../services/course.service";
-import { useAuth } from "../../../contexts/AuthContext";
+import { useAuth } from "../../../Contexts/AuthContext";
 function AllMain({ onShowMain }) {
-   const { user } = useAuth();
+   const { user, isAdmin, isInstructor, isStudent } = useAuth();
    let token = null;
    if (user) {
      token = user.user_token;
@@ -71,6 +71,8 @@ function AllMain({ onShowMain }) {
           {/* Right buttons */}
           <div className="flex items-center space-x-3">
             {/* View toggle */}
+
+           
             <div className="flex space-x-2">
               <button
                 className="px-5 py-2 border border-gray-300 rounded shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-100 hover:shadow-md transition"
@@ -79,6 +81,7 @@ function AllMain({ onShowMain }) {
                 MY COURSES
               </button>
             </div>
+           
           </div>
         </div>
         <div className="max-w-6xl mx-auto px-4 space-y-4">

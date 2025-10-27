@@ -1,15 +1,16 @@
-import React,{ useState } from "react"; 
+import React, { useState } from "react";
 import Sidebar from "../../components/Sidebar/Sidebar.jsx";
-import { useAuth } from "../../../contexts/AuthContext";
+import { useAuth } from "../../../Contexts/AuthContext";
 import Footer from "../../components/Footer/Footer.jsx";
+import A404 from "../A404.jsx";
 
 function Billing() {
   const [isOpen, setIsOpen] = useState(false);
   // Destructure the auth hook
   const { isLogged, isAdmin, isInstructor, isStudent } = useAuth();
-  
+
   if (isLogged) {
-    if (isAdmin || isInstructor) {
+    if (isAdmin || isInstructor || isStudent) {
       return (
         <div className="flex flex-col md:flex-row h-screen overflow-hidden">
           <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />
@@ -42,6 +43,10 @@ function Billing() {
           </div>
         </div>
       );
+    } else {
+      <>
+        <A404 />
+      </>;
     }
   }
 }

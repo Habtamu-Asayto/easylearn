@@ -13,7 +13,7 @@ router.post(
 
 router.get(
   "/news-list",
-  [authMiddleware.verifyToken, authMiddleware.isAdmin],
+  [authMiddleware.verifyToken, authMiddleware.forAll],
   newsController.getNews
 );
 module.exports = router;

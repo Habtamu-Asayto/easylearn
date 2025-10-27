@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }) => {
     setIsStudent,
     user,
   };
- 
+
   useEffect(() => {
     // Retrieve the logged in user from local storage
     const loggedInUser = getAuth();
@@ -40,12 +40,10 @@ export const AuthProvider = ({ children }) => {
         if (response.role_name === 1) {
           setIsAdmin(true);
         }
-
         // 2 is the role_name for instuctor
         else if (response.role_name === 2) {
           setIsInstructor(true);
         }
-
         // 3 is the employee_role for admin
         if (response.role_name === 3) {
           setIsStudent(true);

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Sidebar from "../../components/Sidebar/Sidebar.jsx";
-import { useAuth } from "../../../contexts/AuthContext";
+import { useAuth } from "../../../Contexts/AuthContext";
 import Footer from "../../components/Footer/Footer.jsx";
 import ChatBox from "./ChatBox.jsx";
 import Header from "../../components/Header/Header.jsx";
@@ -11,7 +11,7 @@ function Chat() {
   const { isLogged, isAdmin, isInstructor, isStudent } = useAuth();
 
   if (isLogged) {
-    if (isAdmin || isInstructor) {
+    if (isAdmin || isInstructor || isStudent) {
       return (
         <div className="flex flex-col md:flex-row h-screen overflow-hidden">
           <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />
@@ -23,6 +23,7 @@ function Chat() {
             <main className="h-screen w-full bg-gray-100 p-6 flex items-center justify-center">
               <ChatBox />
             </main>
+            <Footer />
           </div>
         </div>
       );

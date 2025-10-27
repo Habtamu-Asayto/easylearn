@@ -25,7 +25,7 @@ const upload = multer({ storage });
 
 router.get(
   "/users/profile",
-  authMiddleware.verifyToken,
+  [authMiddleware.verifyToken, authMiddleware.forAll],
   userController.getUserProfile
 );
 router.put(

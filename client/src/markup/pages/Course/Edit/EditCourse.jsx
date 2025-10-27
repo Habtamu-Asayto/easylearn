@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Form from "../Add/Form"; // your form component
 import courseService from "../../../../services/course.service";
-import { useAuth } from "../../../../contexts/AuthContext";
+import { useAuth } from "../../../../Contexts/AuthContext";
 import Sidebar from "../../../components/Sidebar/Sidebar";
 
 function EditCourse() {
@@ -38,7 +38,7 @@ function EditCourse() {
 
   if (loading) return <p>Loading...</p>;
   if (isLogged) {
-    if (isAdmin || isInstructor) {
+    if (isAdmin || isInstructor || isStudent) {
       return (
         <div className="flex flex-col md:flex-row overflow-hidden h-screen">
           <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />

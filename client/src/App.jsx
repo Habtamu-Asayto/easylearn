@@ -28,6 +28,8 @@ import Billing from "./markup/pages/Billing/Billing.jsx";
 import Chat from "./markup/pages/Chat/Chat.jsx";
 import EmailVerification from "./markup/components/Form/EmailVerification.jsx";
 import Profile from "./markup/pages/Profile/Profile.jsx";
+import MyCourses from "./markup/pages/Student/Course/MyCourses.jsx";
+import CourseDetail from "./markup/pages/Student/Course/CourseDetail.jsx";
 
 function BeforeLoginLayout({ children }) {
   return (
@@ -141,13 +143,12 @@ function App() {
           path="/news"
           element={
             <AfterLoginLayout>
-              <PrivateAuthRoute roles={[1, 2]}>
+              <PrivateAuthRoute roles={[1, 2, 3]}>
                 <Announcement />
               </PrivateAuthRoute>
             </AfterLoginLayout>
           }
         />
-
         <Route
           path="/add-course"
           element={
@@ -179,6 +180,17 @@ function App() {
           }
         />
         <Route
+          path="/stud-course-detail/:id"
+          element={
+            <AfterLoginLayout>
+              <PrivateAuthRoute roles={[1, 2, 3]}>
+                <CourseDetail />
+              </PrivateAuthRoute>
+            </AfterLoginLayout>
+          }
+        />
+
+        <Route
           path="/category"
           element={
             <AfterLoginLayout>
@@ -192,13 +204,12 @@ function App() {
           path="/billing"
           element={
             <AfterLoginLayout>
-              <PrivateAuthRoute roles={[1, 2]}>
+              <PrivateAuthRoute roles={[1, 2, 3]}>
                 <Billing />
               </PrivateAuthRoute>
             </AfterLoginLayout>
           }
         />
-
         <Route
           path="/chat"
           element={
@@ -215,6 +226,16 @@ function App() {
             <AfterLoginLayout>
               <PrivateAuthRoute roles={[1, 2, 3]}>
                 <Profile />
+              </PrivateAuthRoute>
+            </AfterLoginLayout>
+          }
+        />
+        <Route
+          path="/my-courses"
+          element={
+            <AfterLoginLayout>
+              <PrivateAuthRoute roles={[1, 2, 3]}>
+                <MyCourses />
               </PrivateAuthRoute>
             </AfterLoginLayout>
           }

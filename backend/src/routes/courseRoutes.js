@@ -44,7 +44,7 @@ router.put(
 
 router.get(
   "/courses",
-  [authMiddleware.verifyToken, authMiddleware.isAdmin],
+  [authMiddleware.verifyToken, authMiddleware.forAll],
   courseController.getAllCourse
 );
 
