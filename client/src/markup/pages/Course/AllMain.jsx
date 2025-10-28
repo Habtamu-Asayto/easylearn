@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Footer from "../../components/Footer/Footer";
 
 import courseService from "../../../services/course.service";
-import { useAuth } from "../../../Contexts/AuthContext";
+import { useAuth } from "../../../contexts/AuthContext";
 function AllMain({ onShowMain }) {
    const { user, isAdmin, isInstructor, isStudent } = useAuth();
    let token = null;

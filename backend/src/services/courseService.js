@@ -33,7 +33,7 @@ async function createCourse(course) {
     throw err;
   }
 }
- 
+
 // Create a new Overview
 async function createOverview(overview) {
   try {
@@ -106,14 +106,14 @@ async function updateCourse(courseId, course) {
   }
 }
 
-const updateLesson = async (lessonId, lessonData) => {
-  const { title, content, video_url } = lessonData;
+const updateChapter = async (chapterId, chapterData) => {
+  const { title, description } = chapterData;
 
   const [result] = await conn2.query(
-    `UPDATE lessons 
-     SET title = ?, content = ?, video_url = ?, updated_at = NOW() 
-     WHERE lesson_id = ?`,
-    [title, content, video_url, lessonId]
+    `UPDATE chapters 
+     SET title = ?, description = ?,  updated_at = NOW() 
+     WHERE chapter_id = ?`,
+    [title, description, chapterId]
   );
 
   return result;
@@ -123,48 +123,63 @@ const updateLesson = async (lessonId, lessonData) => {
 async function getAllCourse() {
   const query = `
     SELECT 
-      c.course_id,
-      c.title,
-      c.description,
-      c.category_id,
-      ui.user_full_name AS instructor_name,
-      c.created_at,
-      c.updated_at,
-      co.overview_id,
-      co.overview_detail,
-      co.required_skill,
-      co.duration,
-      co.certificate,
-      co.created_at AS overview_created_at,
-      co.updated_at AS overview_updated_at,
-      le.lesson_id,
-      le.title AS lesson_title,
-      le.content,
-      le.video_url,
-      le.created_at AS lesson_created_at,
-      le.updated_at AS lesson_updated_at
-    FROM courses c
-    LEFT JOIN user_info ui ON c.instructor_id = ui.user_id
-    LEFT JOIN course_overview co ON c.course_id = co.course_id
-    LEFT JOIN lessons le ON c.course_id = le.course_id
-    ORDER BY c.course_id, le.lesson_id;
+  c.course_id,
+  c.title AS course_title,
+  c.description AS course_description,
+  c.category_id,
+  ui.user_full_name AS instructor_name,
+  c.created_at AS course_created_at,
+  c.updated_at AS course_updated_at,
+
+  co.overview_id,
+  co.overview_detail,
+  co.required_skill,
+  co.duration,
+  co.certificate,
+  co.created_at AS overview_created_at,
+  co.updated_at AS overview_updated_at,
+
+  ch.chapter_id,
+  ch.title AS chapter_title,
+  ch.description AS chapter_description,
+  ch.color AS chapter_color,
+  ch.chapter_order,
+  ch.created_at AS chapter_created_at,
+  ch.updated_at AS chapter_updated_at,
+
+  le.lesson_id,
+  le.title AS lesson_title,
+  le.content AS lesson_content,
+  le.video_url,
+  le.duration AS lesson_duration,
+  le.created_at AS lesson_created_at,
+  le.updated_at AS lesson_updated_at
+
+FROM courses c
+LEFT JOIN user_info ui ON c.instructor_id = ui.user_id
+LEFT JOIN course_overview co ON c.course_id = co.course_id
+LEFT JOIN chapters ch ON c.course_id = ch.course_id
+LEFT JOIN lessons le ON ch.chapter_id = le.chapter_id
+ORDER BY c.course_id, ch.chapter_order, le.lesson_order;
+
   `;
 
   const rows = await conn.query(query);
 
   const courses = [];
-  const map = new Map();
+  const courseMap = new Map();
 
   rows.forEach((row) => {
-    if (!map.has(row.course_id)) {
-      map.set(row.course_id, {
+    // 1️⃣ Course level
+    if (!courseMap.has(row.course_id)) {
+      courseMap.set(row.course_id, {
         course_id: row.course_id,
-        title: row.title,
-        description: row.description,
+        title: row.course_title,
+        description: row.course_description,
         category_id: row.category_id,
         instructor_name: row.instructor_name,
-        created_at: row.created_at,
-        updated_at: row.updated_at,
+        created_at: row.course_created_at,
+        updated_at: row.course_updated_at,
         overview: row.overview_id
           ? {
               overview_id: row.overview_id,
@@ -175,21 +190,45 @@ async function getAllCourse() {
               created_at: row.overview_created_at,
               updated_at: row.overview_updated_at,
             }
-          : null, // <-- null if no overview
-        lessons: [],
+          : null,
+        chapters: [],
       });
-      courses.push(map.get(row.course_id));
+      courses.push(courseMap.get(row.course_id));
     }
 
-    if (row.lesson_id) {
-      map.get(row.course_id).lessons.push({
-        lesson_id: row.lesson_id,
-        title: row.lesson_title,
-        content: row.content,
-        video_url: row.video_url,
-        created_at: row.lesson_created_at,
-        updated_at: row.lesson_updated_at,
-      });
+    const course = courseMap.get(row.course_id);
+
+    // 2️⃣ Chapter level
+    if (row.chapter_id) {
+      let chapter = course.chapters.find(
+        (ch) => ch.chapter_id === row.chapter_id
+      );
+      if (!chapter) {
+        chapter = {
+          chapter_id: row.chapter_id,
+          title: row.chapter_title,
+          description: row.chapter_description,
+          color: row.chapter_color,
+          chapter_order: row.chapter_order,
+          created_at: row.chapter_created_at,
+          updated_at: row.chapter_updated_at,
+          lessons: [],
+        };
+        course.chapters.push(chapter);
+      }
+
+      // 3️⃣ Lesson level
+      if (row.lesson_id) {
+        chapter.lessons.push({
+          lesson_id: row.lesson_id,
+          title: row.lesson_title,
+          content: row.lesson_content,
+          video_url: row.video_url,
+          duration: row.lesson_duration,
+          created_at: row.lesson_created_at,
+          updated_at: row.lesson_updated_at,
+        });
+      }
     }
   });
 
@@ -205,7 +244,7 @@ async function deleteCourse(courseId) {
       courseId,
     ]);
     await conn.query("DELETE FROM lessons WHERE course_id = ?", [courseId]);
-
+    await conn.query("DELETE FROM chapters WHERE course_id = ?", [courseId]);
     // Delete the main course
     const result = await conn.query("DELETE FROM courses WHERE course_id = ?", [
       courseId,
@@ -219,38 +258,39 @@ async function deleteCourse(courseId) {
   }
 }
 
-async function deleteLesson(lessonId) {
-  if (!lessonId) throw new Error("Lesson ID is required");
+async function deleteChapter(chapterId) {
+  if (!chapterId) throw new Error("Chapter ID is required");
 
   try {
     // Delete the main course
-    const result = await conn.query("DELETE FROM lessons WHERE lesson_id = ?", [
-      lessonId,
-    ]);
+    const result = await conn.query(
+      "DELETE FROM chapters WHERE chapter_id = ?",
+      [chapterId]
+    );
 
     // Return true only if main course deleted
     return result.affectedRows > 0;
   } catch (err) {
-    console.error("Delete course error:", err);
+    console.error("Delete chapter error:", err);
     throw err;
   }
 }
 
-async function addLessons(lessons) {
-  if (!Array.isArray(lessons) || lessons.length === 0) {
-    throw new Error("No lessons provided");
+async function addChapters(chapters) {
+  if (!Array.isArray(chapters) || chapters.length === 0) {
+    throw new Error("No chapter provided");
   }
 
   try {
-    const placeholders = lessons.map(() => "(?,?,?,?)").join(",");
+    const placeholders = chapters.map(() => "(?,?,?)").join(",");
     const values = [];
 
-    lessons.forEach((l) => {
-      values.push(l.course_id, l.lesson_title, l.content, l.video_url || null);
+    chapters.forEach((c) => {
+      values.push(c.course_id, c.chapter_title, c.chapter_description);
     });
 
     const query = `
-      INSERT INTO lessons (course_id, title, content, video_url)
+      INSERT INTO chapters (course_id, title, description)
       VALUES ${placeholders}
     `;
 
@@ -259,15 +299,16 @@ async function addLessons(lessons) {
     console.log("Insert result:", result);
     return result;
   } catch (err) {
-    console.error("Add lesson error:", err);
+    console.error("Add chapter error:", err);
     throw err;
   }
 }
-const getLessonsByCourseService = async (courseId) => {
-  console.log("Query result 1: ", courseId);
+
+const getChaptersByCourseService = async (courseId) => {
+  // console.log("Query result 1: ", courseId);
 
   const [rows] = await conn2.query(
-    `SELECT * FROM lessons WHERE course_id = ?;`,
+    `SELECT * FROM chapters WHERE course_id = ?;`,
     [courseId]
   );
   console.log("Query result:", rows);
@@ -275,30 +316,29 @@ const getLessonsByCourseService = async (courseId) => {
 };
 
 // Check if a quiz exists for a lesson
-async function getQuizzesByLesson(lessonId) {   
+async function getQuizzesByChapter(chapterId) {
   try {
     const [rows] = await conn2.query(
-      `SELECT quiz_id FROM Quiz WHERE lesson_id = ?`,
-      [lessonId]
+      `SELECT quiz_id FROM Quiz WHERE chapter_id = ?`,
+      [chapterId]
     );
     return rows; // empty array if no quiz
   } catch (err) {
     // console.error("getQuizzesByLesson error:", err);
     throw err;
-  }  
+  }
 }
 
-
-async function createQuiz(quizData) { 
-  try { 
+async function createQuiz(quizData) {
+  try {
     // 1️⃣ Insert quiz
     const [quizResult] = await conn2.query(
-      `INSERT INTO Quiz (question, question_type, points, lesson_id) VALUES (?, ?, ?, ?)`,
+      `INSERT INTO Quiz (question, question_type, points, chapter_id) VALUES (?, ?, ?, ?)`,
       [
         quizData.question,
         quizData.question_type,
         quizData.points,
-        quizData.lesson_id,
+        quizData.chapter_id,
       ]
     );
     const quizId = quizResult.insertId;
@@ -319,20 +359,115 @@ async function createQuiz(quizData) {
       );
     }
 
-    // 3️⃣ Insert teacher's answer for short_answer / true_false
+    // Insert teacher's answer for short_answer / true_false
     if (quizData.question_type !== "multiple_choice" && quizData.answer_text) {
       await conn.query(
         `INSERT INTO QuizAnswers (quiz_id, short_answer) VALUES (?, ?)`,
         [quizId, quizData.answer_text]
       );
     }
- 
+
     return quizId;
-  } catch (err) { 
+  } catch (err) {
     throw err;
-  }  
+  }
 }
 
+// Lesson functions
+const updateLesson = async (lessonId, lessonData) => {
+  const { title, content, video_url, duration } = lessonData;
+
+  const [result] = await conn2.query(
+    `UPDATE lessons 
+     SET title = ?, content = ?, duration=?, video_url = ?, updated_at = NOW() 
+     WHERE lesson_id = ?`,
+    [title, content, duration, video_url, lessonId]
+  );
+
+  return result;
+};
+async function deleteLesson(lessonId) {
+  if (!lessonId) throw new Error("Lesson ID is required");
+
+  try {
+    // Delete the main course
+    const result = await conn.query("DELETE FROM lessons WHERE lesson_id = ?", [
+      lessonId,
+    ]);
+
+    // Return true only if main course deleted
+    return result.affectedRows > 0;
+  } catch (err) {
+    console.error("Delete lesson error:", err);
+    throw err;
+  }
+}
+
+async function addLessons(lessons) {
+  
+  if (!Array.isArray(lessons) || lessons.length === 0) {
+    throw new Error("No lessons provided");
+  }
+
+  try {
+    const placeholders = lessons.map(() => "(?,?,?,?,?,?)").join(",");
+    const values = [];
+
+    lessons.forEach((l) => {
+      values.push(
+        l.course_id,
+        l.chapter_id,
+        l.title,
+        l.duration || null,
+        l.content,
+        l.video_url || null
+      );
+    });
+
+    const query = `
+      INSERT INTO lessons (course_id, chapter_id, title,duration, content, video_url)
+      VALUES ${placeholders}
+    `;
+
+    const [result] = await conn2.query(query, values);
+
+    // Map the inserted IDs to lessons
+    const insertedLessons = lessons.map((l, index) => ({
+      lesson_id: result.insertId + index,
+      ...l,
+    }));
+
+    return insertedLessons; // return array with IDs included
+  } catch (err) {
+    console.error("Add lesson error:", err);
+    throw err;
+  }
+}
+
+// Service
+const getLessonsByChapterService = async (courseId, chapterId) => {
+  console.log("Fetching lessons for course:", courseId, "chapter:", chapterId);
+
+  const [rows] = await conn2.query(
+    `SELECT * FROM lessons WHERE course_id = ? AND chapter_id = ?;`,
+    [courseId, chapterId]
+  );
+
+  console.log("Fetched lessons:", rows);
+  return rows;
+};
+const getQuizesByChapter = async (chapterId) => {
+  const query = `
+    SELECT q.quiz_id, q.question, q.question_type, COUNT(o.option_id) as total_questions
+    FROM quiz q
+    LEFT JOIN QuizOptions o ON q.quiz_id = o.quiz_id
+    WHERE q.chapter_id = ?
+    GROUP BY q.quiz_id
+  `;
+
+  const [rows] = await conn2.execute(query, [chapterId]);
+  return rows;
+};
 module.exports = {
   createCourse,
   checkIfCourseExists,
@@ -341,10 +476,14 @@ module.exports = {
   deleteCourse,
   createOverview,
   updateOverview,
+  addChapters,
+  getChaptersByCourseService,
+  deleteChapter,
+  updateChapter,
+  createQuiz,
+  getQuizesByChapter,
   addLessons,
-  getLessonsByCourseService,
+  getLessonsByChapterService,
   deleteLesson,
   updateLesson,
-  createQuiz,
-  getQuizzesByLesson, 
 };

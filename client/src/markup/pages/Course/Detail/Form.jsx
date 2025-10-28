@@ -1,14 +1,14 @@
 import Footer from "../../../components/Footer/Footer";
 import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "../../../../contexts/AuthContext";
+import { useAuth } from "../../../../Contexts/AuthContext";
 import categoryService from "../../../../services/coursecategory.service";
 import courseService from "../../../../services/course.service";
 import { toast } from "react-toastify";
 import { motion, AnimatePresence, time } from "framer-motion";
 import ToggleButton from "../../../components/Toggle/ToggleButton";
 import { format, formatDistanceToNow } from "date-fns";
-import ExpandableLessons from "../Lesson/LessonCard";
+import ExpandableChapter from "../Chapter/ChapterCard";
 import Instructor from "../About/Instructor";
 
 function Form({ editCourse, onSuccess }) {
@@ -65,10 +65,10 @@ function Form({ editCourse, onSuccess }) {
   const [success, setSuccess] = useState("");
   const [serverError, setServerError] = useState("");
 
-  // Errors of Lesson
-  const [lessonTitleError, setLessonTitleError] = useState([]);
-  const [contentError, setContentError] = useState([]);
-  const [videoURLError, setVideoURLError] = useState([]);
+  // Errors of Chapter
+  const [chapterTitleError, setChapterTitleError] = useState([]);
+  const [descriptionContentError, setDescriptionContentError] = useState([]);
+  // const [videoURLError, setVideoURLError] = useState([]);
 
   const { user } = useAuth();
 
@@ -101,7 +101,7 @@ function Form({ editCourse, onSuccess }) {
     }
 
     // When page refresh the form removed
-    lessons.forEach((_, i) => handleRemoveLesson(i));
+    chapters.forEach((_, i) => handleRemoveChapter(i));
   }, []);
 
   const handleSubmitOverview = async (e) => {
@@ -219,60 +219,58 @@ function Form({ editCourse, onSuccess }) {
   };
 
   //   Tab started
-  const tabs = ["Course detail", "Overview", "Lessons", "Instructor"];
+  const tabs = ["Course detail", "Overview", "Chapters", "Instructor"];
   const [activeTab, setActiveTab] = useState("Course detail");
 
   // Hooks for Add and remove form
-  const [lessons, setLessons] = useState([
+  const [chapters, setChapters] = useState([
     {
       course_id: editCourse.course_id,
-      lesson_title: "",
-      content: "",
-      video_url: "",
+      chapter_title: "",
+      chapter_description: "",
     },
   ]);
 
-  const handleAddLesson = () => {
-    setLessons([
-      ...lessons,
+  const handleAddChapter = () => {
+    setChapters([
+      ...chapters,
       {
         course_id: editCourse.course_id,
-        lesson_title: "",
-        content: "",
-        video_url: "",
+        chapter_title: "",
+        chapter_description: "",
       },
     ]);
     setIsOpen(true);
   };
 
   // Remove a form row
-  const handleRemoveLesson = (index) => {
-    setLessons(lessons.filter((_, i) => i !== index));
-    if (lessons.length === 1) {
+  const handleRemoveChapter = (index) => {
+    setChapters(chapters.filter((_, i) => i !== index));
+    if (chapters.length === 1) {
       setIsOpen(false);
     }
   };
 
   // Update form values
   const handleChange = (index, field, value) => {
-    const updated = [...lessons];
+    const updated = [...chapters];
     updated[index][field] = value;
-    setLessons(updated);
+    setChapters(updated);
   };
 
-  const handleSubmitLesson = async (e) => {
+  const handleSubmitChapter = async (e) => {
     e.preventDefault();
     let valid = true;
     // Reset errors
     const titleErrors = [];
     const contentErrors = [];
-    lessons.forEach((lesson, index) => {
-      if (!lesson.lesson_title.trim()) {
-        titleErrors[index] = `Lesson ${index + 1}: Title is required`;
+    chapters.forEach((chapter, index) => {
+      if (!chapter.chapter_title.trim()) {
+        titleErrors[index] = `Chapter ${index + 1}: Title is required`;
         valid = false;
       }
-      if (!lesson.content.trim()) {
-        contentErrors[index] = `Lesson ${index + 1}: Content is required`;
+      if (!chapter.chapter_description.trim()) {
+        contentErrors[index] = `Chapter ${index + 1}: description is required`;
         valid = false;
       }
 
@@ -282,32 +280,32 @@ function Form({ editCourse, onSuccess }) {
       //  }
     });
 
-    setLessonTitleError(titleErrors);
-    setContentError(contentErrors);
+    setChapterTitleError(titleErrors);
+    setDescriptionContentError(contentErrors);
 
     if (!valid) return; // Stop submission if any lesson is invalid
     try {
       // const payload = { lessons };
-      const res = await courseService.createLesson(lessons, token);
+      const res = await courseService.createChapter(chapters, token);
 
       if (res.status) {
-        toast.success("Lessons added successfully!");
+        toast.success("Chapters added successfully!");
         // Reset all lessons after success
-        setLessons([]);
+        setChapters([]);
         setTimeout(() => (window.location.href = `/courses`), 1200);
       } else {
-        toast.error(res.error || "Failed to add lessons");
+        toast.error(res.error || "Failed to add chapters");
       }
     } catch (err) {
-      console.error("Error creating lessons:", err);
-      toast.error("Server error while adding lessons");
+      console.error("Error creating chapters:", err);
+      toast.error("Server error while adding chapters");
     }
   };
   const instructorData = {
     name: "Habtamu Asayto",
     title: "Senior React Instructor",
     bio: "Has 10+ years of experience teaching web development and loves making complex topics simple.",
-    profilePicture: "../../../../assets/images/photo.jpg", 
+    profilePicture: "../../../../assets/images/photo.jpg",
     linkedin: "https://linkedin.com/in/habtamu-takele",
     email: "habtamuasayto360@gmail.com",
   };
@@ -637,13 +635,13 @@ function Form({ editCourse, onSuccess }) {
             </div>
           </div>
         );
-      case "Lessons":
+      case "Chapters":
         return (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Editor area (center) */}
             <div className="lg:col-span-9">
               <div className="bg-gray-50 overflow-hidden fade-in">
-                <ExpandableLessons
+                <ExpandableChapter
                   courseId={editCourse?.course_id}
                   token={token}
                 />
@@ -653,7 +651,7 @@ function Form({ editCourse, onSuccess }) {
                       className="text-red-600 text-sm mb-2 mt-2"
                       role="alert"
                     >
-                      {serverError} 
+                      {serverError}
                     </div>
                   )}
                   {success && (
@@ -668,9 +666,9 @@ function Form({ editCourse, onSuccess }) {
                 </div>
                 {/* Editor body */}
                 <div className="p-4 sm:p-6">
-                  <form onSubmit={handleSubmitLesson} className="space-y-4">
+                  <form onSubmit={handleSubmitChapter} className="space-y-4">
                     <AnimatePresence>
-                      {lessons.map((lesson, index) => (
+                      {chapters.map((chapter, index) => (
                         <motion.div
                           key={index}
                           initial={{ opacity: 0, y: 10 }}
@@ -681,74 +679,63 @@ function Form({ editCourse, onSuccess }) {
                         >
                           <div>
                             <label className="block text-sm font-medium text-gray-600">
-                              Lesson Title
+                              Chapter Title
                             </label>
                             <input
-                              type="lesson_title"
-                              placeholder="Lesson Title"
-                              value={lesson.lesson_title}
+                              type="text"
+                              placeholder="Chapter Title"
+                              value={chapter.chapter_title}
                               onChange={(e) =>
                                 handleChange(
                                   index,
-                                  "lesson_title",
+                                  "chapter_title",
                                   e.target.value
                                 )
                               }
                               className="mt-2 mb-1 block w-full rounded-lg border bg-white border-gray-200 px-3 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-300"
                             />
 
-                            {lessonTitleError[index] && (
+                            {chapterTitleError[index] && (
                               <div
                                 className="text-red-600 text-sm"
                                 role="alert"
                               >
-                                {lessonTitleError[index]}
+                                {chapterTitleError[index]}
                               </div>
                             )}
                           </div>
 
-                          <div>
+                          <div className="mb-3">
                             <label className="block text-sm font-medium text-gray-600 mt-3">
-                              Lesson Content
+                              Chapter description
                             </label>
                             <textarea
                               rows={7}
-                              type="content"
-                              placeholder="Content"
-                              value={lesson.content}
+                              type="chapter_description"
+                              placeholder="Chapter Description"
+                              value={chapter.chapter_description}
                               onChange={(e) =>
-                                handleChange(index, "content", e.target.value)
+                                handleChange(
+                                  index,
+                                  "chapter_description",
+                                  e.target.value
+                                )
                               }
                               className="mt-2 block w-full rounded-lg border bg-white border-gray-200 px-3 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-300"
                             />
-                            {contentError[index] && (
+                            {descriptionContentError[index] && (
                               <div
                                 className="text-red-600 text-sm mt-1"
                                 role="alert"
                               >
-                                {contentError[index]}
+                                {descriptionContentError[index]}
                               </div>
                             )}
                           </div>
 
-                          <div>
-                            <label className="block text-sm font-medium text-gray-600 mt-4">
-                              Video URL
-                            </label>
-                            <input
-                              type="video_url"
-                              placeholder="Video URL"
-                              value={lesson.video_url}
-                              onChange={(e) =>
-                                handleChange(index, "video_url", e.target.value)
-                              }
-                              className="mt-2 mb-4 block w-full rounded-lg border bg-white border-gray-200 px-3 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                            />
-                          </div>
-
                           <button
                             type="button"
-                            onClick={() => handleRemoveLesson(index)}
+                            onClick={() => handleRemoveChapter(index)}
                             className="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition"
                           >
                             Remove
@@ -761,17 +748,17 @@ function Form({ editCourse, onSuccess }) {
                     <div className="flex justify-between items-center mt-6">
                       <button
                         type="button"
-                        onClick={handleAddLesson}
+                        onClick={handleAddChapter}
                         className="flex px-4 py-2 cursor-pointer bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
                       >
-                        + Add Lesson
+                        + Add Chapter
                       </button>
                       {isOpen && (
                         <button
                           type="submit"
                           className="px-6 py-2 cursor-pointer bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
                         >
-                          Submit Lesson
+                          Submit Chapter
                         </button>
                       )}
                     </div>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Footer from "../../components/Footer/Footer";
 import { Link, Links } from "react-router-dom";
 import courseService from "../../../services/course.service";
-import { useAuth } from "../../../Contexts/AuthContext";
+import { useAuth } from "../../../contexts/AuthContext";
 import { toast } from "react-toastify";
 import Header from "../../components/Header/Header";
 import { BookOpen, UserPlus } from "react-feather";

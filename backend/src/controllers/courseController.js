@@ -1,6 +1,5 @@
 // controllers/courseController.js
 const courseService = require("../services/courseService");
-
 async function createCourse(req, res) {
   try {
     //Check if duplicate course exists
@@ -46,31 +45,32 @@ async function createCourse(req, res) {
     });
   }
 }
-async function createLessons(req, res) {
-  try {
-    const lessons = req.body;
-    console.log("Received lessons:", lessons);
 
-    if (!lessons || lessons.length === 0) {
+async function createChapters(req, res) {
+  try {
+    const chapters = req.body;
+    console.log("Received chapters:", chapters);
+
+    if (!chapters || chapters.length === 0) {
       return res
         .status(400)
-        .json({ status: false, error: "No lessons provided" });
+        .json({ status: false, error: "No chapters provided" });
     }
 
-    const result = await courseService.addLessons(lessons);
+    const result = await courseService.addChapters(chapters);
     console.log("Affected rows:", result.affectedRows);
 
     if (result.affectedRows > 0) {
       return res
         .status(200)
-        .json({ status: true, message: "Lessons added successfully!" });
+        .json({ status: true, message: "Chapters added successfully!" });
     } else {
       return res
         .status(400)
-        .json({ status: false, error: "No lessons inserted." });
+        .json({ status: false, error: "No chapters inserted." });
     }
   } catch (err) {
-    console.error("Error adding lessons:", err);
+    console.error("Error adding chapters:", err);
     return res
       .status(500)
       .json({ status: false, error: "Internal server error" });
@@ -239,24 +239,24 @@ async function deleteCourse(req, res) {
   }
 }
 
-async function deleteLesson(req, res) {
-  const lessonId = req.params.id;
-  if (!lessonId) {
+async function deleteChapter(req, res) {
+  const chapterId = req.params.id;
+  if (!chapterId) {
     return res
       .status(400)
-      .json({ status: false, error: "Lesson ID is required" });
+      .json({ status: false, error: "Chapter ID is required" });
   }
   try {
-    const deleted = await courseService.deleteLesson(lessonId);
+    const deleted = await courseService.deleteChapter(chapterId);
 
     if (deleted) {
       return res
         .status(200)
-        .json({ status: true, message: "Lesson deleted successfully" });
+        .json({ status: true, message: "Chapter deleted successfully" });
     } else {
       return res
         .status(404)
-        .json({ status: false, error: "Lesson not found or already deleted" });
+        .json({ status: false, error: "Chapter not found or already deleted" });
     }
   } catch (err) {
     console.error("Controller error:", err);
@@ -266,47 +266,47 @@ async function deleteLesson(req, res) {
   }
 }
 
-const getLessonsByCourse = async (req, res) => {
+const getChaptersByCourse = async (req, res) => {
   const { courseId } = req.params;
   //  console.log("Fetching lessons  id", courseId);
   try {
-    const lessons = await courseService.getLessonsByCourseService(courseId);
+    const chapters = await courseService.getChaptersByCourseService(courseId);
 
     res.status(200).json({
       success: true,
-      data: lessons,
+      data: chapters,
     });
   } catch (error) {
-    console.error("Error fetching lessons:", error);
+    console.error("Error fetching chapters:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to fetch lessons",
+      message: "Failed to fetch chapters",
       error: error.message,
     });
   }
 };
 
-const updateLesson = async (req, res) => {
-  const { lessonId } = req.params;
-  const lessonData = req.body;
+const updateChapter = async (req, res) => {
+  const { chapterId } = req.params;
+  const chapterData = req.body;
 
   try {
-    const result = await courseService.updateLesson(lessonId, lessonData);
+    const result = await courseService.updateChapter(chapterId, chapterData);
 
     if (result.affectedRows === 0) {
       return res
         .status(404)
-        .json({ success: false, message: "Lesson not found" });
+        .json({ success: false, message: "Chapter not found" });
     }
 
     res
       .status(200)
-      .json({ success: true, message: "Lesson updated successfully" });
+      .json({ success: true, message: "Chapter updated successfully" });
   } catch (error) {
-    console.error("Error updating lesson:", error);
+    console.error("Error updating Chapter:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to update lesson",
+      message: "Failed to update Chapter",
       error: error.message,
     });
   }
@@ -314,13 +314,19 @@ const updateLesson = async (req, res) => {
 
 async function createQuiz(req, res) {
   try {
-    const { lesson_id, question, question_type, points, options, answer_text } =
-      req.body;
-
-    if (!lesson_id) {
+    const {
+      chapter_id,
+      question,
+      question_type,
+      points,
+      options,
+      answer_text,
+    } = req.body;
+ 
+    if (!chapter_id) {
       return res
         .status(400)
-        .json({ status: false, error: "Lesson id is required" });
+        .json({ status: false, error: "Chapter id is required" });
     }
     // const existingQuizzes = await courseService.getQuizzesByLesson(lesson_id);
     // if (existingQuizzes.length > 0) {
@@ -331,7 +337,7 @@ async function createQuiz(req, res) {
     // }
 
     const QuizData = {
-      lesson_id,
+      chapter_id,
       question,
       question_type,
       points,
@@ -361,6 +367,146 @@ async function createQuiz(req, res) {
     });
   }
 }
+
+// Lesson
+
+async function createLessons(req, res) {
+  try {
+    const lessons = req.body;
+    console.log("Received lessons:", lessons);
+
+    if (!lessons || lessons.length === 0) {
+      return res
+        .status(400)
+        .json({ status: false, error: "No lessons provided" });
+    }
+    // Validate each lesson
+    for (const lesson of lessons) {
+      if (
+        !lesson.title ||
+        !lesson.content ||
+        !lesson.chapter_id ||
+        !lesson.course_id
+      ) {
+        return res.status(400).json({
+          status: false,
+          message:
+            "Missing required fields: title, content, chapter_id, and course_id are required.",
+        });
+      }
+
+      if (lesson.video_url && !/^https?:\/\/.+/.test(lesson.video_url)) {
+        return res.status(400).json({
+          status: false,
+          message:
+            "Video URL must be a valid link starting with http or https.",
+        });
+      }
+    }
+    const insertedLessons = await courseService.addLessons(lessons);
+    console.log("Inserted lessons:", insertedLessons);
+
+    return res.status(200).json({
+      status: true,
+      message: "Lessons added successfully!",
+      data: insertedLessons, // <-- send back lessons with IDs
+    });
+  } catch (err) {
+    console.error("Error adding lessons:", err);
+    return res
+      .status(500)
+      .json({ status: false, error: "Internal server error" });
+  }
+}
+
+
+async function deleteLesson(req, res) {
+  const lessonId = req.params.id;
+  if (!lessonId) {
+    return res
+      .status(400)
+      .json({ status: false, error: "Lesson ID is required" });
+  }
+  try {
+    const deleted = await courseService.deleteLesson(lessonId);
+
+    if (deleted) {
+      return res
+        .status(200)
+        .json({ status: true, message: "Lesson deleted successfully" });
+    } else {
+      return res
+        .status(404)
+        .json({ status: false, error: "Lesson not found or already deleted" });
+    }
+  } catch (err) {
+    console.error("Controller error:", err);
+    return res
+      .status(500)
+      .json({ status: false, error: "Something went wrong" });
+  }
+}
+
+ // Controller
+const getLessonsByChapter = async (req, res) => {
+  const { courseId, chapterId } = req.params; // capture both
+
+  try {
+    const lessons = await courseService.getLessonsByChapterService(courseId, chapterId);
+
+    res.status(200).json({
+      success: true,
+      data: lessons,
+    });
+  } catch (error) {
+    console.error("Error fetching lessons by chapter:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch lessons by chapter",
+      error: error.message,
+    });
+  }
+};
+
+
+const updateLesson = async (req, res) => {
+  const { lessonId } = req.params;
+  const lessonData = req.body;
+
+  try {
+    const result = await courseService.updateLesson(lessonId, lessonData);
+
+    if (result.affectedRows === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Lesson not found" });
+    }
+
+    res
+      .status(200)
+      .json({ success: true, message: "Lesson updated successfully" });
+  } catch (error) {
+    console.error("Error updating lesson:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update lesson",
+      error: error.message,
+    });
+  }
+};
+
+const getQuizzesByChapter = async (req, res) => {
+  const { chapterId } = req.params;
+
+  try {
+    const quizzes = await courseService.getQuizesByChapter(chapterId);
+    res.status(200).json({ status: true, data: quizzes });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ status: false, error: "Failed to fetch quizzes" });
+  }
+};
+
 module.exports = {
   createCourse,
   getAllCourse,
@@ -368,9 +514,14 @@ module.exports = {
   deleteCourse,
   createOverview,
   updateOverview,
+  createChapters,
+  getChaptersByCourse,
+  deleteChapter,
+  updateChapter,
+  createQuiz,
   createLessons,
-  getLessonsByCourse,
+  getLessonsByChapter,
   deleteLesson,
   updateLesson,
-  createQuiz,
+  getQuizzesByChapter,
 };

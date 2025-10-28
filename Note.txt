@@ -20,3 +20,5 @@ src/
  │    └─ db.js
  ├─ socket.js
  └─ server.js
+
+ # Install All tables of a database using one install route

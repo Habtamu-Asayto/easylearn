@@ -91,18 +91,34 @@ CREATE TABLE IF NOT EXISTS `course_overview`(
     FOREIGN KEY (course_id) REFERENCES courses(course_id)
 )ENGINE=InnoDB; 
 
+CREATE TABLE IF NOT EXISTS `Chapters` (
+  `chapter_id` INT AUTO_INCREMENT,
+  `course_id` INT NOT NULL,
+  `title` VARCHAR(255) NOT NULL,
+  `description` TEXT,
+  `color` VARCHAR(50) DEFAULT 'bg-indigo-500',
+  `chapter_order` INT DEFAULT 0,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (chapter_id),
+  FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE CASCADE
+) ENGINE=InnoDB; 
+
 CREATE TABLE IF NOT EXISTS `Lessons` (
-    `lesson_id` INT AUTO_INCREMENT,
-    `course_id` INT NOT NULL,
-    `title` VARCHAR(255) NOT NULL,
-    `content` TEXT,
-    `video_url` VARCHAR(255),
-    `attachments` TEXT, 
-    `lesson_order` INT DEFAULT 0,
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (lesson_id),
-    FOREIGN KEY (course_id) REFERENCES courses(course_id)
+  `lesson_id` INT AUTO_INCREMENT,
+  `chapter_id` INT NOT NULL,
+  `course_id` INT NOT NULL,
+  `title` VARCHAR(255) NOT NULL,
+  `duration` VARCHAR(20),
+  `video_url` VARCHAR(255),
+  `attachments` JSON DEFAULT NULL,
+  `content` TEXT,
+  `lesson_order` INT DEFAULT 0,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (lesson_id),
+  FOREIGN KEY (chapter_id) REFERENCES chapters(chapter_id) ON DELETE CASCADE,
+  FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE CASCADE
 ) ENGINE=InnoDB; 
 
 CREATE TABLE IF NOT EXISTS `Enrollments` (
@@ -182,14 +198,14 @@ CREATE TABLE IF NOT EXISTS `Chat` (
  CREATE TABLE IF NOT EXISTS `Quiz` (
     `quiz_id` INT AUTO_INCREMENT,
     `user_id` INT,
-    `lesson_id` INT NOT NULL,
+    `chapter_id` INT NOT NULL,
     `question` TEXT NOT NULL,
     `question_type` ENUM('multiple_choice', 'true_false', 'short_answer') DEFAULT 'multiple_choice',
     `points` INT DEFAULT 1,
     `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`quiz_id`),
-    FOREIGN KEY (`lesson_id`) REFERENCES `Lessons`(`lesson_id`) ON DELETE CASCADE,
+    FOREIGN KEY (`chapter_id`) REFERENCES `Chapters`(`chapter_id`) ON DELETE CASCADE,
     FOREIGN KEY (`user_id`) REFERENCES users(`user_id`) 
 ) ENGINE=InnoDB;
 

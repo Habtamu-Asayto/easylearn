@@ -22,11 +22,11 @@ router.post(
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
   courseController.createOverview
 );
-//Lesson Routes
+//Chapter Routes
 router.post(
-  "/add-lesson",
+  "/add-chapter",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
-  courseController.createLessons
+  courseController.createChapters
 );
 
 router.put(
@@ -49,9 +49,9 @@ router.get(
 );
 
 router.get(
-  "/lessons/:courseId",
-  [authMiddleware.verifyToken, authMiddleware.isAdmin],
-  courseController.getLessonsByCourse
+  "/chapter/:courseId",
+  [authMiddleware.verifyToken, authMiddleware.forAll],
+  courseController.getChaptersByCourse
 );
 //Delete course category
 router.delete(
@@ -62,16 +62,16 @@ router.delete(
 
 //Delete course category
 router.delete(
-  "/lesson/:id",
+  "/chapter/:id",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
-  courseController.deleteLesson
+  courseController.deleteChapter
 );
 
 // PUT /lessons/:lessonId
 router.put(
-  "/lesson/:lessonId",
+  "/chapter/:chapterId",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
-  courseController.updateLesson
+  courseController.updateChapter
 );
 router.post(
   "/add-quiz",
@@ -79,4 +79,34 @@ router.post(
   courseController.createQuiz
 );
 
+// Lesson Routes
+router.post(
+  "/add-lesson",
+  [authMiddleware.verifyToken, authMiddleware.isAdmin],
+  courseController.createLessons
+);
+
+router.get(
+  "/lessons/:courseId/:chapterId",
+  [authMiddleware.verifyToken, authMiddleware.forAll],
+  courseController.getLessonsByChapter
+);
+
+router.delete(
+  "/lesson/:id",
+  [authMiddleware.verifyToken, authMiddleware.isAdmin],
+  courseController.deleteLesson
+);
+
+router.put(
+  "/lesson/:lessonId",
+  [authMiddleware.verifyToken, authMiddleware.isAdmin],
+  courseController.updateLesson
+);
+
+router.get(
+  "/quize/:chapterId",
+  [authMiddleware.verifyToken, authMiddleware.forAll],
+  courseController.getQuizzesByChapter
+);
 module.exports = router;

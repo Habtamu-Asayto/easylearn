@@ -17,7 +17,7 @@ import {
 import loginService from "../../../services/login.service.js";
 
 // Import the auth hook
-import { useAuth } from "../../../Contexts/AuthContext.jsx";
+import { useAuth } from "../../../contexts/AuthContext.jsx";
 
 import { useLocation, Link } from "react-router-dom";
 import userService from "../../../services/user.service.js";

@@ -180,7 +180,7 @@ function App() {
           }
         />
         <Route
-          path="/stud-course-detail/:id"
+          path="/stud-course-detail/:courseId"
           element={
             <AfterLoginLayout>
               <PrivateAuthRoute roles={[1, 2, 3]}>
