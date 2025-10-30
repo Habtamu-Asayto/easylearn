@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import courseService from "../../../../services/course.service"; // adjust path
 import { Plus, Edit, FileText, Trash2, Edit2, Delete } from "react-feather";
 import { toast } from "react-toastify"; 
+import { set } from "date-fns";
 
 function ExpandableChapter({ courseId, token }) {
   // Lesson Start
@@ -85,6 +86,7 @@ function ExpandableChapter({ courseId, token }) {
             )
           );
           toast.success("Lesson updated successfully");
+          setIsLessonOpen(false);
           //   window.location.reload(`course-detail/${courseId}`);
         } else toast.error(res.message || "Failed to update lesson");
       } else {
@@ -99,6 +101,8 @@ function ExpandableChapter({ courseId, token }) {
         if (res.status) {
           setLessons((prev) => [...prev, res.data]);
           toast.success("Lesson added successfully");
+          setIsLessonOpen(false);
+
           //   window.location.reload(`course-detail/${courseId}`);
         } else toast.error(res.message || "Failed to add lesson");
       }
@@ -172,6 +176,7 @@ function ExpandableChapter({ courseId, token }) {
       } else {
         // Backend sent success
         toast.success("Quize Inserted successfully");
+        setIsOpen(false);
         // setTimeout(() => {
         //   window.location.href = "/courses";
         // }, 1500);
@@ -448,7 +453,7 @@ function ExpandableChapter({ courseId, token }) {
                       ))
                     ) : (
                       <p className="text-sm text-gray-400">No lessons yet</p>
-                    )}
+                    )} 
                   </ol>
                   <ol className="p-4 list-decimal pl-6 space-y-3 border-t border-gray-200 pt-4">
                     <li className="flex justify-between items-center hover:bg-gray-100 p-1 rounded cursor-pointer">

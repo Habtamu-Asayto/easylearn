@@ -507,6 +507,34 @@ const getQuizzesByChapter = async (req, res) => {
   }
 };
 
+const getCourseProgress = async (req, res) => {
+  try {
+    const userId = req.user.user_id;// from authMiddleware 
+    
+    const { courseId } = req.params;
+
+    const progress = await courseService.fetchCourseProgress(userId, courseId);
+    res.json(progress);
+  } catch (err) {
+    console.error("Error fetching course progress:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+ const completeLesson = async (req, res) => {
+ 
+  try {
+    const userId = req.user.user_id;
+    const { courseId, lessonId } = req.body;
+
+    await courseService.markLessonCompleted(userId, lessonId);
+    const progress = await courseService.fetchCourseProgress(userId, courseId);
+
+    res.json(progress);
+  } catch (err) {
+    console.error("Error completing lesson:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 module.exports = {
   createCourse,
   getAllCourse,
@@ -524,4 +552,6 @@ module.exports = {
   deleteLesson,
   updateLesson,
   getQuizzesByChapter,
+  getCourseProgress,
+  completeLesson,
 };

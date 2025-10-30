@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import { Link, useParams, useNavigate, Links } from "react-router-dom";
 import { BookOpen } from "react-feather";
 
 import Sidebar from "../../../components/Sidebar/Sidebar.jsx";
 import Header from "../../../components/Header/Header.jsx";
 import Footer from "../../../components/Footer/Footer.jsx";
-import { useAuth } from "../../../../Contexts/AuthContext.jsx";
+import { useAuth } from "../../../../contexts/AuthContext.jsx";
 import courseService from "../../../../services/course.service.js";
 
 function CourseDetail() {
@@ -26,7 +26,7 @@ function CourseDetail() {
       setOpenIndex([...openIndex, index]);
     }
   };
-
+  const [quizes, setQuizes] = useState({});
   // Fetch course info
   useEffect(() => {
     const fetchCourse = async () => {
@@ -68,9 +68,32 @@ function CourseDetail() {
                 chapter.chapter_id,
                 token
               );
+
+              // Fetch quizzes
+              let quizData = [];
+              try {
+                const qzData = await courseService.getQuizesByChapter(
+                  chapter.chapter_id,
+                  token
+                );
+                quizData = Array.isArray(qzData?.data) ? qzData.data : [];
+              } catch (err) {
+                console.error(
+                  `Error fetching quizzes for chapter ${chapter.chapter_id}:`,
+                  err
+                );
+              }
+
+              // store in state
+              setQuizes((prev) => ({
+                ...prev,
+                [chapter.chapter_id]: quizData,
+              }));
+
               const lessonsArray = Array.isArray(lessonsData?.data)
                 ? lessonsData.data
                 : [];
+
               return { ...chapter, lessons: lessonsArray };
             } catch (err) {
               console.error(
@@ -93,6 +116,7 @@ function CourseDetail() {
 
     if (courseId && token) fetchChaptersAndLessons();
   }, [courseId, token]);
+ 
 
   if (loading) return <p className="text-gray-500 italic">Loading course...</p>;
   if (!courseData)
@@ -138,7 +162,7 @@ function CourseDetail() {
                           >
                             <button
                               onClick={() => toggleChapter(index)}
-                              className="w-full text-left p-4 flex items-start gap-4"
+                              className="w-full text-left p-4 flex items-start gap-4 cursor-pointer"
                             >
                               {/* Chapter Number */}
                               <div className="flex-shrink-0 mt-1">
@@ -180,22 +204,56 @@ function CourseDetail() {
                                   }`}
                                 >
                                   <ol className="p-4 list-decimal pl-6 space-y-3">
-                                    {chapter.lessons.map((lesson) => (
-                                      <li
-                                        key={lesson.lesson_id}
-                                        className="flex justify-between items-center hover:bg-gray-100 p-1 rounded"
+                                    {chapter.lessons &&
+                                    chapter.lessons.length > 0 ? (
+                                      chapter.lessons.map((lesson, i) => (
+                                        <Link
+                                          key={lesson.lesson_id}
+                                          to={`/lesson-detail/${courseId}/${chapter.chapter_id}/${lesson.lesson_id}`}
+                                          className="flex justify-between items-center hover:bg-gray-100 p-1 rounded"
+                                        >
+                                          <div>
+                                            <p className="text-sm text-gray-500">
+                                              {lesson.title}
+                                            </p>
+                                          </div>
+                                          <div className="text-xs text-gray-400">
+                                            {lesson.duration}
+                                          </div>
+                                        </Link>
+                                      ))
+                                    ) : (
+                                      <p className="text-sm text-gray-400">
+                                        No lessons yet
+                                      </p>
+                                    )}
+                                  </ol>{" "}
+                                  <ol className="p-4 list-decimal pl-6 space-y-3 border-t border-gray-200 pt-4">
+                                    {quizes[chapter.chapter_id]?.length > 0 ? (
+                                      <Link
+                                        key={
+                                          quizes[chapter.chapter_id]?.[0]
+                                            ?.quiz_id
+                                        }
+                                        to={`/take-quize/${courseId}/${
+                                          chapter.chapter_id
+                                        }/${
+                                          quizes[chapter.chapter_id]?.[0]
+                                            ?.quiz_id
+                                        }`}
+                                        className="flex justify-between items-center hover:bg-gray-100 p-1 rounded cursor-pointer"
                                       >
+                                        <div>Quiz</div>
                                         <div>
-                                          <p className="text-sm text-gray-500">
-                                            {lesson.title}
-                                          </p>
-                                          
+                                          {quizes[chapter.chapter_id].length}{" "}
+                                          Questions
                                         </div>
-                                        <div className="text-xs text-gray-400">
-                                          {lesson.duration}
-                                        </div>
-                                      </li>
-                                    ))}
+                                      </Link>
+                                    ) : (
+                                      <p className="text-sm text-gray-400">
+                                        No Quiz Yet
+                                      </p>
+                                    )}
                                   </ol>
                                 </div>
                               </div>

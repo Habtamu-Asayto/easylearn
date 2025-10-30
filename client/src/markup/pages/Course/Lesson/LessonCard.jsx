@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import courseService from "../../../../services/course.service"; // adjust path
 import { Edit, FileText, Trash2 } from "react-feather";
 import { toast } from "react-toastify";
-import { useAuth } from "../../../../contexts/AuthContext";
+import { useAuth } from "../../../../Contexts/AuthContext";
 
 function ExpandableLessons({ courseId, token }) {
   // Quize

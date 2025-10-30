@@ -305,13 +305,10 @@ async function addChapters(chapters) {
 }
 
 const getChaptersByCourseService = async (courseId) => {
-  // console.log("Query result 1: ", courseId);
-
   const [rows] = await conn2.query(
     `SELECT * FROM chapters WHERE course_id = ?;`,
     [courseId]
-  );
-  console.log("Query result:", rows);
+  ); 
   return rows;
 };
 
@@ -446,14 +443,12 @@ async function addLessons(lessons) {
 
 // Service
 const getLessonsByChapterService = async (courseId, chapterId) => {
-  console.log("Fetching lessons for course:", courseId, "chapter:", chapterId);
-
+   
   const [rows] = await conn2.query(
     `SELECT * FROM lessons WHERE course_id = ? AND chapter_id = ?;`,
     [courseId, chapterId]
   );
-
-  console.log("Fetched lessons:", rows);
+ 
   return rows;
 };
 const getQuizesByChapter = async (chapterId) => {
@@ -468,6 +463,36 @@ const getQuizesByChapter = async (chapterId) => {
   const [rows] = await conn2.execute(query, [chapterId]);
   return rows;
 };
+
+const markLessonCompleted = async (userId, lessonId) => {
+  await conn2.query(
+    `INSERT INTO LessonProgress (user_id, lesson_id, completed, completed_at)
+     VALUES (?, ?, 1, NOW())
+     ON DUPLICATE KEY UPDATE completed = 1, completed_at = NOW()`,
+    [userId, lessonId]
+  );
+};
+
+const fetchCourseProgress = async (userId, courseId) => {
+  const [totalResult] = await conn2.query(
+    `SELECT COUNT(*) AS total FROM Lessons WHERE course_id = ?`,
+    [courseId]
+  );
+  const total = totalResult[0].total;
+
+  const [completedResult] = await conn2.query(
+    `SELECT COUNT(*) AS completed
+     FROM LessonProgress
+     JOIN Lessons ON LessonProgress.lesson_id = Lessons.lesson_id
+     WHERE LessonProgress.user_id = ? AND Lessons.course_id = ? AND completed = 1`,
+    [userId, courseId]
+  );
+  const completed = completedResult[0].completed;
+
+  return { total, completed };
+};
+
+
 module.exports = {
   createCourse,
   checkIfCourseExists,
@@ -486,4 +511,6 @@ module.exports = {
   getLessonsByChapterService,
   deleteLesson,
   updateLesson,
+  fetchCourseProgress,
+  markLessonCompleted,
 };

@@ -19,7 +19,7 @@ const quizData = [
 ];
 
 export default function Quiz() {
-  const [current, setCurrent] = useState(0);
+  const [current, setCurrent] = useState(0); 
   const [selected, setSelected] = useState("");
   const [score, setScore] = useState(0);
   const [showScore, setShowScore] = useState(false);

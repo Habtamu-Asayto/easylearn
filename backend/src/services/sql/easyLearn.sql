@@ -132,19 +132,18 @@ CREATE TABLE IF NOT EXISTS `Enrollments` (
     UNIQUE(student_id, course_id)
 ) ENGINE=InnoDB; 
 
-CREATE TABLE IF NOT EXISTS `Progress` (
+CREATE TABLE IF NOT EXISTS `LessonProgress` (
     `progress_id` INT AUTO_INCREMENT,
-    `student_id` INT NOT NULL,
-    `course_id` INT NOT NULL,
-    `completed_lessons` TEXT,  
-    `percentage_completed` FLOAT DEFAULT 0,
-    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-     PRIMARY KEY (progress_id),
-     FOREIGN KEY (student_id) REFERENCES users(user_id),
-     FOREIGN KEY (course_id) REFERENCES courses(course_id),
-     UNIQUE(student_id, course_id)
-) ENGINE=InnoDB; 
- 
+    `user_id` INT NOT NULL,
+    `lesson_id` INT NOT NULL,
+    `completed` TINYINT(1) DEFAULT 0,
+    `completed_at` TIMESTAMP NULL DEFAULT NULL,
+    PRIMARY KEY (`progress_id`),
+    FOREIGN KEY (`user_id`) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (`lesson_id`) REFERENCES Lessons(lesson_id) ON DELETE CASCADE,
+    UNIQUE KEY `user_lesson_unique` (`user_id`, `lesson_id`)
+) ENGINE=InnoDB;
+
 CREATE TABLE IF NOT EXISTS `CourseReviews` (
     `course_review_id` INT AUTO_INCREMENT,
     `course_id` INT NOT NULL,

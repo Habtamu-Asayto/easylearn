@@ -92,6 +92,18 @@ router.get(
   courseController.getLessonsByChapter
 );
 
+router.get(
+  "/progress/:courseId",
+  [authMiddleware.verifyToken, authMiddleware.forAll],
+  courseController.getCourseProgress
+);
+router.post(
+  "/progress/lesson",
+  [authMiddleware.verifyToken, authMiddleware.forAll],
+  courseController.completeLesson
+);
+ 
+
 router.delete(
   "/lesson/:id",
   [authMiddleware.verifyToken, authMiddleware.isAdmin],
@@ -100,7 +112,7 @@ router.delete(
 
 router.put(
   "/lesson/:lessonId",
-  [authMiddleware.verifyToken, authMiddleware.isAdmin],
+  [authMiddleware.verifyToken, authMiddleware.forAll],
   courseController.updateLesson
 );
 

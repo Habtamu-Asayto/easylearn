@@ -30,6 +30,8 @@ import EmailVerification from "./markup/components/Form/EmailVerification.jsx";
 import Profile from "./markup/pages/Profile/Profile.jsx";
 import MyCourses from "./markup/pages/Student/Course/MyCourses.jsx";
 import CourseDetail from "./markup/pages/Student/Course/CourseDetail.jsx";
+import LessonDetail from "./markup/pages/Course/Lesson/LessonDetail.jsx";
+import Quiz from "./markup/pages/Course/Quize/Quize.jsx";
 
 function BeforeLoginLayout({ children }) {
   return (
@@ -175,6 +177,26 @@ function App() {
             <AfterLoginLayout>
               <PrivateAuthRoute roles={[1, 2]}>
                 <Detail />
+              </PrivateAuthRoute>
+            </AfterLoginLayout>
+          }
+        />
+        <Route
+          path="/lesson-detail/:courseId/:chapterId/:lessonId"
+          element={
+            <AfterLoginLayout>
+              <PrivateAuthRoute roles={[1, 2, 3]}>
+                <LessonDetail />
+              </PrivateAuthRoute>
+            </AfterLoginLayout>
+          }
+        />
+        <Route
+          path="/take-quize/:courseId/:chapterId/:quizId"
+          element={
+            <AfterLoginLayout>
+              <PrivateAuthRoute roles={[1, 2, 3]}>
+                <Quiz />
               </PrivateAuthRoute>
             </AfterLoginLayout>
           }

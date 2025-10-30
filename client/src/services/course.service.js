@@ -154,7 +154,7 @@ const createChapter = async (formData, loggedInUserToken) => {
   return data; // return the actual array or object
 };
 
-const getChaptersByCourse = async (courseId, token) => {
+const getChaptersByCourse = async (courseId, token) => { 
   const response = await fetch(`${api_url}/api/chapter/${courseId}`, {
     headers: {
       "Content-Type": "application/json",
@@ -200,7 +200,7 @@ const createQuiz = async (formData, loggedInUserToken) => {
 const getLessonsByChapter = async (courseId, chapterId, token) => {
   const response = await fetch(`${api_url}/api/lessons/${courseId}/${chapterId}`, {
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/json", 
       "x-access-token": token,
     },
   });
@@ -279,6 +279,31 @@ const getQuizesByChapter = async (chapterId, token) => {
   }
 };
 
+const completeLesson = async (courseId, lessonId, token) => {
+  const response = await fetch(`${api_url}/api/progress/lesson`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-access-token": token,
+    },
+    body: JSON.stringify({ courseId, lessonId }),
+  });
+
+  if (!response.ok) throw new Error("Failed to mark lesson complete");
+  return response.json();
+};
+
+const getCourseProgress = async (courseId, token) => {
+  const response = await fetch(`${api_url}/api/progress/${courseId}`, {
+    headers: {
+      "Content-Type": "application/json",
+      "x-access-token": token,
+    },
+  });
+
+  if (!response.ok) throw new Error("Failed to fetch progress");
+  return response.json();
+};
 const courseService = {
   createCourse,
   getAllCourses,
@@ -296,5 +321,7 @@ const courseService = {
   deleteLesson,
   updateLesson,
   getQuizesByChapter,
+  getCourseProgress,
+  completeLesson,
 };
 export default courseService;
