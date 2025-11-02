@@ -322,7 +322,7 @@ async function createQuiz(req, res) {
       options,
       answer_text,
     } = req.body;
- 
+
     if (!chapter_id) {
       return res
         .status(400)
@@ -419,7 +419,6 @@ async function createLessons(req, res) {
   }
 }
 
-
 async function deleteLesson(req, res) {
   const lessonId = req.params.id;
   if (!lessonId) {
@@ -447,12 +446,15 @@ async function deleteLesson(req, res) {
   }
 }
 
- // Controller
+// Controller
 const getLessonsByChapter = async (req, res) => {
   const { courseId, chapterId } = req.params; // capture both
 
   try {
-    const lessons = await courseService.getLessonsByChapterService(courseId, chapterId);
+    const lessons = await courseService.getLessonsByChapterService(
+      courseId,
+      chapterId
+    );
 
     res.status(200).json({
       success: true,
@@ -467,7 +469,6 @@ const getLessonsByChapter = async (req, res) => {
     });
   }
 };
-
 
 const updateLesson = async (req, res) => {
   const { lessonId } = req.params;
@@ -507,10 +508,21 @@ const getQuizzesByChapter = async (req, res) => {
   }
 };
 
+const getOptionsByQuiz = async (req, res) => {
+  const { quizId } = req.params;
+  try {
+    const options = await courseService.getOptionsByQuiz(quizId);
+    res.status(200).json({ status: true, data: options });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ status: false, error: "Failed to fetch options" });
+  }
+};
+
 const getCourseProgress = async (req, res) => {
   try {
-    const userId = req.user.user_id;// from authMiddleware 
-    
+    const userId = req.user.user_id; // from authMiddleware
+
     const { courseId } = req.params;
 
     const progress = await courseService.fetchCourseProgress(userId, courseId);
@@ -520,8 +532,7 @@ const getCourseProgress = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
- const completeLesson = async (req, res) => {
- 
+const completeLesson = async (req, res) => {
   try {
     const userId = req.user.user_id;
     const { courseId, lessonId } = req.body;
@@ -533,6 +544,109 @@ const getCourseProgress = async (req, res) => {
   } catch (err) {
     console.error("Error completing lesson:", err);
     res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const saveQuizAnswer = async (req, res) => {
+  const { quiz_id, user_id, selected_option_id, is_correct } = req.body;
+
+  if (!quiz_id || !user_id) {
+    return res.status(400).json({
+      status: false,
+      message: "Missing required fields",
+    });
+  }
+
+  try {
+    const result = await courseService.saveQuizAnswerService(
+      quiz_id,
+      user_id,
+      selected_option_id,
+      is_correct
+    );
+
+    if (result.success) {
+      return res.status(200).json({
+        status: true,
+        message: "Answer saved successfully",
+        data: { answer_id: result.insertId },
+      });
+    } else {
+      return res.status(500).json({
+        status: false,
+        message: "Failed to save quiz answer",
+      });
+    }
+  } catch (error) {
+    console.error("Error in quiz.controller.js > saveQuizAnswer:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
+const enrollCourse = async (req, res) => {
+  const { course_id } = req.body;
+  const user_id = req.user?.user_id;
+  console.log("Are you delivered here ");
+  console.log("User-ID ", user_id, " & ", course_id);
+  if (!user_id || !course_id) {
+    return res
+      .status(400)
+      .json({ status: false, message: "Missing required fields" });
+  }
+
+  try {
+    const result = await courseService.enrollCourseService(user_id, course_id);
+
+    if (!result.success) {
+      return res.status(400).json({ status: false, message: result.message });
+    }
+
+    return res.status(200).json({
+      status: true,
+      message: "Enrolled successfully",
+      data: { enrollment_id: result.enrollment_id },
+    });
+  } catch (error) {
+    console.error("Error enrolling user:", error);
+    res.status(500).json({
+      status: false,
+      message: "Failed to enroll in course",
+      error: error.message,
+    });
+  }
+};
+
+const checkEnrollmentStatus = async (req, res) => {
+  const { course_id } = req.params;
+  const user_id = req.user?.user_id;
+
+  if (!user_id || !course_id) {
+    return res
+      .status(400)
+      .json({ status: false, message: "Missing required fields" });
+  }
+
+  try {
+    const result = await courseService.checkEnrollmentStatusService(
+      user_id,
+      course_id
+    );
+
+    return res.status(200).json({
+      status: true,
+      enrolled: result.enrolled,
+    });
+  } catch (error) {
+    console.error("Error checking enrollment:", error);
+    res.status(500).json({
+      status: false,
+      message: "Failed to check enrollment",
+      error: error.message,
+    });
   }
 };
 module.exports = {
@@ -554,4 +668,8 @@ module.exports = {
   getQuizzesByChapter,
   getCourseProgress,
   completeLesson,
+  getOptionsByQuiz,
+  saveQuizAnswer,
+  enrollCourse,
+  checkEnrollmentStatus,
 };

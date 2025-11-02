@@ -186,6 +186,40 @@ async function updateUserProfile(req, res) {
     res.status(500).json({ message: "Failed to update profile" });
   }
 }
+
+const getCourseInstructor = async (req, res) => {
+  const { courseId } = req.params;
+
+  if (!courseId) {
+    return res.status(400).json({
+      status: false,
+      message: "Missing course ID",
+    });
+  }
+
+  try {
+    const result = await userService.getcourseInstructor(courseId);
+
+    if (!result.success) {
+      return res.status(404).json({
+        status: false,
+        message: result.message,
+      });
+    }
+
+    return res.status(200).json({
+      status: true,
+      data: result.data,
+    });
+  } catch (error) {
+    console.error("Error fetching instructor:", error);
+    return res.status(500).json({
+      status: false,
+      message: "Failed to fetch instructor",
+      error: error.message,
+    });
+  }
+};
 module.exports = {
   createUser,
   getAllStudents,
@@ -193,4 +227,5 @@ module.exports = {
   verifyEmail,
   getUserProfile,
   updateUserProfile,
+  getCourseInstructor,
 };

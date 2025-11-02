@@ -1,22 +1,39 @@
 import React, { useState, useEffect } from "react";
 import Footer from "../../components/Footer/Footer";
-import { Link, Links } from "react-router-dom";
+import { Link, Links, useParams } from "react-router-dom";
 import courseService from "../../../services/course.service";
 import { useAuth } from "../../../contexts/AuthContext";
 import { toast } from "react-toastify";
 import Header from "../../components/Header/Header";
 import { BookOpen, UserPlus } from "react-feather";
-
+import { motion } from "framer-motion";
 function Main({ onShowAllMain }) {
-  const { user, isLoggedIn, isAdmin, isInstructor, isStudent } = useAuth();
+  const { user, isAdmin, isInstructor, isStudent } = useAuth();
   let token = null;
   if (user) {
     token = user.user_token;
   }
 
+  const [isEnrolled, setIsEnrolled] = useState(false);
   const [apiError, setApiError] = useState(false);
   const [apiErrorMessage, setApiErrorMessage] = useState(null);
   const [course, setCourse] = useState([]);
+  const [enrolledCourses, setEnrolledCourses] = useState({});
+
+  useEffect(() => {
+    const fetchEnrollments = async () => {
+      if (!course || course.length === 0) return;
+
+      const updates = {};
+      for (const c of course) {
+        const res = await courseService.checkEnrollment(c.course_id, token);
+        updates[c.course_id] = res.status && res.enrolled;
+      }
+      setEnrolledCourses(updates);
+    };
+    fetchEnrollments();
+  }, [course, token]);
+
   useEffect(() => {
     // Call the getAllStudents function
     const allCourse = courseService.getAllCourses(token);
@@ -45,6 +62,17 @@ function Main({ onShowAllMain }) {
         // console.log(err);
       });
   }, []);
+
+  const handleEnroll = async (course_id) => {
+    const result = await courseService.enrollCourse(course_id, token);
+
+    if (result.status) {
+      setEnrolledCourses((prev) => ({ ...prev, [course_id]: true }));
+      toast.success("Enrolled successfully!");
+    } else {
+      toast.error(result.message);
+    }
+  };
 
   const handleDeleteCourse = async (courseId) => {
     if (!window.confirm("Are you sure you want to delete this course?")) return;
@@ -131,26 +159,45 @@ function Main({ onShowAllMain }) {
                       </Link>
                     ))}
                   {isStudent && (
-                      <Link
-                        to={`/stud-course-detail/${cat.course_id}`}
-                        className="text-xl font-bold text-gray-800"
-                      >
-                        {cat.title}
-                      </Link>
-                    )}
+                    <Link
+                      to={`/stud-course-detail/${cat.course_id}`}
+                      className="text-xl font-bold text-gray-800"
+                    >
+                      {cat.title}
+                    </Link>
+                  )}
                 </div>
                 {/* Card Footer */}
+
                 {isStudent && (
                   <div className="border-t border-gray-200 px-6 py-4 flex justify-center">
-                    <Link
-                      to={`/edit-course/${cat.course_id}`}
-                      className="flex items-center gap-2 px-16 py-2 rounded-lg bg-blue-500 text-white font-medium hover:bg-blue-600 transition"
-                    >
-                      <BookOpen size={18} />
-                      Enroll
-                    </Link>
+                    {!enrolledCourses[cat.course_id] ? (
+                      <motion.button
+                        onClick={() => handleEnroll(cat.course_id)}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        className="w-full cursor-pointer flex items-center justify-center gap-3 
+                   py-2 rounded-xl 
+                   bg-gradient-to-r from-blue-500 to-indigo-600 
+                   text-white text-lg font-semibold shadow-md 
+                   hover:shadow-xl hover:from-blue-600 hover:to-indigo-700 
+                   transition-all duration-300"
+                      >
+                        <BookOpen className="w-5 h-5" />
+                        <span>Enroll Now</span>
+                      </motion.button>
+                    ) : (
+                      <motion.div
+                        className="flex items-center justify-center w-full sm:w-auto px-6 py-3 bg-green-100 text-green-700 rounded-xl font-semibold shadow-inner"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                      >
+                        Already Enrolled
+                      </motion.div>
+                    )}
                   </div>
                 )}
+
                 {isAdmin ||
                   (isInstructor && (
                     <div className="border-t border-gray-200 px-6 py-4 flex justify-center">

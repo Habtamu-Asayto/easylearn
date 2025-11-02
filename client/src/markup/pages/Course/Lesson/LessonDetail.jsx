@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import courseService from "../../../../services/course.service";
-import { useAuth } from "../../../../Contexts/AuthContext";
+import { useAuth } from "../../../../contexts/AuthContext";
 import Sidebar from "../../../components/Sidebar/Sidebar";
 import Header from "../../../components/Header/Header";
 import Footer from "../../../components/Footer/Footer";
@@ -140,7 +140,7 @@ useEffect(() => {
             <Header /> {/* Dashboard Content */}
             <div className="min-h-screen flex flex-col lg:flex-row">
               <main className="flex-1 p-6 lg:p-8">
-                <div className="max-w-4xl mx-auto">
+                <div className="mx-auto">
                   {/* Header */}
                   <div className="flex justify-between items-center mb-8">
                     <h1 className="text-2xl font-bold text-gray-900 dark:text-white">

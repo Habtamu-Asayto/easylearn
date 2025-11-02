@@ -36,7 +36,7 @@ function Header() {
             ? "Messaging"
             : "Dashboard")}
         {user?.role_name === 3 &&
-          ((currentPath === "/welcome"
+          (currentPath === "/welcome"
             ? "Student dashboard"
             : currentPath === "/courses"
             ? "Courses"
@@ -46,7 +46,9 @@ function Header() {
             ? "Profile"
             : currentPath === "/my-courses"
             ? "My courses"
-            : ""))}
+            : currentPath === "/stud-course-detail"
+            ? "My courses"
+            : "")}
       </h2>
       <div className="flex items-center space-x-2 md:space-x-4">
         <Link to="/chat" className="relative">

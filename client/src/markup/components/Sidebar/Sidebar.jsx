@@ -540,18 +540,7 @@ function Sidebar({ isOpen, setIsOpen }) {
                         All courses
                       </Link>
                     </li>
-                    <li>
-                      <Link
-                        to="/my-assignment"
-                        className={`flex items-center w-full px-4 py-3 rounded-lg hover:bg-blue-300 ${
-                          currentPath === "/my-assignment"
-                            ? "bg-blue-500 text-white"
-                            : "hover:bg-blue-100 text-gray-700"
-                        }`}
-                      >
-                        Assignments
-                      </Link>
-                    </li>
+                    
                   </ul>
                 </li>
                 {/* Messaging */}

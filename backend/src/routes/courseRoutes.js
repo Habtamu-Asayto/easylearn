@@ -121,4 +121,28 @@ router.get(
   [authMiddleware.verifyToken, authMiddleware.forAll],
   courseController.getQuizzesByChapter
 );
+
+
+router.get(
+  "/options/:quizId",[authMiddleware.verifyToken, authMiddleware.forAll],
+  courseController.getOptionsByQuiz
+);
+
+router.post(
+  "/quiz_answer",
+  [authMiddleware.verifyToken, authMiddleware.forAll],
+  courseController.saveQuizAnswer
+);
+
+router.post(
+  "/enroll",
+  [authMiddleware.verifyToken, authMiddleware.forAll],
+  courseController.enrollCourse
+);
+
+router.get(
+  "/enrollment-status/:course_id",
+  [authMiddleware.verifyToken, authMiddleware.forAll],
+  courseController.checkEnrollmentStatus
+);
 module.exports = router;

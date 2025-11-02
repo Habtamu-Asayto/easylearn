@@ -1,4 +1,5 @@
-import { Routes, Route, useLocation, Navigate } from "react-router-dom";
+// import { Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import Login from "./markup/pages/login/Login.jsx";
 import Home from "./markup/pages/Home.jsx";
 import Dashboard from "./markup/pages/Admin/Dashboard.jsx";
@@ -75,12 +76,12 @@ function UnauthorizedLayout({ children }) {
 function App() {
   // Toast for any page
 
-  const user = JSON.parse(localStorage.getItem("user")); // check login state
-  const location = useLocation(); // detect current route
+  // const user = JSON.parse(localStorage.getItem("user")); // check login state
+  // const location = useLocation(); // detect current route
 
-  // Determine if current route is login or after-login
-  const isLoginPage = location.pathname === "/login";
-  const isAfterLoginPage = location.pathname.startsWith("/welcome");
+  // // Determine if current route is login or after-login
+  // const isLoginPage = location.pathname === "/login";
+  // const isAfterLoginPage = location.pathname.startsWith("/welcome");
 
   return (
     <>

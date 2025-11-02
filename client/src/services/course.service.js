@@ -118,7 +118,7 @@ const deleteCourse = async (id, token) => {
 //   }
 //   return data;
 // };
-const deleteChapter= async (id, token) => {
+const deleteChapter = async (id, token) => {
   const requestOptions = {
     method: "DELETE",
     headers: {
@@ -154,7 +154,7 @@ const createChapter = async (formData, loggedInUserToken) => {
   return data; // return the actual array or object
 };
 
-const getChaptersByCourse = async (courseId, token) => { 
+const getChaptersByCourse = async (courseId, token) => {
   const response = await fetch(`${api_url}/api/chapter/${courseId}`, {
     headers: {
       "Content-Type": "application/json",
@@ -198,12 +198,15 @@ const createQuiz = async (formData, loggedInUserToken) => {
 
 // Lesson
 const getLessonsByChapter = async (courseId, chapterId, token) => {
-  const response = await fetch(`${api_url}/api/lessons/${courseId}/${chapterId}`, {
-    headers: {
-      "Content-Type": "application/json", 
-      "x-access-token": token,
-    },
-  });
+  const response = await fetch(
+    `${api_url}/api/lessons/${courseId}/${chapterId}`,
+    {
+      headers: {
+        "Content-Type": "application/json",
+        "x-access-token": token,
+      },
+    }
+  );
 
   if (!response.ok) throw new Error("Failed to fetch lessons");
 
@@ -256,6 +259,86 @@ const updateLesson = async (lessonId, lessonData, token) => {
   return response.json();
 };
 
+const getQuizesByChapter2 = async (chapterId, token) => {
+  try {
+    const response = await fetch(`${api_url}/api/quize/${chapterId}`, {
+      headers: {
+        "Content-Type": "application/json",
+        "x-access-token": token,
+      },
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.status) {
+      console.error("Quiz fetch failed:", result);
+      return [];
+    }
+
+    return result.data || [];
+  } catch (err) {
+    console.error("Error fetching quiz:", err);
+    return [];
+  }
+};
+
+const getQuizOptions = async (quizId, token) => {
+  try {
+    const response = await fetch(`${api_url}/api/options/${quizId}`, {
+      headers: {
+        "Content-Type": "application/json",
+        "x-access-token": token,
+      },
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.status) {
+      console.error("Quiz option fetch failed:", result);
+      return [];
+    }
+
+    return result.data || [];
+  } catch (err) {
+    console.error("Error fetching quiz:", err);
+    return [];
+  }
+};
+
+const saveQuizAnswers = async ({
+  quiz_id,
+  user_id,
+  selected_option_id,
+  is_correct,
+  token,
+}) => {
+  try {
+    const response = await fetch(`${api_url}/api/quiz_answer`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-access-token": token,
+      },
+      body: JSON.stringify({
+        quiz_id,
+        user_id,
+        selected_option_id,
+        is_correct,
+      }),
+    });
+
+    const result = await response.json();
+    if (!response.ok || !result.status) {
+      console.error("Save quiz answer failed:", result);
+      return null;
+    }
+
+    return result.data;
+  } catch (error) {
+    console.error("Error saving quiz answer:", error);
+    return null;
+  }
+};
 const getQuizesByChapter = async (chapterId, token) => {
   try {
     const response = await fetch(`${api_url}/api/quize/${chapterId}`, {
@@ -304,6 +387,45 @@ const getCourseProgress = async (courseId, token) => {
   if (!response.ok) throw new Error("Failed to fetch progress");
   return response.json();
 };
+
+const enrollCourse = async (course_id, token) => {
+  try {
+    const response = await fetch(`${api_url}/api/enroll`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-access-token": token,
+      },
+      body: JSON.stringify({ course_id }),
+    });
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.error("Error enrolling course:", error);
+    return { status: false, message: "Network error" };
+  }
+};
+
+const checkEnrollment = async (course_id, token) => {
+  try {
+    const response = await fetch(
+      `${api_url}/api/enrollment-status/${course_id}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "x-access-token": token,
+        },
+      }
+    );
+    const result = await response.json();
+    return result; // should return { enrolled: true/false }
+  } catch (error) {
+    console.error("Error checking enrollment:", error);
+    return { enrolled: false };
+  }
+};
+
 const courseService = {
   createCourse,
   getAllCourses,
@@ -317,11 +439,16 @@ const courseService = {
   updateChapter,
   createQuiz,
   getLessonsByChapter,
+  getQuizesByChapter2,
   createLesson,
   deleteLesson,
   updateLesson,
   getQuizesByChapter,
   getCourseProgress,
   completeLesson,
+  getQuizOptions,
+  saveQuizAnswers,
+  enrollCourse,
+  checkEnrollment,
 };
 export default courseService;

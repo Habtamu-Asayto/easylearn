@@ -308,7 +308,7 @@ const getChaptersByCourseService = async (courseId) => {
   const [rows] = await conn2.query(
     `SELECT * FROM chapters WHERE course_id = ?;`,
     [courseId]
-  ); 
+  );
   return rows;
 };
 
@@ -401,7 +401,6 @@ async function deleteLesson(lessonId) {
 }
 
 async function addLessons(lessons) {
-  
   if (!Array.isArray(lessons) || lessons.length === 0) {
     throw new Error("No lessons provided");
   }
@@ -443,12 +442,11 @@ async function addLessons(lessons) {
 
 // Service
 const getLessonsByChapterService = async (courseId, chapterId) => {
-   
   const [rows] = await conn2.query(
     `SELECT * FROM lessons WHERE course_id = ? AND chapter_id = ?;`,
     [courseId, chapterId]
   );
- 
+
   return rows;
 };
 const getQuizesByChapter = async (chapterId) => {
@@ -464,6 +462,16 @@ const getQuizesByChapter = async (chapterId) => {
   return rows;
 };
 
+const getOptionsByQuiz = async (quizId) => {
+  const query = `
+    SELECT *
+    FROM QuizOptions
+    WHERE quiz_id = ?
+  `;
+  const [rows] = await conn2.execute(query, [quizId]);
+  console.log("Options fetched from DB:", rows);
+  return rows;
+};
 const markLessonCompleted = async (userId, lessonId) => {
   await conn2.query(
     `INSERT INTO LessonProgress (user_id, lesson_id, completed, completed_at)
@@ -492,7 +500,87 @@ const fetchCourseProgress = async (userId, courseId) => {
   return { total, completed };
 };
 
+const saveQuizAnswerService = async (
+  quiz_id,
+  user_id,
+  selected_option_id,
+  is_correct
+) => {
+  try {
+    const query = `
+      INSERT INTO QuizAnswers (quiz_id, user_id, selected_option_id, is_correct)
+      VALUES (?, ?, ?, ?)
+    `;
 
+    const [result] = await conn2.execute(query, [
+      quiz_id,
+      user_id,
+      selected_option_id || null,
+      is_correct,
+    ]);
+
+    return { success: true, insertId: result.insertId };
+  } catch (error) {
+    console.error("Error in quiz.service.js > saveQuizAnswerService:", error);
+    throw error;
+  }
+};
+
+const enrollCourseService = async (user_id, course_id) => {
+  try {
+    // Check if user exists
+    const [user] = await conn2.execute(
+      "SELECT * FROM users WHERE user_id = ?",
+      [user_id]
+    );
+    if (user.length === 0) throw new Error("User does not exist");
+
+    // Check if course exists
+    const [course] = await conn2.execute(
+      "SELECT * FROM courses WHERE course_id = ?",
+      [course_id]
+    );
+    if (course.length === 0) throw new Error("Course does not exist");
+
+    // Check if already enrolled
+    const [existing] = await conn2.execute(
+      "SELECT * FROM Enrollments WHERE user_id = ? AND course_id = ?",
+      [user_id, course_id]
+    );
+    if (existing.length > 0) {
+      return {
+        success: false,
+        message: "User already enrolled in this course",
+      };
+    }
+
+    // Insert enrollment
+    const [result] = await conn2.execute(
+      "INSERT INTO Enrollments (user_id, course_id) VALUES (?, ?)",
+      [user_id, course_id]
+    );
+
+    return { success: true, enrollment_id: result.insertId };
+  } catch (error) {
+    console.error("Error in enrollCourseService:", error);
+    throw error;
+  }
+};
+
+const checkEnrollmentStatusService = async (user_id, course_id) => {
+  try {
+    const [rows] = await conn2.execute(
+      `SELECT * FROM Enrollments WHERE user_id = ? AND course_id = ?`,
+      [user_id, course_id]
+    );
+
+    const enrolled = rows.length > 0;
+    return { success: true, enrolled };
+  } catch (error) {
+    console.error("Error in checkEnrollmentStatusService:", error);
+    throw error;
+  }
+};
 module.exports = {
   createCourse,
   checkIfCourseExists,
@@ -513,4 +601,8 @@ module.exports = {
   updateLesson,
   fetchCourseProgress,
   markLessonCompleted,
+  getOptionsByQuiz,
+  saveQuizAnswerService,
+  enrollCourseService,
+  checkEnrollmentStatusService,
 };

@@ -123,13 +123,13 @@ CREATE TABLE IF NOT EXISTS `Lessons` (
 
 CREATE TABLE IF NOT EXISTS `Enrollments` (
     `enrollment_id` INT AUTO_INCREMENT,
-    `student_id` INT NOT NULL,
+    `user_id` INT NOT NULL,
     `course_id` INT NOT NULL,
     `enrolled_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (enrollment_id),
-    FOREIGN KEY (student_id) REFERENCES users(user_id),
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
     FOREIGN KEY (course_id) REFERENCES courses(course_id),
-    UNIQUE(student_id, course_id)
+    UNIQUE(user_id, course_id)
 ) ENGINE=InnoDB; 
 
 CREATE TABLE IF NOT EXISTS `LessonProgress` (
@@ -230,8 +230,7 @@ CREATE TABLE IF NOT EXISTS `QuizAnswers` (
   FOREIGN KEY (`user_id`) REFERENCES users(`user_id`),
   FOREIGN KEY (`selected_option_id`) REFERENCES QuizOptions(`option_id`)
 ) ENGINE=InnoDB;
-
-
+ 
 CREATE TABLE IF NOT EXISTS `news` (
   `news_id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11),

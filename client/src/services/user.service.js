@@ -88,6 +88,28 @@ const updateUserProfile = async (formData, loggedInUserToken) => {
   return res.data;
 };
 
+const getInstructorsByCourse = async (courseId, token) => {
+   
+  try {
+    const res = await fetch(`${api_url}/api/instructor/${courseId}`, {
+      headers: {
+        "Content-Type": "application/json",
+        "x-access-token": token,
+      },
+    });
+
+    const data = await res.json();
+
+    if (res.ok && data.status) {
+      return data.data;
+    } else {
+      throw new Error(data.message || "Failed to fetch instructors");
+    }
+  } catch (err) {
+    console.error("Instructor service error:", err);
+    throw err;
+  }
+};
 
 // Export all the functions
 const userService = {
@@ -97,5 +119,6 @@ const userService = {
   resendVerification,
   getUserProfile,
   updateUserProfile,
+  getInstructorsByCourse,
 };
 export default userService;

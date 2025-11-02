@@ -186,6 +186,35 @@ const updateUserProfile = async (userId, data) => {
   }
   return getUserProfile(userId);
 };
+
+const getcourseInstructor = async (courseId) => {
+   
+  try {
+    const query = ` 
+    SELECT 
+        u.user_id, 
+        u.user_email, 
+        u.profile_img, 
+        ui.user_full_name, 
+        ui.user_phone,
+        c.title AS course_title
+      FROM courses c
+      JOIN users u ON c.instructor_id = u.user_id
+      JOIN user_info ui ON u.user_id = ui.user_id
+      WHERE c.course_id = ?
+      `;
+    const [rows] = await conn2.execute(query, [courseId]);
+
+    if (rows.length === 0) {
+      return { success: false, message: "Instructor not found", data: null };
+    }
+
+    return { success: true, data: rows[0] };
+  } catch (error) {
+    console.error("Error in getCourseInstructorService:", error);
+    throw error;
+  }
+};
 // Export the functions for use in the controller
 module.exports = {
   checkIfUserExists,
@@ -195,4 +224,5 @@ module.exports = {
   createStudent,
   getUserProfile,
   updateUserProfile,
+  getcourseInstructor,
 };

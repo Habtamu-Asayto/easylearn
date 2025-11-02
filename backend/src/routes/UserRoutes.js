@@ -49,5 +49,11 @@ router.post(
   userController.createStudent
 );
 
+router.get(
+  "/instructor/:courseId",
+  [authMiddleware.verifyToken, authMiddleware.forAll],
+  userController.getCourseInstructor
+);
+
 // Export the router
 module.exports = router;
