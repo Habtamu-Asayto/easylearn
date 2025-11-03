@@ -1,7 +1,7 @@
 import react, { useState } from "react"; 
 
 // Import the auth hook
-import { useAuth } from "../../../Contexts/AuthContext";
+import { useAuth } from "../../../contexts/AuthContext";
 import AdminMain from "./AdminMain.jsx";
 import InstructorMain from "./InstructorMain.jsx";
 import StudentMain from "./StudentMain.jsx";

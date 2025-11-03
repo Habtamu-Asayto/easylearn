@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Bell } from "react-feather";
-import { useAuth } from "../../../Contexts/AuthContext";
+import { useAuth } from "../../../contexts/AuthContext";
 import { useLocation, Link } from "react-router-dom";
 import { getUnreadMessage } from "../../../services/chat.service";
 function Header() {

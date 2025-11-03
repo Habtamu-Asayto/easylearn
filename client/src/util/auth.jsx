@@ -7,7 +7,8 @@ const getAuth = async () => {
     user.user_email = decodedToken.user_email;
     user.user_full_name = decodedToken.user_full_name; 
     user.role_name = decodedToken.role_name;
-    user.profile_img = decodedToken.profile_img
+    user.profile_img = decodedToken.profile_img;
+    user.last_seen = decodedToken.last_seen;
     return user;
   } else {
     return {}; 

@@ -6,8 +6,7 @@ const jwt = require("jsonwebtoken");
 const jwtSecret = process.env.JWT_SECRET;
 
 // Handle user login
-async function logIn(req, res, next) { 
- 
+async function logIn(req, res, next) {
   try {
     const userData = req.body;
     // Call the logIn method from the login service
@@ -27,6 +26,7 @@ async function logIn(req, res, next) {
       role_name: user.data.role_name,
       user_full_name: user.data.user_full_name,
       profile_img: user.data.profile_img,
+      last_seen: user.data.last_seen,
     };
     const token = jwt.sign(payload, jwtSecret, {
       expiresIn: "24h",
