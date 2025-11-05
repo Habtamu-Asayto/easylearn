@@ -54,6 +54,13 @@ router.get(
   [authMiddleware.verifyToken, authMiddleware.forAll],
   userController.getCourseInstructor
 );
+router.get(
+  "/instructors/:instructorId/courses",
+  [authMiddleware.verifyToken, authMiddleware.isAdmin],
+  userController.getAllCoursesofInstructor
+);
 
+router.post("/forgot-password", userController.forgotPassword);
+router.post("/reset-password/:token", userController.resetPassword);
 // Export the router
 module.exports = router;

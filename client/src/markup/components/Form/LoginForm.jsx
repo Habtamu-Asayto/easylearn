@@ -4,13 +4,15 @@ import userService from "../../../services/user.service";
 import { useNavigate, useLocation } from "react-router-dom";
 import loginService from "../../../services/login.service";
 import { toast } from "react-toastify";
-
+import { motion, AnimatePresence } from "framer-motion";
 // Import the useAuth hook
 import { useAuth } from "../../../Contexts/AuthContext.jsx";
+
 function LoginForm(props) {
   const [flipped, setFlipped] = useState(false);
   const [option, setOption] = useState("");
 
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
   useEffect(() => {
     feather.replace(); // replace feather icons after render
   }, []);
@@ -31,7 +33,7 @@ function LoginForm(props) {
   const [passwordError, setPasswordError] = useState("");
   const [success, setSuccess] = useState(false);
   const [serverError, setServerError] = useState("");
-
+  const [forgotEmail, setForgotEmail] = useState("");
   const flipCard = () => {
     setFlipped(!flipped); // toggle state
   };
@@ -183,7 +185,7 @@ function LoginForm(props) {
             localStorage.setItem("user", JSON.stringify(response.data));
           }
           if (location.pathname === "/login") {
-            window.location.replace("/welcome");
+            window.location.replace("/");
           } else {
             window.location.reload();
           }
@@ -199,6 +201,21 @@ function LoginForm(props) {
         setIsLoading(false);
       });
   };
+
+  const handleForgot = async (event) => {
+    event.preventDefault();
+    if (!forgotEmail) return;
+
+    try {
+      await userService.forgotPassword(forgotEmail);
+      toast.success(`Reset link sent to ${forgotEmail}`);
+      setShowPasswordModal(false);
+      setForgotEmail("");
+    } catch (err) {
+      toast.error("Failed to send reset link. Try again.");
+    }
+  };
+
   return (
     <div>
       <div
@@ -264,7 +281,11 @@ function LoginForm(props) {
                   <input type="checkbox" className="text-indigo-600" /> Remember
                   me
                 </label>
-                <a href="#" className="text-indigo-600 hover:underline">
+                <a
+                  href="#"
+                  onClick={() => setShowPasswordModal(true)}
+                  className="text-indigo-600 hover:underline"
+                >
                   Forgot password?
                 </a>
               </div>
@@ -289,6 +310,7 @@ function LoginForm(props) {
                   </span>
                 </div>
               </div>
+
               <div className="grid grid-cols-2 gap-3 animate-fade-in delay-400">
                 <button
                   type="button"
@@ -307,6 +329,7 @@ function LoginForm(props) {
               </div>
             </div>
           </form>
+
           <div className="mt-6 text-center text-sm text-gray-600">
             Don’t have an account?
             <button
@@ -452,6 +475,64 @@ function LoginForm(props) {
           </div>
         </div>
       </div>
+
+      {/* Forgot password */}
+      <AnimatePresence>
+        {showPasswordModal && (
+          <motion.div
+            className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50 px-4 sm:px-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            {/* Modal Card */}
+            <motion.div
+              className="
+                                bg-white rounded-2xl shadow-xl p-6 sm:p-8 
+                                w-full max-w-md sm:max-w-lg md:max-w-xl relative
+                                overflow-y-auto  
+                              "
+              initial={{ scale: 0.9, opacity: 0, y: 30 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 30 }}
+              transition={{ type: "spring", stiffness: 200, damping: 20 }}
+            >
+              <button
+                onClick={() => setShowPasswordModal(false)}
+                className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl"
+              >
+                ✕
+              </button>
+
+              <h2 className="text-2xl font-semibold text-center mb-6 text-gray-800">
+                Change Password
+              </h2>
+
+              <form onSubmit={handleForgot} className="space-y-5">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email address
+                  </label>
+                  <input
+                    type="email"
+                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-200"
+                >
+                  Update Password
+                </button>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

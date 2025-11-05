@@ -89,7 +89,6 @@ const updateUserProfile = async (formData, loggedInUserToken) => {
 };
 
 const getInstructorsByCourse = async (courseId, token) => {
-   
   try {
     const res = await fetch(`${api_url}/api/instructor/${courseId}`, {
       headers: {
@@ -110,7 +109,39 @@ const getInstructorsByCourse = async (courseId, token) => {
     throw err;
   }
 };
+const getAllCoursesofInstructor = async (instructorId, token) => {
+  const res = await axios.get(
+    `${api_url}/api/instructors/${instructorId}/courses`,
+    {
+      headers: {
+        "x-access-token": token,
+      },
+    }
+  );
+  return res.data;
+};
 
+const forgotPassword = async (email) => {
+  const res = await axios.post(`${api_url}/api/forgot-password`, {
+    email,
+  });
+  return res.data;
+};
+const resetPassword = async (token, newPassword) => {
+  const res = await axios.post(`${api_url}/api/reset-password/${token}`, {
+    newPassword,
+  });
+  return res.data;
+};
+
+// async function resetPassword(token, newPassword) {
+//   const res = await fetch(`${api_url}/reset-password/${token}`, {
+//     method: "POST",
+//     headers: { "Content-Type": "application/json" },
+//     body: JSON.stringify({ newPassword }),
+//   });
+//   return res.json();
+// }
 // Export all the functions
 const userService = {
   createUser,
@@ -120,5 +151,8 @@ const userService = {
   getUserProfile,
   updateUserProfile,
   getInstructorsByCourse,
+  getAllCoursesofInstructor,
+  forgotPassword,
+  resetPassword,
 };
 export default userService;

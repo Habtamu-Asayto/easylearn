@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Bell } from "react-feather";
-import { useAuth } from "../../../contexts/AuthContext";
+import { useAuth } from "../../../Contexts/AuthContext";
 import { useLocation, Link } from "react-router-dom";
 import { getUnreadMessage } from "../../../services/chat.service";
 function Header() {
@@ -32,9 +32,15 @@ function Header() {
         {user?.role_name === 2 &&
           (currentPath === "/profile"
             ? "Profile"
-            : "/chat"
+            : currentPath === "/courses"
+            ? "Courses"
+            : currentPath === "/students"
+            ? "Students"
+            : currentPath === "/chat"
             ? "Messaging"
-            : "Dashboard")}
+            : currentPath === "/billing"
+            ? "Billing"
+            : "")}
         {user?.role_name === 3 &&
           (currentPath === "/welcome"
             ? "Student dashboard"
@@ -45,8 +51,6 @@ function Header() {
             : currentPath === "/profile"
             ? "Profile"
             : currentPath === "/my-courses"
-            ? "My courses"
-            : currentPath === "/stud-course-detail"
             ? "My courses"
             : "")}
       </h2>

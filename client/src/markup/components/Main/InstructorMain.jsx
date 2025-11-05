@@ -13,12 +13,36 @@ import {
 import { useLocation, Link } from "react-router-dom";
 import { useAuth } from "../../../contexts/AuthContext.jsx";
 import { getUnreadMessage } from "../../../services/chat.service";
+import userService from "../../../services/user.service.js";
+import courseService from "../../../services/course.service.js";
 function InstructorMain() {
   const { isLogged, setIsLogged, user } = useAuth();
   const [unreadCount, setUnreadCount] = useState(0);
-  console.log("User-", user);
 
-  // Fetch unread count
+  const intructorId = user?.user_id;
+  const token = user?.user_token;
+  const [totalCourses, setTotalCourses] = useState(0);
+
+  useEffect(() => {
+    async function fetchCourses() {
+      try {
+        const data = await userService.getAllCoursesofInstructor(
+          intructorId,
+          token
+        );
+        setTotalCourses(data.total_courses);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    fetchCourses();
+  }, [intructorId]);
+
+  useEffect(() => {
+    console.log("Count frontend updated - ", totalCourses);
+  }, [totalCourses]);
+
   useEffect(() => {
     const fetchUnread = async () => {
       try {
@@ -35,6 +59,26 @@ function InstructorMain() {
     const interval = setInterval(fetchUnread, 10000);
     return () => clearInterval(interval);
   }, [user?.user_id]);
+
+  const [courses, setCourses] = useState([]);
+  useEffect(() => {
+    const getCourses = async () => {
+      try {
+        const data = await courseService.getCoursesByInstructor(
+          intructorId,
+          token
+        );
+        setCourses(data.courses);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    getCourses();
+  }, [intructorId, token]);
+  console.log("Courses - ", courses.title);
+  console.log("Courses array - ", courses);
+
   return (
     <div className="flex-1 overflow-y-auto">
       <div>
@@ -73,10 +117,13 @@ function InstructorMain() {
         <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 mb-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-dark">
-              Welcome back, instructor
+              Welcome back, {user.user_full_name}!
             </h3>
             <span className="text-sm text-gray-500">
-              You have logged on : {new Date(user?.last_seen).toLocaleString()}
+              You have logged on :{" "}
+              {user?.last_seen
+                ? new Date(user.last_seen).toLocaleString()
+                : "Never"}
             </span>
           </div>
 
@@ -85,7 +132,7 @@ function InstructorMain() {
               <div className="flex items-center justify-between">
                 <div>
                   <h4 className="text-sm font-medium text-gray-500">Courses</h4>
-                  <p className="text-2xl font-bold mt-1">12</p>
+                  <p className="text-2xl font-bold mt-1">{totalCourses}</p>
                 </div>
                 <Book className="w-8 h-8 text-blue-500" />
               </div>
@@ -109,7 +156,7 @@ function InstructorMain() {
                   <h4 className="text-sm font-medium text-gray-500">
                     Messages
                   </h4>
-                  <p className="text-2xl font-bold mt-1">8</p>
+                  <p className="text-2xl font-bold mt-1">{unreadCount}</p>
                 </div>
                 <Mail className="w-8 h-8 text-purple-500" />
               </div>

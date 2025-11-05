@@ -49,6 +49,15 @@ CREATE TABLE IF NOT EXISTS `user_pass` (
   FOREIGN KEY (user_id) REFERENCES users(user_id)
 ) ENGINE=InnoDB;
 
+CREATE TABLE IF NOT EXISTS password_reset_tokens (
+  `token_id` INT AUTO_INCREMENT,
+  `user_id` INT NOT NULL,
+  `reset_token` VARCHAR(255) NOT NULL,
+  `expires_at` DATETIME NOT NULL,
+  PRIMARY KEY (token_id),
+  FOREIGN KEY (user_id) REFERENCES users(user_id)
+) ENGINE=InnoDB;
+
 CREATE TABLE IF NOT EXISTS `user_role` (
   `user_role_id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL, 

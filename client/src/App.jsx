@@ -33,6 +33,7 @@ import MyCourses from "./markup/pages/Student/Course/MyCourses.jsx";
 import CourseDetail from "./markup/pages/Student/Course/CourseDetail.jsx";
 import LessonDetail from "./markup/pages/Course/Lesson/LessonDetail.jsx";
 import Quiz from "./markup/pages/Course/Quize/Quize.jsx";
+import ResetPassword from "./markup/pages/ResetPassword/ResetPassword.jsx";
 
 function BeforeLoginLayout({ children }) {
   return (
@@ -88,7 +89,7 @@ function App() {
       <Routes>
         {/* Public pages before login */}
         <Route
-          path="/"
+          path="/welcome"
           element={
             <BeforeLoginLayout>
               <Home />
@@ -105,6 +106,14 @@ function App() {
           }
         />
         <Route
+          path="/reset-password/:token"
+          element={
+            <BeforeLoginLayout>
+              <ResetPassword />
+            </BeforeLoginLayout>
+          }
+        />
+        <Route
           path="/unauthorized"
           element={
             <UnauthorizedLayout>
@@ -113,7 +122,7 @@ function App() {
           }
         />
         <Route
-          path="/welcome"
+          path="/"
           element={
             <AfterLoginLayout>
               <PrivateAuthRoute roles={[1, 2, 3]}>
@@ -263,6 +272,8 @@ function App() {
             </AfterLoginLayout>
           }
         />
+
+        <Route path="*" element={<A404 />} />
       </Routes>
       <Routes>
         <Route path="/verify-email" element={<EmailVerification />} />

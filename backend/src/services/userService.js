@@ -4,7 +4,7 @@ const conn2 = require("../config/db2");
 // Import the bcrypt module
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
-const { sendVerificationEmail } = require("../utils/mailer");
+const { transporter, sendVerificationEmail } = require("../utils/mailer");
 const { log } = require("console");
 require("dotenv").config();
 
@@ -19,6 +19,62 @@ async function checkIfUserExists(email) {
   return false;
 }
 
+async function forgotPassword(email) {
+  const [rows] = await conn2.query(
+    "SELECT user_id FROM users WHERE user_email = ?",
+    [email]
+  );
+
+  if (rows.length === 0) throw new Error("Email not found");
+
+  const userId = rows[0].user_id;
+  const token = crypto.randomBytes(32).toString("hex");
+  const expires = new Date(Date.now() + 1000 * 60 * 30); // 30 min from now
+
+  await conn2.query(
+    "INSERT INTO password_reset_tokens (user_id, reset_token, expires_at) VALUES (?,?,?)",
+    [userId, token, expires]
+  );
+
+  const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+  const resetLink = `${frontendUrl}/reset-password/${token}`;
+
+  await transporter.sendMail({
+    to: email,
+    subject: "Reset Your Password",
+    html: `
+      <p>You requested a password reset.</p>
+      <p>Click the link below (valid for 30 minutes):</p>
+      <a href="${resetLink}">${resetLink}</a>
+    `,
+  });
+
+  return "Reset link sent to email";
+}
+
+const resetPassword = async (token, newPassword) => {
+  const [row] = await conn2.query(
+    "SELECT user_id, expires_at FROM password_reset_tokens WHERE reset_token=?",
+    [token]
+  );
+
+  if (row.length === 0) throw new Error("Invalid token");
+  if (new Date(row[0].expires_at) < new Date())
+    throw new Error("Token expired");
+
+  const hashed = await bcrypt.hash(newPassword, 10);
+
+  await conn.query(
+    "UPDATE user_pass SET user_password_hashed=? WHERE user_id=?",
+    [hashed, row[0].user_id]
+  );
+
+  await conn.query("DELETE FROM password_reset_tokens WHERE reset_token=?", [
+    token,
+  ]);
+
+  return "Password successfully reset";
+};
 // A function to create a new user
 async function createUser(user) {
   // const createUser=
@@ -170,6 +226,7 @@ const getUserProfile = async (userId) => {
 
   return userProfile;
 };
+
 const updateUserProfile = async (userId, data) => {
   const { user_full_name, user_phone, profile_img } = data;
 
@@ -188,7 +245,6 @@ const updateUserProfile = async (userId, data) => {
 };
 
 const getcourseInstructor = async (courseId) => {
-   
   try {
     const query = ` 
     SELECT 
@@ -215,6 +271,14 @@ const getcourseInstructor = async (courseId) => {
     throw error;
   }
 };
+
+async function getAllCoursesofInstructor(instructorId) {
+  // Count total courses by the instructor
+  const query = `SELECT COUNT(*) as total_courses FROM courses WHERE instructor_id = ?`;
+  const rows = await conn.query(query, [instructorId]);
+  return rows;
+}
+
 // Export the functions for use in the controller
 module.exports = {
   checkIfUserExists,
@@ -225,4 +289,7 @@ module.exports = {
   getUserProfile,
   updateUserProfile,
   getcourseInstructor,
+  getAllCoursesofInstructor,
+  resetPassword,
+  forgotPassword,
 };

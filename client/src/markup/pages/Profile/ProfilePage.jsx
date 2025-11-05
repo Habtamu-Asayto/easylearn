@@ -1,8 +1,9 @@
-import { Camera, Edit } from "react-feather";
+import { Camera, Edit, Lock } from "react-feather";
 import React, { useState, useEffect } from "react";
 import userService from "../../../services/user.service";
 import { useAuth } from "../../../Contexts/AuthContext";
 import { toast } from "react-toastify";
+import { motion, AnimatePresence } from "framer-motion";
 function ProfilePage() {
   const [profile, setProfile] = useState({
     user_full_name: "",
@@ -22,12 +23,11 @@ function ProfilePage() {
   useEffect(() => {
     const fetchProfile = async () => {
       const data = await userService.getUserProfile(token);
-      setProfile(data); 
-      
+      setProfile(data);
     };
     fetchProfile();
   }, []);
- 
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
@@ -44,7 +44,34 @@ function ProfilePage() {
         ...updated,
         profile_img: updated.profile_img || profile.profile_img,
       });
-      setAvatar(null);  
+      setAvatar(null);
+    }
+  };
+
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      toast.error("New passwords do not match!");
+      return;
+    }
+
+    const result = await userService.changePassword(
+      passwordData.currentPassword,
+      passwordData.newPassword,
+      token
+    );
+
+    if (result) {
+      toast.success("Password changed successfully!");
+      setShowPasswordModal(false);
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
     }
   };
 
@@ -198,10 +225,12 @@ function ProfilePage() {
               <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
                 <button
                   type="button"
-                  className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 cursor-pointer hover:bg-gray-50 transition-colors duration-200 font-medium"
+                  onClick={() => setShowPasswordModal(true)}
+                  className="flex cursor-pointer items-center px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors duration-300"
                 >
-                  Change password
+                  <Lock className="mr-2" size={18} /> Change Password
                 </button>
+
                 <button
                   type="submit"
                   // disabled={isLoading}
@@ -227,6 +256,69 @@ function ProfilePage() {
           </form>
         </div>
       </div>
+
+      {/* 🔒 Change Password Modal */}
+      <AnimatePresence>
+        {showPasswordModal && (
+          <motion.div
+            className="fixed inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-50 px-4 sm:px-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            {/* Modal Card */}
+            <motion.div
+              className="
+                    bg-white rounded-2xl shadow-xl p-6 sm:p-8 
+                    w-full max-w-md sm:max-w-lg md:max-w-xl relative
+                    overflow-y-auto  
+                  "
+              initial={{ scale: 0.9, opacity: 0, y: 30 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 30 }}
+              transition={{ type: "spring", stiffness: 200, damping: 20 }}
+            >
+              <button
+                onClick={() => setShowPasswordModal(false)}
+                className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-xl"
+              >
+                ✕
+              </button>
+
+              <h2 className="text-2xl font-semibold text-center mb-6 text-gray-800">
+                Change Password
+              </h2>
+
+              <form onSubmit={handlePasswordChange} className="space-y-5">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Email address
+                  </label>
+                  <input
+                    type="email"
+                    className="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                    value={passwordData.currentPassword}
+                    onChange={(e) =>
+                      setPasswordData({
+                        ...passwordData,
+                        currentPassword: e.target.value,
+                      })
+                    }
+                    required
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-200"
+                >
+                  Update Password
+                </button>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

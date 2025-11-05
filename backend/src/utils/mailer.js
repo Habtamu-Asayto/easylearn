@@ -83,4 +83,5 @@ async function sendVerificationEmail(toEmail, userFullName, token) {
 
 module.exports = {
   sendVerificationEmail,
+  transporter
 };

@@ -132,7 +132,7 @@ const getUserProfile = async (req, res) => {
     console.error(err);
     res.status(500).json({ message: "Failed to fetch profile" });
   }
-}; 
+};
 
 async function updateUserProfile(req, res) {
   try {
@@ -146,7 +146,7 @@ async function updateUserProfile(req, res) {
     if (!existingUser) {
       return res.status(404).json({ message: "User not found" });
     }
-  
+
     if (req.file) {
       // Store only /uploads/ path
       profile_img = `/uploads/${req.file.filename}`;
@@ -156,7 +156,7 @@ async function updateUserProfile(req, res) {
         // Normalize possible wrong paths like /src/uploads/
         const oldFileName = path.basename(existingUser.profile_img);
         const oldPath = path.join(__dirname, "../../uploads", oldFileName);
- 
+
         fs.unlink(oldPath, (err) => {
           if (err) {
             console.error("Failed to delete old image:", err.message);
@@ -220,6 +220,48 @@ const getCourseInstructor = async (req, res) => {
     });
   }
 };
+
+const getAllCoursesofInstructor = async (req, res) => {
+  try {
+    const instructorId = req.params.instructorId;
+
+    const rows = await userService.getAllCoursesofInstructor(instructorId);
+    console.log("Count backend - ", rows[0].total_courses);
+    res.status(200).json({
+      status: "success",
+      total_courses: rows[0].total_courses,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to fetch courses data" });
+  }
+};
+
+const forgotPassword = async (req, res) => {
+  const email = req.body.email;
+
+  try {
+    const message = await userService.forgotPassword(email);
+    res.status(200).json({ status: "success", message });
+  } catch (err) {
+    res.status(400).json({ status: "error", message: err.message });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const token = req.params.token;
+    const { newPassword } = req.body;
+
+    const message = await userService.resetPassword(token, newPassword);
+    console.log("Work ", message);
+    res.status(200).json({ status: "success", message });
+  } catch (err) {
+    console.log("Work ", err.message);
+    res.status(400).json({ status: "error", message: err.message });
+  }
+};
+
 module.exports = {
   createUser,
   getAllStudents,
@@ -228,4 +270,7 @@ module.exports = {
   getUserProfile,
   updateUserProfile,
   getCourseInstructor,
+  getAllCoursesofInstructor,
+  resetPassword,
+  forgotPassword,
 };

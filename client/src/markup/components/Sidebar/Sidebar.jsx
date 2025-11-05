@@ -120,13 +120,17 @@ function Sidebar({ isOpen, setIsOpen }) {
               </h5>
               <ul className="space-y-2">
                 <li>
-                  <a
-                    href="#"
-                    className="flex items-center px-3 py-2 rounded-lg bg-blue-500 text-white"
+                  <Link
+                    to="/"
+                    className={`flex items-center w-full px-4 py-3 rounded-lg hover:bg-blue-300 ${
+                      currentPath === "/"
+                        ? "bg-blue-500 text-white"
+                        : "hover:bg-blue-100 text-gray-700"
+                    }`}
                   >
                     <Home className="w-5 h-5 mr-3" />
                     Dashboard
-                  </a>
+                  </Link>
                 </li>
 
                 {/* Courses */}
@@ -302,9 +306,9 @@ function Sidebar({ isOpen, setIsOpen }) {
               <ul className="space-y-2">
                 <li>
                   <Link
-                    to="/welcome"
+                    to="/"
                     className={`flex items-center w-full px-4 py-3 rounded-lg transition-colors ${
-                      currentPath === "/welcome"
+                      currentPath === "/"
                         ? "bg-blue-500 text-white"
                         : "hover:bg-blue-100 text-gray-700"
                     }`}
@@ -349,58 +353,19 @@ function Sidebar({ isOpen, setIsOpen }) {
 
                 {/* Message */}
                 <li>
-                  <button
-                    onClick={() => toggleMenu("forum")}
-                    className={`flex items-center w-full px-4 py-3 rounded-lg transition-colors cursor-pointer ${
+                  <Link
+                    to="/chat"
+                    className={`flex items-center w-full px-4 py-3 rounded-lg transition-colors ${
                       currentPath === "/chat"
                         ? "bg-blue-500 text-white"
                         : "hover:bg-blue-100 text-gray-700"
                     }`}
                   >
-                    <span className="flex items-center">
-                      <MessageSquare className="w-5 h-5 mr-3" /> Message
-                    </span>
-                    <svg
-                      className={`w-4 h-4 transform transition-transform ${
-                        openMenu.forum ? "rotate-180" : ""
-                      }`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M19 9l-7 7-7-7"
-                      />
-                    </svg>
-                  </button>
-                  <ul
-                    className={`overflow-hidden transition-all duration-300 ease-in-out pl-0 mt-1 space-y-1 text-base ${
-                      openMenu.forum ? "max-h-60" : "max-h-0"
-                    }  
-                    
-                    `}
-                  >
-                    <li>
-                      <Link
-                        to="/chat"
-                        className={`flex items-center w-full px-4 py-3 rounded-lg transition-colors`}
-                      >
-                        Community
-                      </Link>
-                    </li>
-                    <li>
-                      <a
-                        href="#"
-                        className="flex items-center w-full px-4 py-3 rounded-lg hover:bg-blue-300"
-                      >
-                        Chat
-                      </a>
-                    </li>
-                  </ul>
+                    <MessageSquare className="w-5 h-5 mr-3" />
+                    Message
+                  </Link>
                 </li>
+
                 <li>
                   <Link
                     to="/news"
@@ -469,9 +434,9 @@ function Sidebar({ isOpen, setIsOpen }) {
               <ul className="space-y-2">
                 <li>
                   <Link
-                    to="/welcome"
+                    to="/"
                     className={`flex items-center w-full px-4 py-3 rounded-lg hover:bg-blue-300 ${
-                      currentPath === "/welcome"
+                      currentPath === "/"
                         ? "bg-blue-500 text-white"
                         : "hover:bg-blue-100 text-gray-700"
                     }`}
@@ -540,7 +505,18 @@ function Sidebar({ isOpen, setIsOpen }) {
                         All courses
                       </Link>
                     </li>
-                    
+                    <li>
+                      <Link
+                        to="/my-assignment"
+                        className={`flex items-center w-full px-4 py-3 rounded-lg hover:bg-blue-300 ${
+                          currentPath === "/my-assignment"
+                            ? "bg-blue-500 text-white"
+                            : "hover:bg-blue-100 text-gray-700"
+                        }`}
+                      >
+                        Assignments
+                      </Link>
+                    </li>
                   </ul>
                 </li>
                 {/* Messaging */}
