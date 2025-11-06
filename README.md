@@ -102,7 +102,7 @@ npm start
 ```
 
 ## **API Documentation**
-## Auth Routes
+### Auth Routes
 **Method**   | **Endpoint**                      | **Description**
 ------------ | --------------------------------- | -----------------------
 `GET`        | `/api/auth/verify-email`          | Verify user email
