@@ -110,6 +110,7 @@ npm start
 
 ### User Routes
 **Method**   |  **Endpoint**                     | **Description**
+------------ | --------------------------------- | -----------------------
 `POST`       | 	`/user`                          | Register new user
 `POST`       |  `/verify-email`                  | Verify email
 `POST`       |  `/forgot-password`	             | Request password reset
