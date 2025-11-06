@@ -81,9 +81,31 @@ EMAIL_FROM="My App your_email@example.com"
 VERIFICATION_TOKEN_EXPIRES_HOURS=24
 ```
 
-5. Install database tables:
+5. Install database tables
 ```bash
 
 CREATE DATABASE easylean;
 
 GET /install
+```
+
+6. Start backend server
+```bash
+
+npm run dev
+```
+
+7. Start frontend server
+```bash
+
+npm start
+```
+
+## **API Documentation**
+## Auth Routes
+```bash
+| Method | Endpoint                      | Description               |
+| ------ | ----------------------------- | ------------------------- |
+| GET    | /api/auth/verify-email        | Verify user email         |
+| POST   | /api/auth/resend-verification | Resend verification email |
+```
