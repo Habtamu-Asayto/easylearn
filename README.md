@@ -40,3 +40,32 @@ EasyLearn is a full-featured e-learning platform built with **MERN stack (MySQL,
 1. Clone the repository:
 ```bash
 git clone https://github.com/Habtamu-Asayto/easylearn.git
+```bash
+2. Install backend dependencies:
+cd backend
+npm install
+3. Install client/Frontend dependencies
+```bash
+cd ../client
+npm install
+4. Configure environment variables (.env):
+```bash
+PORT=8080
+DB_HOST=your_database_host
+DB_USER=your_database_user
+DB_PASSWORD=your_database_password
+DB_NAME=your_database_name
+** Frontend URL **
+FRONTEND_URL=http://localhost:5173
+** Secret key for JWT **
+JWT_SECRET=your_jwt_secret
+NODE_ENV=production
+API_URL=http://localhost:8080
+** Mail (SMTP provider) **
+SMTP_HOST=your_smtp_host
+SMTP_PORT=587
+SMTP_USER=your_email@example.com
+SMTP_PASS=your_email_password
+EMAIL_FROM="My App your_email@example.com"
+** Token config **
+VERIFICATION_TOKEN_EXPIRES_HOURS=24
