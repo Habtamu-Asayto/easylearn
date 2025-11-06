@@ -120,3 +120,49 @@ npm start
 `GET`        |	`/students`	                     | Get all students (admin only)
 `POST`       |	`/students`	                     | Add a student (admin only)
 
+### Course Category Routes
+| Method | Endpoint          | Description                  |
+|--------|-----------------|------------------------------|
+| `POST`   | `/category`       | Create a new category (admin only) |
+| `GET`    | `/category`       | Retrieve all categories (admin only) |
+| `PUT`    | `/category/:id`   | Update a specific category by ID (admin only) |
+| `DELETE` | `/category/:id`   | Delete a specific category by ID (admin only) |
+
+### Course Routes
+| Method  | Endpoint                          | Description                        |
+|---------|----------------------------------|------------------------------------|
+| `POST`  | `/add-course`                     | Add a new course (admin only)      |
+| `POST`  | `/add-overview`                   | Add course overview (admin only)   |
+| `POST`  | `/add-chapter`                    | Add a chapter to a course (admin only) |
+| `PUT`   | `/add-course/:id`                 | Update course by ID (admin only)   |
+| `GET`   | `/courses`                        | Retrieve all courses                |
+| `GET`   | `/chapter/:courseId`              | Get all chapters for a specific course |
+| `POST`  | `/add-lesson`                     | Add lesson to a chapter (admin only) |
+| `GET`   | `/lessons/:courseId/:chapterId`   | Get lessons for a specific chapter |
+| `POST`  | `/add-quiz`                       | Add a quiz (admin only)             |
+| `GET`   | `/quize/:chapterId`               | Get quizzes by chapter              |
+| `POST`  | `/quiz_answer`                    | Save quiz answer                    |
+| `POST`  | `/enroll`                         | Enroll in a course                  |
+| `GET`   | `/enrollment-status/:course_id`   | Check enrollment status for a course |
+
+### Chat Routes
+| Method | Endpoint               | Description                   |
+|--------|------------------------|-------------------------------|
+| `GET`  | `/contacts`            | Retrieve all contacts         |
+| `GET`  | `/messages/:contactId` | Get messages with a specific contact |
+| `GET`  | `/unread-count/:userId`| Get unread message count for a user |
+| `PUT`  | `/mark-read/:senderId` | Mark messages as read          |
+| `POST` | `/messages`            | Send a message                 |
+
+### News Routes
+| Method | Endpoint    | Description               |
+|--------|------------|---------------------------|
+| `POST` | `/news`     | Create news (admin only)  |
+| `GET`  | `/news-list`| Retrieve news list        |
+
+### Install Routes
+| Method | Endpoint   | Description             |
+|--------|-----------|-------------------------|
+| `GET`  | `/install` | Install database tables |
+
+
