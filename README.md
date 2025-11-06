@@ -103,9 +103,8 @@ npm start
 
 ## **API Documentation**
 ## Auth Routes
-```bash
 **Method**   | **Endpoint**                      | **Description**
 ------------ | --------------------------------- | -----------------------
 `GET`        | `/api/auth/verify-email`          | Verify user email
 `POST`       | `/api/auth/resend-verification`  | Resend verification email
-```
+
