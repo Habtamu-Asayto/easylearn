@@ -40,6 +40,8 @@ EasyLearn is a full-featured e-learning platform built with **MERN stack (MySQL,
 1. Clone the repository:
 ```bash
 git clone https://github.com/Habtamu-Asayto/easylearn.git
+```
+
 ```bash
 2. Install backend dependencies:
 cd backend
