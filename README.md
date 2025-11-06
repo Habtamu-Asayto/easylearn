@@ -173,3 +173,10 @@ npm start
 - Admins can create courses, lessons, categories, and news.
 
 ## Coming soon
+- Implement advanced ai based analytics for instructors
+- Enhance UI/UX with animations and additional dashboards features
+- add billing for instructor and students
+- Add multi-language support
+
+
+**Author:** Habtamu Asayto
