@@ -106,5 +106,16 @@ npm start
 **Method**   | **Endpoint**                      | **Description**
 ------------ | --------------------------------- | -----------------------
 `GET`        | `/api/auth/verify-email`          | Verify user email
-`POST`       | `/api/auth/resend-verification`  | Resend verification email
+`POST`       | `/api/auth/resend-verification`   | Resend verification email
+
+### User Routes
+**Method**   |  **Endpoint**                     | **Description**
+`POST`       | 	`/user`                          | Register new user
+`POST`       |  `/verify-email`                  | Verify email
+`POST`       |  `/forgot-password`	             | Request password reset
+`POST`       |  `/reset-password/:token`	     | Reset password     
+`GET`        |	`/users/profile`	             | Get user profile
+`PUT`        |	`/users/profile`	             | Update profile 
+`GET`        |	`/students`	                     | Get all students (admin only)
+`POST`       |	`/students`	                     | Add a student (admin only)
 
