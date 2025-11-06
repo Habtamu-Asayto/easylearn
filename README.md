@@ -62,7 +62,7 @@ DB_USER=your_database_user
 DB_PASSWORD=your_database_password
 DB_NAME=your_database_name
 
-** Frontend URL **
+# ** Frontend URL **
 FRONTEND_URL=http://localhost:5173
 
 ** Secret key for JWT **
