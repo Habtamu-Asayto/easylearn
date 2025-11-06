@@ -29,7 +29,7 @@ EasyLearn is a full-featured e-learning platform built with **MERN stack (MySQL,
 - File uploads for profile images
 - Easy installation of database tables via API
 
-## **Tech Stack**
+## **Technology**
 - **Frontend:** ReactJS
 - **Backend:** Node.js + Express
 - **Database:** MySQL 
@@ -50,7 +50,7 @@ npm install
 
 3. Install client/Frontend dependencies
 ```bash
-cd ../client
+cd client
 npm install
 ```
 
@@ -165,4 +165,11 @@ npm start
 |--------|-----------|-------------------------|
 | `GET`  | `/install` | Install database tables |
 
+## Usage
+- Register as a user and verify email.
+- Login and explore courses.
+- Enroll in courses, complete lessons, and take quizzes.
+- Use chat to communicate with other users(receive notification, send ).
+- Admins can create courses, lessons, categories, and news.
 
+## Coming soon
