@@ -22,3 +22,10 @@ src/
  └─ server.js
 
  # Install All tables of a database using one install route
+
+
+ Deployement
+ ===========
+
+ 1. Planet scale for database
+ pwd - AEAG&m1812345

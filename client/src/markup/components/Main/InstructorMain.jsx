@@ -372,7 +372,7 @@ function InstructorMain() {
         </div>
 
         {/* Forum Activity */}
-        <div className="bg-white rounded-xl shadow-sm p-6 mt-6">
+        {/* <div className="bg-white rounded-xl shadow-sm p-6 mt-6">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-lg font-semibold text-dark">Forum Activity</h3>
             <a href="#" className="text-sm text-primary">
@@ -416,7 +416,7 @@ function InstructorMain() {
               </div>
             </div>
           </div>
-        </div>
+        </div> */}
       </main>
       <Footer />
     </div>

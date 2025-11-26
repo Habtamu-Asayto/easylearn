@@ -421,7 +421,7 @@ function LoginForm(props) {
               </div>
 
               {/* Role */}
-              <div className="w-full mb-4">
+              {/* <div className="w-full mb-4">
                 <select
                   id="user_role"
                   name="user_role"
@@ -433,7 +433,7 @@ function LoginForm(props) {
                   <option value="2">Instructor</option>
                   <option value="3">Student</option>
                 </select>
-              </div>
+              </div> */}
 
               {/* Password */}
               <div className="w-full">
@@ -459,7 +459,7 @@ function LoginForm(props) {
                   disabled={isLoading}
                   className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-200 cursor-pointer"
                 >
-                  {isLoading ? "Registering..." : "Add User"}
+                  {isLoading ? "Registering..." : "Signup"}
                 </button>
               </div>
             </div>
